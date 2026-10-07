@@ -1,27 +1,28 @@
+
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 
 async function runTestSuite() {
   console.log('🚀 Starting Comprehensive Typing Game Test Suite...');
-  
+
   // Launch using installed Microsoft Edge or Chrome
   const browser = await chromium.launch({
     channel: 'msedge',
     headless: true
   });
-  
+
   const context = await browser.newContext({
     viewport: { width: 1280, height: 850 }
   });
   const page = await context.newPage();
-  
+
   const filePath = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/');
   console.log('📍 Navigating to:', filePath);
   await page.goto(filePath);
-  
+
   const results = [];
-  
+
   function assert(name, condition, extra = '') {
     if (condition) {
       console.log(`  ✅ PASS: ${name} ${extra}`);
@@ -38,14 +39,14 @@ async function runTestSuite() {
   console.log('\n--- Test 1: Main Menu & Visual Structure ---');
   const title = await page.title();
   assert('Page Title', title.includes('KeyFlow Pro'), `(Title: "${title}")`);
-  
+
   const heroTitle = await page.textContent('.hero-title');
   assert('Hero Title present', heroTitle.includes('Speed of Thought'));
-  
+
   const practiceCard = await page.isVisible('#cardLaunchPractice');
   const arcadeCard = await page.isVisible('#cardLaunchArcade');
   assert('Mode Cards Visible', practiceCard && arcadeCard);
-  
+
   const overviewLvl = await page.textContent('#overviewHighestLevel');
   assert('Initial Unlocked Level', overviewLvl.includes('Level 1'));
 
@@ -98,7 +99,7 @@ async function runTestSuite() {
   // TEST 4: Completing a Drill & Progression (90% accuracy gate)
   // -------------------------------------------------------------
   console.log('\n--- Test 4: Completing Level 1 Drill to Unlock Level 2 ---');
-  
+
   // Drill text is: "asdf fdsa asdf fads sad dad fad"
   // We already typed 'a' for char-0. Let's type the rest accurately:
   const remainingText = "sdf fdsa asdf fads sad dad fad";
@@ -219,7 +220,7 @@ async function runTestSuite() {
   const passedCount = results.filter(r => r.status === 'PASS').length;
   console.log(`TEST SUMMARY: ${passedCount}/${results.length} Tests Passed!`);
   console.log('=============================================');
-  
+
   if (passedCount === results.length) {
     console.log('🎉 ALL TESTS PASSED WITH 100% SUCCESS!');
   } else {

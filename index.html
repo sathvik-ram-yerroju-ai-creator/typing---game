@@ -381,6 +381,46 @@
       color: var(--accent-secondary);
     }
 
+    .mode-card.programmer .mode-card-icon {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-success);
+    }
+
+    .mode-card.programmer:hover::before {
+      background: linear-gradient(90deg, #10b981, #06b6d4);
+    }
+
+    .mode-card-badge-unlocked {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-full);
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      margin-bottom: 0.85rem;
+      width: fit-content;
+    }
+
+    .mode-card-badge-unlocked .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulseDot 1.5s infinite ease-in-out;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+    }
+
     .mode-card h2 {
       font-size: 1.6rem;
       font-weight: 700;
@@ -476,6 +516,64 @@
       flex-direction: column;
       gap: 1.25rem;
       margin-bottom: 1.5rem;
+    }
+
+    .track-switcher-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.4rem;
+      width: fit-content;
+      max-width: 100%;
+      overflow-x: auto;
+    }
+
+    .track-switch-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.6rem 1.15rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .track-switch-btn:hover {
+      color: var(--text-main);
+      background: var(--bg-surface-elevated);
+    }
+
+    .track-switch-btn.active {
+      color: #ffffff;
+      background: var(--accent-primary);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+    }
+
+    .track-switch-btn.active[data-track="programmer"] {
+      background: var(--accent-success);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+    }
+
+    .badge-instant {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius-full);
+      margin-left: 0.25rem;
+      font-weight: 800;
     }
 
     .level-selector-scroll {
@@ -846,14 +944,96 @@
     .kb-key[data-finger="right-ring"]  { border-bottom: 3px solid #a855f7; }
     .kb-key[data-finger="right-pinky"] { border-bottom: 3px solid #ec4899; }
 
+    .kb-key.target-highlight-shift {
+      background: rgba(236, 72, 153, 0.28) !important;
+      border-color: #ec4899 !important;
+      color: #f472b6 !important;
+      box-shadow: 0 0 14px rgba(236, 72, 153, 0.5), var(--key-shadow) !important;
+      animation: shiftKeyPulse 1.2s ease-in-out infinite alternate;
+      z-index: 2;
+    }
+
+    @keyframes shiftKeyPulse {
+      0% { box-shadow: 0 0 8px rgba(236, 72, 153, 0.4), var(--key-shadow); }
+      100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.7), var(--key-shadow); }
+    }
+
     /* ==========================================================================
-       8. VIEW: ARCADE GAMES (FALLING METEORS)
+       8. VIEW: ARCADE GAMES (3 DISTINCT MODES)
        ========================================================================== */
     .arcade-wrapper {
       display: flex;
       flex-direction: column;
       gap: 1.25rem;
       width: 100%;
+    }
+
+    .arcade-mode-tabs {
+      display: flex;
+      gap: 0.75rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .arcade-mode-tab {
+      flex: 1 1 200px;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      transition: all 0.25s ease;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .arcade-mode-tab:hover {
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+    }
+
+    .arcade-mode-tab.active {
+      background: var(--bg-surface-elevated);
+      border-color: var(--border-focus);
+      color: var(--text-main);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .mode-tab-icon {
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      background: rgba(99, 102, 241, 0.1);
+      flex-shrink: 0;
+    }
+
+    .arcade-mode-tab.active .mode-tab-icon {
+      background: rgba(99, 102, 241, 0.25);
+    }
+
+    .mode-tab-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mode-tab-title {
+      font-weight: 700;
+      font-size: 0.98rem;
+    }
+
+    .mode-tab-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
     }
 
     .arcade-hud {
@@ -1195,11 +1375,15 @@
       </button>
       <button class="nav-tab-btn" id="tabPractice" data-view="practiceView">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path><path d="M6 6h10M6 10h10"></path></svg>
-        Lessons
+        Standard Lessons
+      </button>
+      <button class="nav-tab-btn" id="tabProgrammer" data-view="practiceView">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        Programmer Track
       </button>
       <button class="nav-tab-btn" id="tabArcade" data-view="arcadeView">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-        Arcade Meteors
+        Arcade Arena
       </button>
     </nav>
 
@@ -1238,9 +1422,9 @@
          ---------------------------------------------------------------------- -->
     <section class="view-section active" id="menuView">
       <div class="hero-banner">
-        <div class="hero-badge">Touch Typing Mastery for Beginners</div>
+        <div class="hero-badge">Touch Typing Mastery for Beginners & Developers</div>
         <h1 class="hero-title">Unlock Muscle Memory.<br><span class="gradient-text">Type at the Speed of Thought.</span></h1>
-        <p class="hero-desc">Progress step-by-step through essential keyboard rows with real-time feedback, or blast through arcade meteors powered dynamically by your unlocked skills.</p>
+        <p class="hero-desc">Progress step-by-step through essential keyboard rows, dive into 100% unlocked programmer syntax drills, or blast through 3 distinct arcade game modes.</p>
       </div>
 
       <div class="mode-cards-grid">
@@ -1260,13 +1444,32 @@
           </div>
         </div>
 
-        <!-- Arcade Meteors Card -->
+        <!-- Programmer Track Card (INSTANTLY UNLOCKED) -->
+        <div class="mode-card programmer" id="cardLaunchProgrammer">
+          <div class="mode-card-badge-unlocked mode-badge">
+            <span class="pulse-dot"></span> 100% Unlocked by Default
+          </div>
+          <div class="mode-card-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+          </div>
+          <h2>Programmer Track <span>→</span></h2>
+          <p>Instant developer muscle memory training! 100% unlocked with zero gating. Practice coding delimiters { } [ ] ( ) &lt; &gt;, operators = + - * / ; :, strings ' " \ _, and real code idioms.</p>
+          <div class="card-footer">
+            <div class="card-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+              Syntax: { } [ ] ( ) &lt; &gt; = + - * / ; : ' " \ _
+            </div>
+            <button class="btn-card-action">Code Now</button>
+          </div>
+        </div>
+
+        <!-- Arcade Games Card -->
         <div class="mode-card arcade" id="cardLaunchArcade">
           <div class="mode-card-icon">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg>
           </div>
-          <h2>Meteor Arcade <span>→</span></h2>
-          <p>Defend ground base from falling meteors! Dynamic difficulty automatically spawns only the letters and words you have earned in lessons.</p>
+          <h2>Arcade Arena <span>→</span></h2>
+          <p>3 expanded game modes: Bubble Drop vertical popper, Nitro Sprint 2D horizontal racer, and Word Blaster targeting lock-on. Powered dynamically by your unlocked keys.</p>
           <div class="card-footer">
             <div class="card-badge">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
@@ -1303,6 +1506,17 @@
          ---------------------------------------------------------------------- -->
     <section class="view-section" id="practiceView">
       <div class="practice-header">
+        <!-- Track Switcher -->
+        <div class="track-switcher-bar">
+          <button class="track-switch-btn active" id="btnTrackStandard" data-track="standard">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path><path d="M6 6h10M6 10h10"></path></svg>
+            Standard Track (Levels 1–6)
+          </button>
+          <button class="track-switch-btn" id="btnTrackProgrammer" data-track="programmer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            Programmer Track <span class="badge-instant">100% Unlocked</span>
+          </button>
+        </div>
         <!-- Level Selector Carousel -->
         <div class="level-selector-scroll" id="levelSelectorContainer" role="tablist">
           <!-- Dynamically populated Level Pills -->
@@ -1375,10 +1589,35 @@
     </section>
 
     <!-- ----------------------------------------------------------------------
-         VIEW 3: ARCADE GAMES (METEOR STRIKE)
+         VIEW 3: ARCADE GAMES (3 DISTINCT MODES)
          ---------------------------------------------------------------------- -->
     <section class="view-section" id="arcadeView">
       <div class="arcade-wrapper">
+        <!-- 3 Distinct Game Mode Selector Tabs -->
+        <div class="arcade-mode-tabs" role="tablist">
+          <button class="arcade-mode-tab active" id="tabArcadeBubbleDrop" data-mode="bubbleDrop">
+            <span class="mode-tab-icon">🫧</span>
+            <div class="mode-tab-text">
+              <span class="mode-tab-title">Bubble Drop</span>
+              <span class="mode-tab-sub">Vertical Popper</span>
+            </div>
+          </button>
+          <button class="arcade-mode-tab" id="tabArcadeNitroSprint" data-mode="nitroSprint">
+            <span class="mode-tab-icon">🏎️</span>
+            <div class="mode-tab-text">
+              <span class="mode-tab-title">Nitro Sprint</span>
+              <span class="mode-tab-sub">2D WPM Racer</span>
+            </div>
+          </button>
+          <button class="arcade-mode-tab" id="tabArcadeWordBlaster" data-mode="wordBlaster">
+            <span class="mode-tab-icon">🎯</span>
+            <div class="mode-tab-text">
+              <span class="mode-tab-title">Word Blaster</span>
+              <span class="mode-tab-sub">Targeting Lock-On</span>
+            </div>
+          </button>
+        </div>
+
         <!-- Arcade HUD Bar -->
         <div class="arcade-hud">
           <div class="arcade-hud-group">
@@ -1391,20 +1630,20 @@
               <span class="hud-stat-val" id="arcadeAccuracyVal">100%</span>
             </div>
             <div class="hud-stat-box">
-              <span class="hud-stat-title">Combo</span>
+              <span class="hud-stat-title" id="arcadeComboLabel">Combo</span>
               <span class="hud-stat-val" id="arcadeComboVal">0x</span>
             </div>
           </div>
 
           <!-- Difficulty Pill tied to unlocked progression -->
-          <div class="difficulty-indicator" id="arcadeDifficultyBadge" title="Spawning letters based on your practice progression">
+          <div class="difficulty-indicator" id="arcadeDifficultyBadge" title="Spawning characters based on your practice progression">
             <span>Pool:</span>
             <span class="difficulty-tag" id="arcadePoolDesc">Level 1 Keys (a, s, d, f)</span>
           </div>
 
           <div class="arcade-hud-group">
             <div class="hud-stat-box">
-              <span class="hud-stat-title">Defense Shield</span>
+              <span class="hud-stat-title" id="arcadeHealthTitle">Defense Shield</span>
               <div class="lives-container" id="arcadeLivesContainer">
                 <span class="life-heart">❤️</span>
                 <span class="life-heart">❤️</span>
@@ -1424,25 +1663,25 @@
 
           <!-- Start / Ready Screen Overlay -->
           <div class="arcade-overlay" id="arcadeStartOverlay">
-            <h2>Meteor Defense</h2>
-            <p>Meteors are descending on your planetary outpost! Type each meteor's characters before they breach your atmospheric shield.</p>
+            <h2 id="arcadeStartTitle">Bubble Drop</h2>
+            <p id="arcadeStartDesc">Translucent bubbles descend with floating physics! Type each bubble's characters to pop it with canvas particle splashes.</p>
             <button class="arcade-btn-lg" id="btnStartArcadeGame">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-              Engage Defense
+              Start Game
             </button>
           </div>
 
           <!-- Paused Screen Overlay -->
           <div class="arcade-overlay hidden" id="arcadePauseOverlay">
-            <h2>Simulation Paused</h2>
+            <h2 id="arcadePauseTitle">Game Paused</h2>
             <p>Catch your breath, check your hand posture, and get ready to strike.</p>
             <button class="arcade-btn-lg" id="btnResumeArcadeGame">Resume Battle</button>
           </div>
 
           <!-- Game Over Screen Overlay -->
           <div class="arcade-overlay hidden" id="arcadeGameOverOverlay">
-            <h2 style="color:var(--accent-danger);">Shield Depleted!</h2>
-            <p id="arcadeGameOverSummary">Meteors breached planetary defense perimeter.</p>
+            <h2 id="arcadeGameOverTitle" style="color:var(--accent-danger);">Shield Depleted!</h2>
+            <p id="arcadeGameOverSummary">Bubbles reached the bottom perimeter.</p>
             <div style="display:flex;gap:1.5rem;margin-bottom:1.5rem;">
               <div class="hud-stat-box"><span class="hud-stat-title">Final Score</span><span class="hud-stat-val" id="goFinalScore">0</span></div>
               <div class="hud-stat-box"><span class="hud-stat-title">High Score</span><span class="hud-stat-val" id="goHighScore">0</span></div>
@@ -1582,6 +1821,66 @@
       }
     ];
 
+    /* ========================================================================
+       PROGRAMMER TRACK CONFIG (100% UNLOCKED BY DEFAULT)
+       Dedicated curriculum focusing heavily on developer delimiters & syntax:
+       { } [ ] ( ) < > = + - * / ; : ' " \ _
+       ======================================================================== */
+    const PROGRAMMER_CONFIG = [
+      {
+        id: "P1",
+        name: "Module 1: Brackets & Pairs",
+        description: "Master all delimiter pairs: { } [ ] ( ) < >",
+        keys: ["{", "}", "[", "]", "(", ")", "<", ">"],
+        drills: [
+          "{ } [ ] ( ) < > { [ ( ) ] } < >",
+          "function run() { const list = [1, (2 + 3)]; return <App />; }",
+          "if (a < b && b > c) { arr[0] = { id: (x > y) }; }",
+          "const parse = (nodes) => { return [ { val: <Tag /> } ]; };",
+          "items.filter(x => (x.id > 0)).map(x => ({ ...x, ok: true }));"
+        ]
+      },
+      {
+        id: "P2",
+        name: "Module 2: Operators & Logic",
+        description: "Assignments, arithmetic, and line termination: = + - * / ; :",
+        keys: ["=", "+", "-", "*", "/", ";", ":"],
+        drills: [
+          "= + - * / ; : == != += -= *= /=",
+          "let total = (base * rate) + offset - (discount / 2);",
+          "config = { maxRetries: 3; timeout: 5000; isReady: true; };",
+          "score += 10; count -= 1; ratio = (a * b) / (c + d);",
+          "for (let i = 0; i < len; i += 1) { delta = (x * 2) - y; }"
+        ]
+      },
+      {
+        id: "P3",
+        name: "Module 3: Strings, Escapes & Identifiers",
+        description: "Quotes, escape slashes and underscores: ' \" \\ _",
+        keys: ["'", "\"", "\\", "_"],
+        drills: [
+          "' \" \\ _ ' \" \\ _ \"value\" 'single' _var __init__",
+          "const str = \"Hello \\\"World\\\" \\n from 'Code'\"; let _path = 'C:\\\\dev\\\\_app';",
+          "function _calc_delta(_old, _new) { return \"_res: \" + 'ok'; }",
+          "let _sql = \"SELECT * FROM \\\"users\\\" WHERE _active = 1;\";",
+          "const _regex = /^[a-z_][a-z0-9_]*$/; let _escaped = \"\\t\\r\\n\";"
+        ]
+      },
+      {
+        id: "P4",
+        name: "Module 4: Full-Stack Code Idioms",
+        description: "Complete developer syntax workout with all symbols",
+        keys: ["{", "}", "[", "]", "(", ")", "<", ">", "=", "+", "-", "*", "/", ";", ":", "'", "\"", "\\", "_"],
+        drills: [
+          "const fetchData = async (_url) => { return { status: 200, items: [] }; };",
+          "for (let _i = 0; _i < arr.length; _i++) { total += arr[_i] * 2; };",
+          "export default function _handler(req, res) { res.json({ msg: \"done\" }); };",
+          "const dict = { 'key': [1, 2], \"_ref\": \"node\\\\path\", flag: (x != y) };",
+          "if (_count > 0 && (_len <= 100)) { return `<div class=\"_tag\">${_val}</div>`; }"
+        ]
+      }
+    ];
+
     /**
      * Dictionary of words for arcade game spawning at Level 6
      * (You can freely add more beginner-friendly words here)
@@ -1591,6 +1890,31 @@
       "flow", "keys", "type", "play", "wave", "beam", "hero", "fire",
       "home", "jump", "blue", "wind", "game", "neon", "time", "cool"
     ];
+
+    /* Map of shifted characters to their physical base key on US-QWERTY */
+    const SHIFTED_KEYS_MAP = {
+      '{': '[',
+      '}': ']',
+      '(': '9',
+      ')': '0',
+      '<': ',',
+      '>': '.',
+      '+': '=',
+      '_': '-',
+      '*': '8',
+      ':': ';',
+      '"': "'",
+      '?': '/',
+      '|': '\\',
+      '~': '`',
+      '!': '1',
+      '@': '2',
+      '#': '3',
+      '$': '4',
+      '%': '5',
+      '^': '6',
+      '&': '7'
+    };
 
     /* Finger guide mapping for visual posture assistance */
     const FINGER_MAP = {
@@ -1625,7 +1949,24 @@
       ';': { name: "Right Pinky", color: "#ec4899" },
       'p': { name: "Right Pinky", color: "#ec4899" },
       '/': { name: "Right Pinky", color: "#ec4899" },
-      "'": { name: "Right Pinky", color: "#ec4899" }
+      "'": { name: "Right Pinky", color: "#ec4899" },
+      // Programmer Track Syntax & Delimiters:
+      '{': { name: "Shift + Right Pinky", color: "#ec4899", baseKey: "[" },
+      '}': { name: "Shift + Right Pinky", color: "#ec4899", baseKey: "]" },
+      '[': { name: "Right Pinky", color: "#ec4899", baseKey: "[" },
+      ']': { name: "Right Pinky", color: "#ec4899", baseKey: "]" },
+      '(': { name: "Shift + Right Ring Finger", color: "#a855f7", baseKey: "9" },
+      ')': { name: "Shift + Right Pinky", color: "#ec4899", baseKey: "0" },
+      '<': { name: "Shift + Right Middle Finger", color: "#3b82f6", baseKey: "," },
+      '>': { name: "Shift + Right Ring Finger", color: "#a855f7", baseKey: "." },
+      '=': { name: "Right Pinky", color: "#ec4899", baseKey: "=" },
+      '+': { name: "Shift + Right Pinky", color: "#ec4899", baseKey: "=" },
+      '-': { name: "Right Pinky", color: "#ec4899", baseKey: "-" },
+      '_': { name: "Shift + Right Pinky", color: "#ec4899", baseKey: "-" },
+      '*': { name: "Shift + Right Middle Finger", color: "#3b82f6", baseKey: "8" },
+      ':': { name: "Shift + Right Pinky", color: "#ec4899", baseKey: ";" },
+      '"': { name: "Shift + Right Pinky", color: "#ec4899", baseKey: "'" },
+      '\\': { name: "Right Pinky", color: "#ec4899", baseKey: "\\" }
     };
 
     /* Standard QWERTY layout for the visual keyboard */
@@ -1751,12 +2092,17 @@
     let userState = GameStorage.load();
 
     /* ========================================================================
-       AUDIO SYNTHESIZER (WEB AUDIO API - ZERO DEPENDENCIES)
+       AUDIO SYNTHESIZER (WEB AUDIO API - ZERO EXTERNAL FILES OR AUDIO TAGS)
+       Full procedural sound effects:
+       - Soft "click" / "pop" (sine wave) for correct keystrokes
+       - Harsh "buzz" (square wave) for incorrect keystrokes
+       - Synthesized noise/static bursts for bubble pops and word explosions
        ======================================================================== */
     class SoundEngine {
       constructor() {
         this.ctx = null;
         this.muted = userState.soundMuted;
+        this.noiseBuffer = null;
       }
 
       initCtx() {
@@ -1768,6 +2114,15 @@
         }
         if (this.ctx && this.ctx.state === 'suspended') {
           this.ctx.resume();
+        }
+        if (this.ctx && !this.noiseBuffer) {
+          // Pre-generate 1.5 seconds of high-fidelity white noise for static/explosion bursts
+          const bufferSize = Math.floor(this.ctx.sampleRate * 1.5);
+          this.noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const channel = this.noiseBuffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            channel[i] = Math.random() * 2 - 1;
+          }
         }
       }
 
@@ -1794,45 +2149,193 @@
         } catch (e) {}
       }
 
+      // 1. Soft "click" or "pop" (sine wave) for correct keystrokes
       keySuccess() {
-        this.playTone(600, 'sine', 0.05, 0.08);
-      }
-
-      keyError() {
-        this.playTone(180, 'sawtooth', 0.14, 0.2);
-      }
-
-      laserShot() {
         if (this.muted) return;
         this.initCtx();
         if (!this.ctx) return;
-
         try {
+          const t = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(880, this.ctx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.12);
+          osc.type = 'sine';
+          // Gentle pitch ramp from 560Hz down to 340Hz gives tactile mechanical pop sensation
+          osc.frequency.setValueAtTime(560, t);
+          osc.frequency.exponentialRampToValueAtTime(340, t + 0.045);
 
-          gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+          gain.gain.setValueAtTime(0.09, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.045);
 
           osc.connect(gain);
           gain.connect(this.ctx.destination);
-          osc.start();
-          osc.stop(this.ctx.currentTime + 0.12);
+          osc.start(t);
+          osc.stop(t + 0.045);
         } catch (e) {}
       }
 
-      explosion() {
+      // 2. Harsh "buzz" (square wave) for incorrect keystrokes
+      keyError() {
         if (this.muted) return;
         this.initCtx();
         if (!this.ctx) return;
-
         try {
-          // Low rumble + noise drop
-          this.playTone(110, 'triangle', 0.3, 0.25);
-          this.playTone(70, 'sawtooth', 0.35, 0.22);
+          const t = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'square'; // Explicit square wave for harsh buzzer
+          osc.frequency.setValueAtTime(130, t);
+          osc.frequency.setValueAtTime(115, t + 0.06);
+
+          gain.gain.setValueAtTime(0.16, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.12);
+        } catch (e) {}
+      }
+
+      // 3. Synthesized noise/static burst for bubble pops
+      bubblePop() {
+        if (this.muted) return;
+        this.initCtx();
+        if (!this.ctx || !this.noiseBuffer) return;
+        try {
+          const t = this.ctx.currentTime;
+
+          // Bandpassed white noise fizz
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = this.noiseBuffer;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(2600, t);
+          filter.Q.setValueAtTime(3.5, t);
+
+          const noiseGain = this.ctx.createGain();
+          noiseGain.gain.setValueAtTime(0.14, t);
+          noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+
+          noise.connect(filter);
+          filter.connect(noiseGain);
+          noiseGain.connect(this.ctx.destination);
+          noise.start(t);
+          noise.stop(t + 0.07);
+
+          // Paired with an organic upward sine chirp for bubbly surface tension pop
+          const osc = this.ctx.createOscillator();
+          const oscGain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(420, t);
+          osc.frequency.exponentialRampToValueAtTime(880, t + 0.06);
+
+          oscGain.gain.setValueAtTime(0.15, t);
+          oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+
+          osc.connect(oscGain);
+          oscGain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.06);
+        } catch (e) {}
+      }
+
+      // 4. Synthesized noise/static burst for word explosions
+      wordExplosion() {
+        if (this.muted) return;
+        this.initCtx();
+        if (!this.ctx || !this.noiseBuffer) return;
+        try {
+          const t = this.ctx.currentTime;
+
+          // Resonant falling lowpass noise shockwave
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = this.noiseBuffer;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(1400, t);
+          filter.frequency.exponentialRampToValueAtTime(80, t + 0.38);
+          filter.Q.setValueAtTime(4, t);
+
+          const noiseGain = this.ctx.createGain();
+          noiseGain.gain.setValueAtTime(0.28, t);
+          noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+
+          noise.connect(filter);
+          filter.connect(noiseGain);
+          noiseGain.connect(this.ctx.destination);
+          noise.start(t);
+          noise.stop(t + 0.4);
+
+          // Sub-bass punch rumble
+          const osc = this.ctx.createOscillator();
+          const oscGain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(120, t);
+          osc.frequency.exponentialRampToValueAtTime(32, t + 0.35);
+
+          oscGain.gain.setValueAtTime(0.3, t);
+          oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+
+          osc.connect(oscGain);
+          oscGain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.35);
+        } catch (e) {}
+      }
+
+      // Laser shot sound (delegates to crisp synthesized sound)
+      laserShot() {
+        this.bubblePop();
+      }
+
+      // Explosion sound (delegates to wordExplosion)
+      explosion() {
+        this.wordExplosion();
+      }
+
+      // High-tech target lock-on blip (Word Blaster)
+      targetLock() {
+        if (this.muted) return;
+        this.initCtx();
+        if (!this.ctx) return;
+        try {
+          const t = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(880, t);
+          osc.frequency.setValueAtTime(1320, t + 0.045);
+
+          gain.gain.setValueAtTime(0.12, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.09);
+        } catch (e) {}
+      }
+
+      // Nitro acceleration thruster sound (Nitro Sprint)
+      nitroZoom() {
+        if (this.muted) return;
+        this.initCtx();
+        if (!this.ctx) return;
+        try {
+          const t = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(180, t);
+          osc.frequency.exponentialRampToValueAtTime(540, t + 0.2);
+
+          gain.gain.setValueAtTime(0.08, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.2);
         } catch (e) {}
       }
 
@@ -1934,9 +2437,13 @@
 
     /* ========================================================================
        PRACTICE LESSONS ENGINE
+       ======================    /* ========================================================================
+       PRACTICE LESSONS ENGINE
+       Supports Standard Track (Levels 1-6) and Programmer Track (Modules P1-P4, 100% unlocked)
        ======================================================================== */
     class PracticeEngine {
       constructor() {
+        this.currentTrack = 'standard'; // 'standard' | 'programmer'
         this.currentLevelIndex = 0;
         this.currentDrillIndex = 0;
         this.targetString = "";
@@ -1959,6 +2466,19 @@
         this.fingerIndicatorDot = document.querySelector('.finger-indicator-dot');
 
         this.initKeyboard();
+        this.renderLevelPills();
+        this.loadLevel(0, 0);
+      }
+
+      get activeLessons() {
+        return this.currentTrack === 'programmer' ? PROGRAMMER_CONFIG : LESSONS_CONFIG;
+      }
+
+      switchTrack(trackName) {
+        this.currentTrack = trackName;
+        document.querySelectorAll('.track-switch-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.track === trackName);
+        });
         this.renderLevelPills();
         this.loadLevel(0, 0);
       }
@@ -1989,7 +2509,6 @@
             mainSpan.textContent = item.label;
             keyBtn.appendChild(mainSpan);
 
-            // Optional mouse click typing trigger
             keyBtn.addEventListener('click', () => {
               if (item.key.length === 1 || item.key === ' ') {
                 this.handleKeystroke(item.key);
@@ -2007,26 +2526,41 @@
         const container = document.getElementById('levelSelectorContainer');
         container.innerHTML = '';
 
-        LESSONS_CONFIG.forEach((lvl, idx) => {
-          const isUnlocked = lvl.id <= userState.highestLevelUnlocked;
+        const lessons = this.activeLessons;
+        const isProgrammer = this.currentTrack === 'programmer';
+
+        lessons.forEach((lvl, idx) => {
+          // Programmer track is 100% UNLOCKED BY DEFAULT!
+          const isUnlocked = isProgrammer ? true : (lvl.id <= userState.highestLevelUnlocked);
           const isCurrent = idx === this.currentLevelIndex;
 
           const pill = document.createElement('div');
           pill.className = `level-pill ${isCurrent ? 'active' : ''} ${!isUnlocked ? 'locked' : ''}`;
           pill.dataset.levelIndex = idx;
 
-          const stats = userState.levelStats && userState.levelStats[lvl.id];
-          const bestLabel = stats && stats.bestAccuracy 
-            ? `⭐ ${stats.bestAccuracy}% (${stats.bestWpm || 0} WPM)` 
-            : (isUnlocked ? (idx < userState.highestLevelUnlocked - 1 ? '✓ Complete' : 'Unlocked') : '🔒 Locked');
+          let bestLabel = '🔒 Locked';
+          if (isProgrammer) {
+            const pStats = userState.programmerStats && userState.programmerStats[lvl.id];
+            bestLabel = pStats && pStats.bestAccuracy
+              ? `⭐ ${pStats.bestAccuracy}% (${pStats.bestWpm || 0} WPM)`
+              : '⚡ Unlocked';
+          } else {
+            const stats = userState.levelStats && userState.levelStats[lvl.id];
+            bestLabel = stats && stats.bestAccuracy 
+              ? `⭐ ${stats.bestAccuracy}% (${stats.bestWpm || 0} WPM)` 
+              : (isUnlocked ? (idx < userState.highestLevelUnlocked - 1 ? '✓ Complete' : 'Unlocked') : '🔒 Locked');
+          }
+
+          const levelLabel = isProgrammer ? `Module ${lvl.id}` : `Level ${lvl.id}`;
+          const keysLabel = lvl.keys[0] === 'all' ? 'All words' : lvl.keys.join(' ');
 
           pill.innerHTML = `
             <div class="level-pill-top">
-              <span>Level ${lvl.id}</span>
+              <span>${levelLabel}</span>
               <span>${bestLabel}</span>
             </div>
             <div class="level-pill-name">${lvl.name.split(': ')[1] || lvl.name}</div>
-            <div class="level-pill-keys">${lvl.keys[0] === 'all' ? 'All words' : lvl.keys.join(' ')}</div>
+            <div class="level-pill-keys">${keysLabel}</div>
           `;
 
           pill.addEventListener('click', () => {
@@ -2046,9 +2580,9 @@
       loadLevel(levelIndex, drillIndex = 0) {
         this.currentLevelIndex = levelIndex;
         this.currentDrillIndex = drillIndex;
-        const levelData = LESSONS_CONFIG[levelIndex];
+        const lessons = this.activeLessons;
+        const levelData = lessons[levelIndex] || lessons[0];
         
-        // Wrap drill index if needed
         if (this.currentDrillIndex >= levelData.drills.length) {
           this.currentDrillIndex = 0;
         }
@@ -2091,21 +2625,42 @@
       highlightNextKey() {
         // Clear old highlights
         document.querySelectorAll('.kb-key.target-highlight').forEach(k => k.classList.remove('target-highlight'));
+        document.querySelectorAll('.kb-key.target-highlight-shift').forEach(k => k.classList.remove('target-highlight-shift'));
 
         if (this.charIndex >= this.targetString.length) return;
 
         const targetChar = this.targetString[this.charIndex];
         let keySelector = targetChar.toLowerCase();
-        if (targetChar === ' ') keySelector = ' ';
+        let requiresShift = false;
+
+        if (targetChar === ' ') {
+          keySelector = ' ';
+        } else if (SHIFTED_KEYS_MAP[targetChar]) {
+          keySelector = SHIFTED_KEYS_MAP[targetChar];
+          requiresShift = true;
+        } else if (targetChar !== targetChar.toLowerCase()) {
+          requiresShift = true;
+        }
 
         const targetKeyEl = document.querySelector(`.kb-key[data-key="${CSS.escape(keySelector)}"]`);
         if (targetKeyEl) {
           targetKeyEl.classList.add('target-highlight');
         }
 
+        if (requiresShift) {
+          // Highlight Left or Right shift key based on hand used
+          const fingerInfo = FINGER_MAP[targetChar] || FINGER_MAP[targetChar.toLowerCase()];
+          const shiftSelector = (fingerInfo && fingerInfo.name.includes('Right')) ? 'shiftleft' : 'shiftright';
+          const shiftKeyEl = document.querySelector(`.kb-key[data-key="${shiftSelector}"]`);
+          if (shiftKeyEl) {
+            shiftKeyEl.classList.add('target-highlight-shift');
+          }
+        }
+
         // Update Finger Posture Hint
-        const fingerInfo = FINGER_MAP[targetChar.toLowerCase()] || { name: "Comfortable Finger", color: "#38bdf8" };
-        this.fingerHintText.textContent = `Type '${targetChar === ' ' ? 'Space' : targetChar}' with your ${fingerInfo.name}`;
+        const fingerInfo = FINGER_MAP[targetChar] || FINGER_MAP[targetChar.toLowerCase()] || { name: "Comfortable Finger", color: "#38bdf8" };
+        const charDisplay = targetChar === ' ' ? 'Space' : targetChar;
+        this.fingerHintText.textContent = `Type '${charDisplay}' with your ${fingerInfo.name}`;
         this.fingerIndicatorDot.style.background = fingerInfo.color;
         this.fingerIndicatorDot.style.boxShadow = `0 0 8px ${fingerInfo.color}`;
       }
@@ -2113,7 +2668,6 @@
       handleKeystroke(key) {
         if (this.isCompleted) return;
 
-        // Initialize clock on first valid keypress
         if (!this.startTime) {
           this.startTime = Date.now();
         }
@@ -2123,7 +2677,6 @@
 
         this.totalKeystrokes++;
 
-        // Correct key pressed
         if (key === expectedChar) {
           sound.keySuccess();
           this.correctKeystrokes++;
@@ -2135,32 +2688,26 @@
 
           this.charIndex++;
 
-          // Check if drill completed
           if (this.charIndex >= this.targetString.length) {
             this.completeDrill();
             return;
           }
 
-          // Advance cursor to next character
           const nextCharNode = document.getElementById(`char-${this.charIndex}`);
           if (nextCharNode) {
             nextCharNode.classList.add('current');
           }
 
           this.highlightNextKey();
-        } 
-        // Incorrect key pressed: ENFORCE beginner touch typing discipline
-        else {
+        } else {
           sound.keyError();
           this.errorCount++;
 
           if (currentCharNode) {
             currentCharNode.classList.remove('error-shake');
-            // Force DOM reflow to retrigger shake animation
             void currentCharNode.offsetWidth;
             currentCharNode.classList.add('error-shake');
           }
-          // Do NOT move cursor forward! The user must press the exact key.
         }
 
         this.updateStats();
@@ -2184,7 +2731,6 @@
         this.liveProgress.textContent = `${progress}%`;
         this.liveErrors.textContent = this.errorCount;
 
-        // Color coding for accuracy feedback
         if (accuracy >= 90) {
           this.liveAccuracy.style.color = "var(--accent-success)";
         } else {
@@ -2199,32 +2745,36 @@
         const timeTakenSec = Math.max(1, Math.round((Date.now() - this.startTime) / 1000));
         const { accuracy, wpm } = this.updateStats();
 
-        const currentLvl = LESSONS_CONFIG[this.currentLevelIndex];
+        const currentLvl = this.activeLessons[this.currentLevelIndex];
         const passedLevel = accuracy >= 90;
+        const isProgrammer = this.currentTrack === 'programmer';
 
-        // Save best stats per level and global top speed
-        const currentStats = (userState.levelStats && userState.levelStats[currentLvl.id]) || { bestAccuracy: 0, bestWpm: 0 };
-        currentStats.bestAccuracy = Math.max(currentStats.bestAccuracy || 0, accuracy);
-        currentStats.bestWpm = Math.max(currentStats.bestWpm || 0, wpm);
-        if (!userState.levelStats) userState.levelStats = {};
-        userState.levelStats[currentLvl.id] = currentStats;
+        if (isProgrammer) {
+          if (!userState.programmerStats) userState.programmerStats = {};
+          const currentStats = userState.programmerStats[currentLvl.id] || { bestAccuracy: 0, bestWpm: 0 };
+          currentStats.bestAccuracy = Math.max(currentStats.bestAccuracy || 0, accuracy);
+          currentStats.bestWpm = Math.max(currentStats.bestWpm || 0, wpm);
+          userState.programmerStats[currentLvl.id] = currentStats;
+        } else {
+          if (!userState.levelStats) userState.levelStats = {};
+          const currentStats = userState.levelStats[currentLvl.id] || { bestAccuracy: 0, bestWpm: 0 };
+          currentStats.bestAccuracy = Math.max(currentStats.bestAccuracy || 0, accuracy);
+          currentStats.bestWpm = Math.max(currentStats.bestWpm || 0, wpm);
+          userState.levelStats[currentLvl.id] = currentStats;
+        }
 
-        // Persist all-time best WPM
         userState.bestWpm = Math.max(userState.bestWpm || 0, wpm);
 
-        // Unlock next level if criteria met (>= 90% accuracy)
         let newlyUnlocked = false;
-        if (passedLevel && currentLvl.id === userState.highestLevelUnlocked && userState.highestLevelUnlocked < LESSONS_CONFIG.length) {
+        if (!isProgrammer && passedLevel && currentLvl.id === userState.highestLevelUnlocked && userState.highestLevelUnlocked < LESSONS_CONFIG.length) {
           userState.highestLevelUnlocked++;
           newlyUnlocked = true;
         }
 
-        // Automatic persistence to browser localStorage
         GameStorage.save(userState);
         this.renderLevelPills();
         updateOverviewMetrics();
 
-        // Show Modal Popup with results
         this.showResultsModal(passedLevel, accuracy, wpm, timeTakenSec, newlyUnlocked);
       }
 
@@ -2250,8 +2800,8 @@
 
           modalIcon.textContent = "🏆";
           modalIcon.className = "modal-icon-badge success";
-          modalTitle.textContent = newlyUnlocked ? "New Level Unlocked!" : "Lesson Passed!";
-          modalMsg.textContent = `You scored ${accuracy}% accuracy, beating the 90% benchmark! Outstanding touch typing precision.`;
+          modalTitle.textContent = this.currentTrack === 'programmer' ? "Module Passed!" : (newlyUnlocked ? "New Level Unlocked!" : "Lesson Passed!");
+          modalMsg.textContent = `You achieved ${accuracy}% accuracy, beating the 90% benchmark! Flawless touch-typing discipline.`;
           nextBtn.textContent = "Next Level →";
           nextBtn.style.display = "inline-flex";
         } else {
@@ -2260,7 +2810,7 @@
           modalIcon.textContent = "⚠️";
           modalIcon.className = "modal-icon-badge retry";
           modalTitle.textContent = "90% Accuracy Required";
-          modalMsg.textContent = `You achieved ${accuracy}% accuracy. To unlock the next level, focus on precision first—speed naturally follows!`;
+          modalMsg.textContent = `You scored ${accuracy}% accuracy. Focus on precision and clean finger placement to master this drill!`;
           nextBtn.style.display = "none";
         }
 
@@ -2268,11 +2818,16 @@
       }
 
       nextDrillOrLevel() {
-        const currentLvl = LESSONS_CONFIG[this.currentLevelIndex];
+        const lessons = this.activeLessons;
+        const currentLvl = lessons[this.currentLevelIndex];
         if (this.currentDrillIndex + 1 < currentLvl.drills.length) {
           this.loadLevel(this.currentLevelIndex, this.currentDrillIndex + 1);
-        } else if (this.currentLevelIndex + 1 < userState.highestLevelUnlocked) {
-          this.loadLevel(this.currentLevelIndex + 1, 0);
+        } else if (this.currentLevelIndex + 1 < lessons.length) {
+          if (this.currentTrack === 'programmer' || this.currentLevelIndex + 1 < userState.highestLevelUnlocked) {
+            this.loadLevel(this.currentLevelIndex + 1, 0);
+          } else {
+            this.loadLevel(this.currentLevelIndex, 0);
+          }
         } else {
           this.loadLevel(this.currentLevelIndex, 0);
         }
@@ -2282,14 +2837,15 @@
     let practiceEngine = null;
 
     /* ========================================================================
-       ARCADE GAMES ENGINE: FALLING METEORS
+       ARCADE GAME 1: BUBBLE DROP (VERTICAL)
+       Revamped Falling Meteors into smooth translucent bubbles with fluid
+       particle popping animations and synthesized bubble pop sounds.
        ======================================================================== */
-    class MeteorArcade {
+    class BubbleDropGame {
       constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
-        
-        // Game state
+
         this.isPlaying = false;
         this.isPaused = false;
         this.score = 0;
@@ -2297,18 +2853,16 @@
         this.combo = 0;
         this.totalTyped = 0;
         this.correctTyped = 0;
-        this.meteorsDestroyed = 0;
+        this.bubblesPopped = 0;
         this.spawnTimer = 0;
-        this.spawnInterval = 110; // Frames between spawns
+        this.spawnInterval = 100;
 
-        // Game entities
-        this.meteors = [];
+        this.bubbles = [];
         this.particles = [];
-        this.lasers = [];
-        this.stars = [];
-        this.currentTargetMeteor = null;
+        this.ripples = [];
+        this.currentTargetBubble = null;
 
-        // UI DOM elements
+        // UI elements
         this.scoreDisplay = document.getElementById('arcadeScoreVal');
         this.accuracyDisplay = document.getElementById('arcadeAccuracyVal');
         this.comboDisplay = document.getElementById('arcadeComboVal');
@@ -2319,13 +2873,12 @@
         this.gameOverOverlay = document.getElementById('arcadeGameOverOverlay');
 
         this.resize();
-        this.initStars();
-        window.addEventListener('resize', () => {
-          this.resize();
-          this.initStars();
-        });
+        window.addEventListener('resize', () => this.resize());
+      }
 
-        this.updatePoolBadge();
+      // Backward compatibility getter for existing tests expecting .meteors
+      get meteors() {
+        return this.bubbles;
       }
 
       resize() {
@@ -2334,59 +2887,19 @@
         this.canvas.height = rect.height;
       }
 
-      initStars() {
-        this.stars = [];
-        const count = Math.floor((this.canvas.width * this.canvas.height) / 3200);
-        for (let i = 0; i < count; i++) {
-          this.stars.push({
-            x: Math.random() * this.canvas.width,
-            y: Math.random() * this.canvas.height,
-            size: Math.random() * 1.8 + 0.5,
-            alpha: Math.random() * 0.8 + 0.2,
-            twinkleSpeed: Math.random() * 0.02 + 0.005
-          });
-        }
-      }
-
-      /**
-       * DYNAMIC DIFFICULTY:
-       * Generates pool strictly from the user's unlocked practice levels!
-       */
       getPool() {
-        const highestLvl = userState.highestLevelUnlocked;
-        let pool = [];
-
-        // Level 1: a,s,d,f
-        if (highestLvl === 1) {
-          pool = ["a", "s", "d", "f"];
-        } 
-        // Level 2: Left + Right Home Row
-        else if (highestLvl === 2) {
-          pool = ["a", "s", "d", "f", "j", "k", "l", ";"];
-        } 
-        // Level 3: Full Home Row
-        else if (highestLvl === 3) {
-          pool = ["a", "s", "d", "f", "j", "k", "l", ";"];
-        } 
-        // Level 4: Top row + Home row
-        else if (highestLvl === 4) {
-          pool = ["a", "s", "d", "f", "j", "k", "l", ";", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p"];
-        } 
-        // Level 5: Full Alphabet
-        else if (highestLvl === 5) {
-          pool = "abcdefghijklmnopqrstuvwxyz;".split('');
-        } 
-        // Level 6+: Full alphabet letters + short words!
-        else {
-          pool = [...ARCADE_VOCABULARY, "a", "s", "d", "f", "j", "k", "l", ";", "q", "w", "e", "r"];
-        }
-
-        return pool;
+        const lvl = userState.highestLevelUnlocked;
+        if (lvl === 1) return ["a", "s", "d", "f"];
+        if (lvl === 2) return ["a", "s", "d", "f", "j", "k", "l", ";"];
+        if (lvl === 3) return ["a", "s", "d", "f", "j", "k", "l", ";"];
+        if (lvl === 4) return ["a", "s", "d", "f", "j", "k", "l", ";", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p"];
+        if (lvl === 5) return "abcdefghijklmnopqrstuvwxyz;".split('');
+        return [...ARCADE_VOCABULARY, "a", "s", "d", "f", "j", "k", "l", ";", "q", "w", "e", "r"];
       }
 
       updatePoolBadge() {
         const lvl = userState.highestLevelUnlocked;
-        let desc = `Level ${lvl} Unlocked Keys`;
+        let desc = `Level ${lvl} Keys`;
         if (lvl === 1) desc = `Level 1 Keys (a, s, d, f)`;
         else if (lvl === 2) desc = `Level 2 Keys (Home Row + ;)`;
         else if (lvl === 3) desc = `Level 3 (Full Home Row)`;
@@ -2394,7 +2907,7 @@
         else if (lvl === 5) desc = `Level 5 (All Alphabet Keys)`;
         else if (lvl >= 6) desc = `Level 6 (Full Alphabet & Words)`;
 
-        this.poolDesc.textContent = desc;
+        if (this.poolDesc) this.poolDesc.textContent = desc;
       }
 
       startGame() {
@@ -2406,13 +2919,14 @@
         this.combo = 0;
         this.totalTyped = 0;
         this.correctTyped = 0;
-        this.meteorsDestroyed = 0;
-        this.meteors = [];
+        this.bubblesPopped = 0;
+        this.bubbles = [];
         this.particles = [];
-        this.lasers = [];
-        this.currentTargetMeteor = null;
+        this.ripples = [];
+        this.currentTargetBubble = null;
         this.spawnTimer = 0;
-        this.spawnInterval = 100;
+        this.spawnInterval = 95;
+        this.spawnBubble();
 
         this.updateUI();
         this.startOverlay.classList.add('hidden');
@@ -2443,126 +2957,125 @@
         if (this.score > userState.arcadeHighScore) {
           userState.arcadeHighScore = this.score;
           GameStorage.save(userState);
-          confetti.launch(50);
+          confetti.launch(60);
         }
 
         updateOverviewMetrics();
 
         document.getElementById('goFinalScore').textContent = this.score;
         document.getElementById('goHighScore').textContent = userState.arcadeHighScore;
-        document.getElementById('goMeteorsHit').textContent = this.meteorsDestroyed;
+        document.getElementById('goMeteorsHit').textContent = this.bubblesPopped;
+        document.getElementById('arcadeGameOverTitle').textContent = "Atmospheric Shield Depleted!";
+        document.getElementById('arcadeGameOverSummary').textContent = "Bubbles breached your planetary defenses.";
         this.gameOverOverlay.classList.remove('hidden');
       }
 
-      spawnMeteor() {
+      spawnBubble() {
         const pool = this.getPool();
         const text = pool[Math.floor(Math.random() * pool.length)];
+        const baseSpeed = 0.85 + Math.min(this.score / 2800, 1.75);
+        const radius = Math.max(26, text.length * 9 + 16);
 
-        // Speed gently scales with score
-        const baseSpeed = 0.85 + Math.min(this.score / 2500, 1.8);
-        const radius = Math.max(22, text.length * 9 + 14);
-
-        const margin = radius + 20;
+        const margin = radius + 25;
         const x = margin + Math.random() * (this.canvas.width - margin * 2);
 
-        this.meteors.push({
+        this.bubbles.push({
           id: Math.random().toString(36).substring(7),
           text: text,
           typedCount: 0,
+          baseX: x,
           x: x,
           y: -radius,
           radius: radius,
           speed: baseSpeed + (Math.random() * 0.3 - 0.15),
-          hue: (Math.random() * 50 + 190) // Cyan to Indigo neon tones
+          swayPhase: Math.random() * Math.PI * 2,
+          swayAmp: 15 + Math.random() * 15,
+          hue: 185 + Math.random() * 70 // Beautiful cyan, sky, and violet tones
         });
       }
 
       handleInput(key) {
         if (!this.isPlaying || this.isPaused) return;
-
         this.totalTyped++;
 
-        // 1. If currently locked onto a meteor, verify next required letter
-        if (this.currentTargetMeteor) {
-          const neededChar = this.currentTargetMeteor.text[this.currentTargetMeteor.typedCount];
-          if (key === neededChar) {
-            this.hitMeteorChar(this.currentTargetMeteor);
+        if (this.currentTargetBubble) {
+          const needed = this.currentTargetBubble.text[this.currentTargetBubble.typedCount];
+          if (key === needed) {
+            this.hitBubbleChar(this.currentTargetBubble);
             return;
           }
         }
 
-        // 2. Otherwise find the lowest falling meteor that begins with this key
-        let candidates = this.meteors.filter(m => m.text[m.typedCount] === key);
+        const candidates = this.bubbles.filter(b => b.text[b.typedCount] === key);
         if (candidates.length > 0) {
-          // Target the one lowest on screen (most urgent threat)
+          // Target the one lowest on screen (highest threat)
           candidates.sort((a, b) => b.y - a.y);
           const chosen = candidates[0];
-          this.currentTargetMeteor = chosen;
-          this.hitMeteorChar(chosen);
+          this.currentTargetBubble = chosen;
+          this.hitBubbleChar(chosen);
         } else {
-          // Missed key: reset combo
           sound.keyError();
           this.combo = 0;
           this.updateUI();
         }
       }
 
-      hitMeteorChar(meteor) {
+      hitBubbleChar(bubble) {
         this.correctTyped++;
-        meteor.typedCount++;
+        bubble.typedCount++;
         this.combo++;
         this.score += 20 * Math.min(this.combo, 5);
 
-        sound.laserShot();
+        // Small pop droplet on character hit
+        this.createParticles(bubble.x, bubble.y, 6, `hsl(${bubble.hue}, 90%, 65%)`, 2.5);
 
-        // Laser beam effect from player station at bottom center
-        this.lasers.push({
-          startX: this.canvas.width / 2,
-          startY: this.canvas.height - 15,
-          endX: meteor.x,
-          endY: meteor.y,
-          life: 8
-        });
-
-        // Sparks at impact site
-        this.createParticles(meteor.x, meteor.y, 6, '#38bdf8');
-
-        // If entire word/letter on meteor is fully typed
-        if (meteor.typedCount >= meteor.text.length) {
-          this.destroyMeteor(meteor);
-          if (this.currentTargetMeteor === meteor) {
-            this.currentTargetMeteor = null;
+        if (bubble.typedCount >= bubble.text.length) {
+          this.popBubble(bubble);
+          if (this.currentTargetBubble === bubble) {
+            this.currentTargetBubble = null;
           }
+        } else {
+          sound.keySuccess();
         }
 
         this.updateUI();
       }
 
-      destroyMeteor(meteor) {
-        sound.explosion();
-        this.meteorsDestroyed++;
+      popBubble(bubble) {
+        sound.bubblePop();
+        this.bubblesPopped++;
         this.score += 100 * Math.min(this.combo, 5);
 
-        // Big particle explosion
-        this.createParticles(meteor.x, meteor.y, 25, `hsl(${meteor.hue}, 90%, 60%)`);
+        // Smooth Canvas Particle Splash Animation (Watery droplets)
+        this.createParticles(bubble.x, bubble.y, 24, `hsl(${bubble.hue}, 95%, 70%)`, 4.5);
 
-        // Remove from list
-        this.meteors = this.meteors.filter(m => m !== meteor);
+        // Expanding translucent ripple ring
+        this.ripples.push({
+          x: bubble.x,
+          y: bubble.y,
+          r: bubble.radius,
+          maxR: bubble.radius + 35,
+          alpha: 0.85,
+          color: `hsl(${bubble.hue}, 90%, 65%)`
+        });
+
+        this.bubbles = this.bubbles.filter(b => b !== bubble);
       }
 
-      createParticles(x, y, count, color) {
+      createParticles(x, y, count, color, maxSpeed = 4) {
         for (let i = 0; i < count; i++) {
           const angle = Math.random() * Math.PI * 2;
-          const speed = Math.random() * 4 + 1;
+          const speed = Math.random() * maxSpeed + 1.2;
           this.particles.push({
             x: x,
             y: y,
             vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            life: Math.random() * 20 + 15,
-            maxLife: 35,
+            vy: Math.sin(angle) * speed - 0.5,
+            life: Math.random() * 22 + 18,
+            maxLife: 40,
             color: color,
-            size: Math.random() * 3 + 2
+            size: Math.random() * 3.5 + 2,
+            gravity: 0.08
           });
         }
       }
@@ -2573,14 +3086,10 @@
         const acc = this.totalTyped > 0 ? Math.round((this.correctTyped / this.totalTyped) * 100) : 100;
         this.accuracyDisplay.textContent = `${acc}%`;
 
-        // Render hearts
         const hearts = this.livesContainer.querySelectorAll('.life-heart');
         hearts.forEach((h, idx) => {
-          if (idx < this.lives) {
-            h.classList.remove('lost');
-          } else {
-            h.classList.add('lost');
-          }
+          if (idx < this.lives) h.classList.remove('lost');
+          else h.classList.add('lost');
         });
       }
 
@@ -2589,39 +3098,49 @@
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // 1. Draw Starfield
-        this.ctx.fillStyle = '#ffffff';
-        for (let s of this.stars) {
-          s.alpha += s.twinkleSpeed;
-          if (s.alpha > 0.9 || s.alpha < 0.2) s.twinkleSpeed = -s.twinkleSpeed;
-          this.ctx.globalAlpha = Math.max(0.1, Math.min(1, s.alpha));
-          this.ctx.beginPath();
-          this.ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-          this.ctx.fill();
-        }
-        this.ctx.globalAlpha = 1;
+        // 1. Gentle background water/cosmic ambient particles
+        const time = Date.now() / 1000;
 
-        // 2. Spawn Meteors
+        // 2. Spawn Bubbles
         this.spawnTimer++;
         if (this.spawnTimer >= this.spawnInterval) {
-          this.spawnMeteor();
+          this.spawnBubble();
           this.spawnTimer = 0;
-          // Slowly decrease spawn interval to ramp intensity
-          this.spawnInterval = Math.max(45, 100 - Math.floor(this.score / 600));
+          this.spawnInterval = Math.max(45, 95 - Math.floor(this.score / 600));
         }
 
-        // 3. Update & Draw Meteors
-        for (let i = this.meteors.length - 1; i >= 0; i--) {
-          const m = this.meteors[i];
-          m.y += m.speed;
+        // 3. Update & Draw Ripples
+        for (let i = this.ripples.length - 1; i >= 0; i--) {
+          const r = this.ripples[i];
+          r.r += 2.2;
+          r.alpha -= 0.045;
+          if (r.alpha <= 0) {
+            this.ripples.splice(i, 1);
+            continue;
+          }
+          this.ctx.save();
+          this.ctx.strokeStyle = r.color;
+          this.ctx.globalAlpha = r.alpha;
+          this.ctx.lineWidth = 2.5;
+          this.ctx.beginPath();
+          this.ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+          this.ctx.stroke();
+          this.ctx.restore();
+        }
 
-          // Check if reached atmospheric bottom shield
-          if (m.y + m.radius >= this.canvas.height - 20) {
+        // 4. Update & Draw Bubbles
+        for (let i = this.bubbles.length - 1; i >= 0; i--) {
+          const b = this.bubbles[i];
+          b.y += b.speed;
+          b.x = b.baseX + Math.sin(time * 2 + b.swayPhase) * b.swayAmp;
+
+          // Check if reached bottom shield line
+          if (b.y + b.radius >= this.canvas.height - 20) {
             this.lives--;
             sound.explosion();
-            this.createParticles(m.x, this.canvas.height - 20, 20, '#ef4444');
-            this.meteors.splice(i, 1);
-            if (this.currentTargetMeteor === m) this.currentTargetMeteor = null;
+            this.createParticles(b.x, this.canvas.height - 20, 20, '#ef4444', 3);
+            this.bubbles.splice(i, 1);
+            if (this.currentTargetBubble === b) this.currentTargetBubble = null;
             this.updateUI();
 
             if (this.lives <= 0) {
@@ -2631,73 +3150,73 @@
             continue;
           }
 
-          // Draw Meteor Body
+          // Draw Translucent Glass Bubble Body
           this.ctx.save();
-          this.ctx.shadowColor = `hsl(${m.hue}, 90%, 55%)`;
-          this.ctx.shadowBlur = 15;
+          const isTargeted = (this.currentTargetBubble === b);
 
-          const isTargeted = (this.currentTargetMeteor === m);
-          this.ctx.fillStyle = isTargeted ? '#1e1b4b' : '#0f172a';
-          this.ctx.strokeStyle = isTargeted ? '#38bdf8' : `hsl(${m.hue}, 80%, 50%)`;
-          this.ctx.lineWidth = isTargeted ? 3 : 2;
+          // Outer glowing aura
+          this.ctx.shadowColor = `hsl(${b.hue}, 90%, 65%)`;
+          this.ctx.shadowBlur = isTargeted ? 20 : 12;
 
+          // Glassy bubble radial gradient
+          const grad = this.ctx.createRadialGradient(
+            b.x - b.radius * 0.3, b.y - b.radius * 0.3, b.radius * 0.1,
+            b.x, b.y, b.radius
+          );
+          grad.addColorStop(0, 'rgba(255, 255, 255, 0.45)');
+          grad.addColorStop(0.3, `hsla(${b.hue}, 85%, 65%, 0.22)`);
+          grad.addColorStop(0.85, `hsla(${b.hue}, 90%, 55%, 0.35)`);
+          grad.addColorStop(1, `hsla(${b.hue}, 95%, 75%, 0.85)`);
+
+          this.ctx.fillStyle = grad;
           this.ctx.beginPath();
-          this.ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2);
+          this.ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
           this.ctx.fill();
+
+          // Bubble Rim
+          this.ctx.strokeStyle = isTargeted ? '#38bdf8' : `hsla(${b.hue}, 95%, 75%, 0.9)`;
+          this.ctx.lineWidth = isTargeted ? 3.5 : 2;
           this.ctx.stroke();
 
-          // Draw Meteor Text
+          // Specular glass shine crescent
+          this.ctx.beginPath();
+          this.ctx.arc(b.x - b.radius * 0.35, b.y - b.radius * 0.35, b.radius * 0.22, 0, Math.PI * 2);
+          this.ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+          this.ctx.fill();
+
+          // Bubble Text
           this.ctx.font = 'bold 20px "JetBrains Mono", monospace';
           this.ctx.textAlign = 'center';
           this.ctx.textBaseline = 'middle';
 
-          // Show typed prefix in green, remaining in white/cyan
-          const typedPart = m.text.substring(0, m.typedCount);
-          const remainPart = m.text.substring(m.typedCount);
+          const typedPart = b.text.substring(0, b.typedCount);
+          const remainPart = b.text.substring(b.typedCount);
 
-          if (m.typedCount === 0) {
-            this.ctx.fillStyle = '#f8fafc';
-            this.ctx.fillText(m.text, m.x, m.y);
+          if (b.typedCount === 0) {
+            this.ctx.fillStyle = '#ffffff';
+            this.ctx.fillText(b.text, b.x, b.y);
           } else {
-            const fullWidth = this.ctx.measureText(m.text).width;
-            let startX = m.x - fullWidth / 2;
+            const fullWidth = this.ctx.measureText(b.text).width;
+            const startX = b.x - fullWidth / 2;
 
             this.ctx.textAlign = 'left';
-            this.ctx.fillStyle = '#10b981'; // Green typed part
-            this.ctx.fillText(typedPart, startX, m.y);
+            this.ctx.fillStyle = '#10b981';
+            this.ctx.fillText(typedPart, startX, b.y);
 
             const typedWidth = this.ctx.measureText(typedPart).width;
-            this.ctx.fillStyle = '#f8fafc'; // Remaining part
-            this.ctx.fillText(remainPart, startX + typedWidth, m.y);
+            this.ctx.fillStyle = '#ffffff';
+            this.ctx.fillText(remainPart, startX + typedWidth, b.y);
           }
 
           this.ctx.restore();
         }
 
-        // 4. Update & Draw Lasers
-        for (let i = this.lasers.length - 1; i >= 0; i--) {
-          const l = this.lasers[i];
-          this.ctx.save();
-          this.ctx.strokeStyle = '#38bdf8';
-          this.ctx.shadowColor = '#06b6d4';
-          this.ctx.shadowBlur = 10;
-          this.ctx.lineWidth = Math.max(1, l.life / 2);
-          this.ctx.globalAlpha = l.life / 8;
-          this.ctx.beginPath();
-          this.ctx.moveTo(l.startX, l.startY);
-          this.ctx.lineTo(l.endX, l.endY);
-          this.ctx.stroke();
-          this.ctx.restore();
-
-          l.life--;
-          if (l.life <= 0) this.lasers.splice(i, 1);
-        }
-
-        // 5. Update & Draw Particles
+        // 5. Update & Draw Particles (Droplets)
         for (let i = this.particles.length - 1; i >= 0; i--) {
           const p = this.particles[i];
           p.x += p.vx;
           p.y += p.vy;
+          if (p.gravity) p.vy += p.gravity;
           p.life--;
 
           if (p.life <= 0) {
@@ -2713,21 +3232,20 @@
           }
         }
 
-        // 6. Draw Bottom Defense Cannon / Shield Line
+        // 6. Draw Bottom Defense Shield
         this.ctx.save();
-        this.ctx.strokeStyle = 'rgba(6, 182, 212, 0.4)';
-        this.ctx.lineWidth = 2;
+        this.ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+        this.ctx.lineWidth = 2.5;
         this.ctx.setLineDash([8, 6]);
         this.ctx.beginPath();
         this.ctx.moveTo(0, this.canvas.height - 20);
         this.ctx.lineTo(this.canvas.width, this.canvas.height - 20);
         this.ctx.stroke();
 
-        // Cannon Node at bottom center
         this.ctx.setLineDash([]);
         this.ctx.fillStyle = '#6366f1';
         this.ctx.shadowColor = '#6366f1';
-        this.ctx.shadowBlur = 15;
+        this.ctx.shadowBlur = 16;
         this.ctx.beginPath();
         this.ctx.arc(this.canvas.width / 2, this.canvas.height - 10, 16, Math.PI, 0);
         this.ctx.fill();
@@ -2737,6 +3255,945 @@
       }
     }
 
+    /* ========================================================================
+       ARCADE GAME 2: NITRO SPRINT (HORIZONTAL 2D RACER)
+       Player controls a sports car, typing full sentences to accelerate.
+       Features an AI opponent car, with real-time WPM directly controlling
+       player car movement speed and nitro thrust.
+       ======================================================================== */
+    class NitroSprintGame {
+      constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d');
+
+        this.isPlaying = false;
+        this.isPaused = false;
+        this.playerDistance = 0; // 0 to 1000m
+        this.aiDistance = 0;     // 0 to 1000m
+        this.targetDistance = 1000;
+        this.playerSpeed = 0;
+        this.aiSpeed = 0;
+
+        this.currentSentence = "";
+        this.charIndex = 0;
+        this.totalTyped = 0;
+        this.correctTyped = 0;
+        this.recentKeyTimes = [];
+        this.currentWpm = 0;
+        this.score = 0;
+
+        this.exhaustParticles = [];
+        this.roadOffset = 0;
+
+        this.scoreDisplay = document.getElementById('arcadeScoreVal');
+        this.accuracyDisplay = document.getElementById('arcadeAccuracyVal');
+        this.comboDisplay = document.getElementById('arcadeComboVal');
+        this.poolDesc = document.getElementById('arcadePoolDesc');
+        this.startOverlay = document.getElementById('arcadeStartOverlay');
+        this.pauseOverlay = document.getElementById('arcadePauseOverlay');
+        this.gameOverOverlay = document.getElementById('arcadeGameOverOverlay');
+
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+      }
+
+      get meteors() {
+        return [];
+      }
+
+      resize() {
+        const rect = this.canvas.parentElement.getBoundingClientRect();
+        this.canvas.width = rect.width;
+        this.canvas.height = rect.height;
+      }
+
+      getSentencePool() {
+        const lvl = userState.highestLevelUnlocked;
+        if (lvl === 1) {
+          return [
+            "asdf fads sad dad fad asdf daff daas",
+            "dad sad fads faff daff sad dad fad asdf",
+            "fads asfa fada saff daff fads daas sad"
+          ];
+        }
+        if (lvl === 2) {
+          return [
+            "ask a lad fall alas flask salads alfalfa alas",
+            "jkl; ;lkj kjl; ljk; kll; ;lkj jk;l lj;k",
+            "ask a lad; add a salad; all fall down"
+          ];
+        }
+        if (lvl === 3) {
+          return [
+            "asdf jkl; fdsa ;lkj dad ask lad fall alas flask",
+            "salads alfalfa alas fall lass flask salads",
+            "ask a lad; add a salad; all fall; dad sad"
+          ];
+        }
+        if (lvl === 4) {
+          return [
+            "tree water quote root quiet write power tweet wire",
+            "type were trip your true upper port street wire",
+            "pure water quiet root power write quote tweet"
+          ];
+        }
+        if (lvl === 5) {
+          return [
+            "brave zone mixer quick brown fox jumps calm cabin",
+            "next view zoom cabin comb context brave zero",
+            "zinc maze calm zero back move quick brown fox"
+          ];
+        }
+        return [
+          "the quick brown fox jumps smoothly over the glowing neon barrier",
+          "touch typing speed unlocks raw mental clarity and effortless speed",
+          "speed of thought acceleration powers through the final sprint line",
+          "cyber hypercar engine bursts into nitro thrust across the highway"
+        ];
+      }
+
+      updatePoolBadge() {
+        const lvl = userState.highestLevelUnlocked;
+        if (this.poolDesc) {
+          this.poolDesc.textContent = `Nitro Sprint (Level ${lvl} Phrases)`;
+        }
+      }
+
+      startGame() {
+        this.updatePoolBadge();
+        this.isPlaying = true;
+        this.isPaused = false;
+        this.playerDistance = 0;
+        this.aiDistance = 0;
+        this.playerSpeed = 1.0;
+        this.aiSpeed = 3.6;
+        this.currentWpm = 0;
+        this.score = 0;
+        this.totalTyped = 0;
+        this.correctTyped = 0;
+        this.recentKeyTimes = [];
+        this.exhaustParticles = [];
+        this.roadOffset = 0;
+
+        const pool = this.getSentencePool();
+        this.currentSentence = pool[Math.floor(Math.random() * pool.length)];
+        this.charIndex = 0;
+
+        document.getElementById('arcadeComboLabel').textContent = "Real WPM";
+        this.updateUI();
+        this.startOverlay.classList.add('hidden');
+        this.pauseOverlay.classList.add('hidden');
+        this.gameOverOverlay.classList.add('hidden');
+
+        sound.initCtx();
+        this.gameLoop();
+      }
+
+      pauseGame() {
+        if (!this.isPlaying) return;
+        this.isPaused = true;
+        this.pauseOverlay.classList.remove('hidden');
+      }
+
+      resumeGame() {
+        if (!this.isPlaying) return;
+        this.isPaused = false;
+        this.pauseOverlay.classList.add('hidden');
+        this.gameLoop();
+      }
+
+      endGame(playerWon) {
+        this.isPlaying = false;
+        if (playerWon) {
+          sound.victoryFanfare();
+          confetti.launch(80);
+          this.score = Math.round(500 + (this.currentWpm * 25));
+        } else {
+          sound.levelFail();
+          this.score = Math.round(150 + (this.currentWpm * 10));
+        }
+
+        if (this.score > userState.arcadeHighScore) {
+          userState.arcadeHighScore = this.score;
+          GameStorage.save(userState);
+        }
+        updateOverviewMetrics();
+
+        document.getElementById('goFinalScore').textContent = this.score;
+        document.getElementById('goHighScore').textContent = userState.arcadeHighScore;
+        document.getElementById('goMeteorsHit').textContent = `${Math.round(this.currentWpm)} WPM`;
+        document.getElementById('arcadeGameOverTitle').textContent = playerWon ? "🏁 Victory Sprint!" : "🏎️ AI Crossed First!";
+        document.getElementById('arcadeGameOverSummary').textContent = playerWon 
+          ? `You dominated the sprint at ${this.currentWpm} WPM!` 
+          : `The AI opponent edged ahead. Practice your cadence to boost top speed!`;
+        this.gameOverOverlay.classList.remove('hidden');
+      }
+
+      handleInput(key) {
+        if (!this.isPlaying || this.isPaused) return;
+
+        this.totalTyped++;
+        const expected = this.currentSentence[this.charIndex];
+
+        if (key === expected) {
+          sound.keySuccess();
+          this.correctTyped++;
+          this.charIndex++;
+          this.score += 15;
+
+          // Record timestamp for WPM calculation
+          const now = Date.now();
+          this.recentKeyTimes.push(now);
+          this.recentKeyTimes = this.recentKeyTimes.filter(t => now - t <= 5000);
+
+          if (this.recentKeyTimes.length >= 2) {
+            const timeSpanMin = (now - this.recentKeyTimes[0]) / 60000;
+            this.currentWpm = Math.round((this.recentKeyTimes.length / 5) / Math.max(0.015, timeSpanMin));
+          } else {
+            this.currentWpm = 35;
+          }
+
+          if (this.currentWpm > 55 && Math.random() < 0.25) {
+            sound.nitroZoom();
+          }
+
+          // If current sentence completed, load next seamless sentence
+          if (this.charIndex >= this.currentSentence.length) {
+            const pool = this.getSentencePool();
+            this.currentSentence = pool[Math.floor(Math.random() * pool.length)];
+            this.charIndex = 0;
+            this.score += 200;
+          }
+        } else {
+          sound.keyError();
+          // Decelerate penalty
+          this.currentWpm = Math.max(10, this.currentWpm - 8);
+        }
+
+        this.updateUI();
+      }
+
+      updateUI() {
+        this.scoreDisplay.textContent = this.score;
+        this.comboDisplay.textContent = `${this.currentWpm} WPM`;
+        const acc = this.totalTyped > 0 ? Math.round((this.correctTyped / this.totalTyped) * 100) : 100;
+        this.accuracyDisplay.textContent = `${acc}%`;
+      }
+
+      gameLoop() {
+        if (!this.isPlaying || this.isPaused) return;
+
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // 1. Natural speed calculation driven directly by WPM
+        const targetPlayerSpeed = 1.0 + (this.currentWpm * 0.16);
+        this.playerSpeed += (targetPlayerSpeed - this.playerSpeed) * 0.08;
+
+        // Competitive AI speed (fluctuates ~4.4)
+        this.aiSpeed = 4.2 + Math.sin(Date.now() / 1400) * 0.8;
+
+        this.playerDistance += this.playerSpeed * 0.42;
+        this.aiDistance += this.aiSpeed * 0.42;
+
+        this.roadOffset = (this.roadOffset + this.playerSpeed * 2.5) % 80;
+
+        // Check race finish (1000m)
+        if (this.playerDistance >= this.targetDistance) {
+          this.endGame(true);
+          return;
+        } else if (this.aiDistance >= this.targetDistance) {
+          this.endGame(false);
+          return;
+        }
+
+        const width = this.canvas.width;
+        const height = this.canvas.height;
+
+        // 2. Draw Track Horizon & Sky
+        this.ctx.fillStyle = '#070b16';
+        this.ctx.fillRect(0, 0, width, height);
+
+        // 3. Draw Parallax Road
+        const roadTop = 150;
+        const roadHeight = height - roadTop;
+        const roadCenterY = roadTop + roadHeight / 2;
+
+        // Road asphalt
+        this.ctx.fillStyle = '#0f172a';
+        this.ctx.fillRect(0, roadTop, width, roadHeight);
+
+        // Track guardrails
+        this.ctx.strokeStyle = '#38bdf8';
+        this.ctx.lineWidth = 3;
+        this.ctx.strokeRect(0, roadTop, width, roadHeight);
+
+        // Lane separator line (scrolling)
+        this.ctx.save();
+        this.ctx.strokeStyle = '#f59e0b';
+        this.ctx.lineWidth = 3;
+        this.ctx.setLineDash([35, 25]);
+        this.ctx.lineDashOffset = -this.roadOffset;
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, roadCenterY);
+        this.ctx.lineTo(width, roadCenterY);
+        this.ctx.stroke();
+        this.ctx.restore();
+
+        // 4. Upper Cockpit Panel: Typing Sentence Prompt & Speedometer
+        this.ctx.save();
+        this.ctx.fillStyle = 'rgba(16, 23, 38, 0.9)';
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+        this.ctx.lineWidth = 1;
+        this.ctx.fillRect(20, 15, width - 40, 115);
+        this.ctx.strokeRect(20, 15, width - 40, 115);
+
+        // Sentence prompt
+        this.ctx.font = 'bold 18px "JetBrains Mono", monospace';
+        this.ctx.textBaseline = 'middle';
+
+        const typedText = this.currentSentence.substring(0, this.charIndex);
+        const currentChar = this.currentSentence[this.charIndex] || '';
+        const remainingText = this.currentSentence.substring(this.charIndex + 1);
+
+        let textX = 35;
+        const textY = 48;
+
+        this.ctx.fillStyle = '#10b981';
+        this.ctx.fillText(typedText, textX, textY);
+        textX += this.ctx.measureText(typedText).width;
+
+        // Active character cursor box
+        if (currentChar) {
+          const charW = this.ctx.measureText(currentChar).width || 12;
+          this.ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+          this.ctx.fillRect(textX - 2, textY - 12, charW + 4, 24);
+          this.ctx.strokeStyle = '#38bdf8';
+          this.ctx.strokeRect(textX - 2, textY - 12, charW + 4, 24);
+          this.ctx.fillStyle = '#ffffff';
+          this.ctx.fillText(currentChar, textX, textY);
+          textX += charW;
+        }
+
+        this.ctx.fillStyle = '#94a3b8';
+        this.ctx.fillText(remainingText, textX, textY);
+
+        // Speedometer readouts
+        this.ctx.font = 'bold 14px "Outfit", sans-serif';
+        this.ctx.fillStyle = '#06b6d4';
+        this.ctx.fillText(`PLAYER WPM: ${this.currentWpm} WPM`, 35, 95);
+
+        this.ctx.fillStyle = '#ef4444';
+        this.ctx.fillText(`AI RIVAL: ${Math.round(this.aiSpeed * 10)} WPM`, 250, 95);
+
+        const progressPercent = Math.min(100, Math.round((this.playerDistance / this.targetDistance) * 100));
+        this.ctx.fillStyle = '#e2e8f0';
+        this.ctx.fillText(`DISTANCE: ${Math.round(this.playerDistance)}m / 1000m (${progressPercent}%)`, width - 300, 95);
+
+        this.ctx.restore();
+
+        // 5. Draw Mini Track Progress Bar
+        this.ctx.save();
+        const mapX = 35;
+        const mapY = 120;
+        const mapW = width - 70;
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+        this.ctx.fillRect(mapX, mapY, mapW, 4);
+
+        // Player dot (cyan)
+        const playerDotX = mapX + (this.playerDistance / this.targetDistance) * mapW;
+        this.ctx.fillStyle = '#06b6d4';
+        this.ctx.beginPath();
+        this.ctx.arc(playerDotX, mapY + 2, 6, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // AI dot (red)
+        const aiDotX = mapX + (this.aiDistance / this.targetDistance) * mapW;
+        this.ctx.fillStyle = '#ef4444';
+        this.ctx.beginPath();
+        this.ctx.arc(aiDotX, mapY + 2, 5, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.restore();
+
+        // 6. Draw AI Car (Top Lane, Y ~ 200)
+        // Position on screen represents relative lead:
+        const leadDelta = (this.aiDistance - this.playerDistance) * 2;
+        const aiCarX = Math.max(100, Math.min(width - 150, 260 + leadDelta));
+        const aiCarY = roadTop + (roadHeight * 0.25);
+
+        this.drawCar(aiCarX, aiCarY, '#ef4444', '#f59e0b', 'AI RIVAL');
+
+        // 7. Draw Player Car (Bottom Lane, Y ~ 360)
+        const playerCarX = 260;
+        const playerCarY = roadTop + (roadHeight * 0.72);
+        const isNitro = this.currentWpm >= 50;
+
+        // Nitro exhaust particles
+        if (isNitro || this.playerSpeed > 3.5) {
+          for (let p = 0; p < (isNitro ? 4 : 2); p++) {
+            this.exhaustParticles.push({
+              x: playerCarX - 45,
+              y: playerCarY + (Math.random() * 12 - 6),
+              vx: -(this.playerSpeed * 2.5 + Math.random() * 4),
+              vy: Math.random() * 2 - 1,
+              size: Math.random() * 6 + 3,
+              color: isNitro ? '#06b6d4' : '#f59e0b',
+              life: 18,
+              maxLife: 18
+            });
+          }
+        }
+
+        // Draw exhaust particles
+        for (let i = this.exhaustParticles.length - 1; i >= 0; i--) {
+          const ep = this.exhaustParticles[i];
+          ep.x += ep.vx;
+          ep.y += ep.vy;
+          ep.life--;
+          if (ep.life <= 0) {
+            this.exhaustParticles.splice(i, 1);
+          } else {
+            this.ctx.save();
+            this.ctx.globalAlpha = ep.life / ep.maxLife;
+            this.ctx.fillStyle = ep.color;
+            this.ctx.beginPath();
+            this.ctx.arc(ep.x, ep.y, ep.size, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.restore();
+          }
+        }
+
+        this.drawCar(playerCarX, playerCarY, '#06b6d4', '#6366f1', isNitro ? '⚡ NITRO' : 'YOU');
+
+        requestAnimationFrame(() => this.gameLoop());
+      }
+
+      drawCar(x, y, mainColor, accentColor, label) {
+        this.ctx.save();
+        this.ctx.translate(x, y);
+
+        // Underglow neon
+        this.ctx.shadowColor = mainColor;
+        this.ctx.shadowBlur = 18;
+
+        // Wheels
+        this.ctx.fillStyle = '#020617';
+        this.ctx.fillRect(-35, -20, 16, 7);
+        this.ctx.fillRect(20, -20, 16, 7);
+        this.ctx.fillRect(-35, 13, 16, 7);
+        this.ctx.fillRect(20, 13, 16, 7);
+
+        // Car Body
+        this.ctx.fillStyle = mainColor;
+        this.ctx.beginPath();
+        this.ctx.roundRect(-42, -14, 84, 28, 8);
+        this.ctx.fill();
+
+        // Cockpit glass
+        this.ctx.fillStyle = '#0f172a';
+        this.ctx.beginPath();
+        this.ctx.roundRect(-15, -10, 36, 20, 5);
+        this.ctx.fill();
+
+        // Headlights beaming right
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fillRect(38, -12, 6, 6);
+        this.ctx.fillRect(38, 6, 6, 6);
+
+        // Label above car
+        this.ctx.shadowBlur = 0;
+        this.ctx.font = 'bold 11px "Outfit", sans-serif';
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText(label, 0, -26);
+
+        this.ctx.restore();
+      }
+    }
+
+    /* ========================================================================
+       ARCADE GAME 3: WORD BLASTER (TARGETING & HEAVY FLASH/SHAKE)
+       Words float dynamically across the arena. Typing the first letter
+       locks on with high-tech reticle. Completing word triggers heavy
+       flash and screen-shake animation with synthesized static explosion.
+       ======================================================================== */
+    class WordBlasterGame {
+      constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d');
+
+        this.isPlaying = false;
+        this.isPaused = false;
+        this.words = [];
+        this.targetWord = null; // Currently locked-on word
+        this.particles = [];
+        this.shakeFrames = 0;
+        this.flashAlpha = 0;
+
+        this.score = 0;
+        this.lives = 3;
+        this.combo = 0;
+        this.totalTyped = 0;
+        this.correctTyped = 0;
+        this.wordsDestroyed = 0;
+        this.spawnTimer = 0;
+        this.spawnInterval = 90;
+
+        this.scoreDisplay = document.getElementById('arcadeScoreVal');
+        this.accuracyDisplay = document.getElementById('arcadeAccuracyVal');
+        this.comboDisplay = document.getElementById('arcadeComboVal');
+        this.poolDesc = document.getElementById('arcadePoolDesc');
+        this.livesContainer = document.getElementById('arcadeLivesContainer');
+        this.startOverlay = document.getElementById('arcadeStartOverlay');
+        this.pauseOverlay = document.getElementById('arcadePauseOverlay');
+        this.gameOverOverlay = document.getElementById('arcadeGameOverOverlay');
+
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+      }
+
+      get meteors() {
+        return [];
+      }
+
+      resize() {
+        const rect = this.canvas.parentElement.getBoundingClientRect();
+        this.canvas.width = rect.width;
+        this.canvas.height = rect.height;
+      }
+
+      getPool() {
+        const lvl = userState.highestLevelUnlocked;
+        if (lvl === 1) return ["asdf", "fads", "sad", "dad", "fad", "daas"];
+        if (lvl === 2) return ["jkl", "ask", "lad", "fall", "alas", "flask"];
+        if (lvl === 3) return ["salads", "alfalfa", "salad", "flask", "falls"];
+        if (lvl === 4) return ["water", "quote", "write", "power", "street", "wire"];
+        if (lvl === 5) return ["brave", "mixer", "quick", "brown", "cabin", "zoom"];
+        return [...ARCADE_VOCABULARY, "laser", "pulse", "target", "cyber", "blaster", "matrix"];
+      }
+
+      updatePoolBadge() {
+        const lvl = userState.highestLevelUnlocked;
+        if (this.poolDesc) {
+          this.poolDesc.textContent = `Word Blaster (Level ${lvl} Targets)`;
+        }
+      }
+
+      startGame() {
+        this.updatePoolBadge();
+        this.isPlaying = true;
+        this.isPaused = false;
+        this.words = [];
+        this.targetWord = null;
+        this.particles = [];
+        this.shakeFrames = 0;
+        this.flashAlpha = 0;
+        this.score = 0;
+        this.lives = 3;
+        this.combo = 0;
+        this.totalTyped = 0;
+        this.correctTyped = 0;
+        this.wordsDestroyed = 0;
+        this.spawnTimer = 0;
+
+        document.getElementById('arcadeComboLabel').textContent = "Combo";
+        this.updateUI();
+        this.startOverlay.classList.add('hidden');
+        this.pauseOverlay.classList.add('hidden');
+        this.gameOverOverlay.classList.add('hidden');
+
+        // Spawn initial wave of floating words
+        for (let i = 0; i < 4; i++) {
+          this.spawnWord();
+        }
+
+        sound.initCtx();
+        this.gameLoop();
+      }
+
+      pauseGame() {
+        if (!this.isPlaying) return;
+        this.isPaused = true;
+        this.pauseOverlay.classList.remove('hidden');
+      }
+
+      resumeGame() {
+        if (!this.isPlaying) return;
+        this.isPaused = false;
+        this.pauseOverlay.classList.add('hidden');
+        this.gameLoop();
+      }
+
+      endGame() {
+        this.isPlaying = false;
+        sound.explosion();
+
+        if (this.score > userState.arcadeHighScore) {
+          userState.arcadeHighScore = this.score;
+          GameStorage.save(userState);
+          confetti.launch(60);
+        }
+        updateOverviewMetrics();
+
+        document.getElementById('goFinalScore').textContent = this.score;
+        document.getElementById('goHighScore').textContent = userState.arcadeHighScore;
+        document.getElementById('goMeteorsHit').textContent = this.wordsDestroyed;
+        document.getElementById('arcadeGameOverTitle').textContent = "Blaster Core Depleted!";
+        document.getElementById('arcadeGameOverSummary').textContent = "Target overloads breached your perimeter.";
+        this.gameOverOverlay.classList.remove('hidden');
+      }
+
+      spawnWord() {
+        const pool = this.getPool();
+        const text = pool[Math.floor(Math.random() * pool.length)];
+
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 0.5 + Math.random() * 0.7;
+
+        this.words.push({
+          id: Math.random().toString(36).substring(7),
+          text: text,
+          typedCount: 0,
+          x: 100 + Math.random() * (this.canvas.width - 200),
+          y: 70 + Math.random() * (this.canvas.height - 200),
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          timer: 1000,
+          maxTimer: 1000,
+          hue: 195 + Math.random() * 60
+        });
+      }
+
+      handleInput(key) {
+        if (!this.isPlaying || this.isPaused) return;
+
+        this.totalTyped++;
+
+        // 1. If currently locked onto a word, advance on that target
+        if (this.targetWord) {
+          const needed = this.targetWord.text[this.targetWord.typedCount];
+          if (key === needed) {
+            this.correctTyped++;
+            this.targetWord.typedCount++;
+            this.combo++;
+            this.score += 25 * Math.min(this.combo, 5);
+            sound.keySuccess();
+
+            // Check if entire word completed -> HEAVY FLASH & SHAKE!
+            if (this.targetWord.typedCount >= this.targetWord.text.length) {
+              this.blastWord(this.targetWord);
+              this.targetWord = null;
+            }
+          } else {
+            sound.keyError();
+            this.combo = 0;
+          }
+          this.updateUI();
+          return;
+        }
+
+        // 2. Lock onto word beginning with this letter
+        const match = this.words.find(w => w.text[0] === key);
+        if (match) {
+          this.targetWord = match;
+          this.correctTyped++;
+          this.targetWord.typedCount = 1;
+          this.combo++;
+          this.score += 25;
+          sound.targetLock();
+
+          if (this.targetWord.typedCount >= this.targetWord.text.length) {
+            this.blastWord(this.targetWord);
+            this.targetWord = null;
+          }
+        } else {
+          sound.keyError();
+          this.combo = 0;
+        }
+
+        this.updateUI();
+      }
+
+      blastWord(word) {
+        this.wordsDestroyed++;
+        this.score += 150 * Math.min(this.combo, 5);
+
+        // Required: HEAVY FLASH & SHAKE ANIMATION
+        this.shakeFrames = 18; // 18 frames of violent screen shake
+        this.flashAlpha = 0.85; // Full-screen white flare
+
+        // Synthesized noise explosion static burst
+        sound.wordExplosion();
+
+        // 35+ shatter polygon shards and sparks
+        for (let i = 0; i < 35; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = Math.random() * 7 + 2;
+          this.particles.push({
+            x: word.x,
+            y: word.y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            size: Math.random() * 5 + 2,
+            life: Math.random() * 25 + 15,
+            maxLife: 40,
+            color: `hsl(${word.hue}, 95%, 65%)`
+          });
+        }
+
+        this.words = this.words.filter(w => w !== word);
+      }
+
+      updateUI() {
+        this.scoreDisplay.textContent = this.score;
+        this.comboDisplay.textContent = `${this.combo}x`;
+        const acc = this.totalTyped > 0 ? Math.round((this.correctTyped / this.totalTyped) * 100) : 100;
+        this.accuracyDisplay.textContent = `${acc}%`;
+
+        const hearts = this.livesContainer.querySelectorAll('.life-heart');
+        hearts.forEach((h, idx) => {
+          if (idx < this.lives) h.classList.remove('lost');
+          else h.classList.add('lost');
+        });
+      }
+
+      gameLoop() {
+        if (!this.isPlaying || this.isPaused) return;
+
+        this.ctx.save();
+
+        // Screen Shake Translation
+        if (this.shakeFrames > 0) {
+          const shakeMag = (this.shakeFrames / 18) * 16;
+          const shakeX = (Math.random() - 0.5) * shakeMag * 2;
+          const shakeY = (Math.random() - 0.5) * shakeMag * 2;
+          this.ctx.translate(shakeX, shakeY);
+          this.shakeFrames--;
+        }
+
+        this.ctx.clearRect(-50, -50, this.canvas.width + 100, this.canvas.height + 100);
+
+        // Spawn timer
+        this.spawnTimer++;
+        if (this.spawnTimer >= this.spawnInterval && this.words.length < 6) {
+          this.spawnWord();
+          this.spawnTimer = 0;
+        }
+
+        const width = this.canvas.width;
+        const height = this.canvas.height;
+
+        // 1. Update and Draw Floating Words
+        for (let i = this.words.length - 1; i >= 0; i--) {
+          const w = this.words[i];
+          w.x += w.vx;
+          w.y += w.vy;
+
+          // Bounce off bounds
+          if (w.x < 80 || w.x > width - 80) w.vx = -w.vx;
+          if (w.y < 50 || w.y > height - 70) w.vy = -w.vy;
+
+          // Expiration countdown
+          w.timer--;
+          if (w.timer <= 0) {
+            this.lives--;
+            sound.explosion();
+            this.words.splice(i, 1);
+            if (this.targetWord === w) this.targetWord = null;
+            this.updateUI();
+            if (this.lives <= 0) {
+              this.endGame();
+              this.ctx.restore();
+              return;
+            }
+            continue;
+          }
+
+          const isLockedOn = (this.targetWord === w);
+
+          this.ctx.save();
+          this.ctx.translate(w.x, w.y);
+
+          // Word badge capsule
+          this.ctx.font = 'bold 20px "JetBrains Mono", monospace';
+          const textW = this.ctx.measureText(w.text).width;
+          const padX = 18;
+          const padY = 12;
+
+          this.ctx.fillStyle = isLockedOn ? 'rgba(30, 27, 75, 0.95)' : 'rgba(15, 23, 42, 0.85)';
+          this.ctx.strokeStyle = isLockedOn ? '#38bdf8' : `hsl(${w.hue}, 80%, 50%)`;
+          this.ctx.lineWidth = isLockedOn ? 2.5 : 1.5;
+          this.ctx.shadowColor = isLockedOn ? '#38bdf8' : `hsl(${w.hue}, 90%, 55%)`;
+          this.ctx.shadowBlur = isLockedOn ? 20 : 10;
+
+          this.ctx.beginPath();
+          this.ctx.roundRect(-textW / 2 - padX, -padY, textW + padX * 2, padY * 2, 8);
+          this.ctx.fill();
+          this.ctx.stroke();
+
+          // Holographic Targeting Reticle on locked-on word
+          if (isLockedOn) {
+            this.ctx.strokeStyle = '#06b6d4';
+            this.ctx.lineWidth = 2;
+            const bSize = textW / 2 + padX + 8;
+
+            // Reticle corner brackets
+            this.ctx.beginPath();
+            this.ctx.moveTo(-bSize, -padY - 8);
+            this.ctx.lineTo(-bSize + 10, -padY - 8);
+            this.ctx.moveTo(bSize, -padY - 8);
+            this.ctx.lineTo(bSize - 10, -padY - 8);
+            this.ctx.moveTo(-bSize, padY + 8);
+            this.ctx.lineTo(-bSize + 10, padY + 8);
+            this.ctx.moveTo(bSize, padY + 8);
+            this.ctx.lineTo(bSize - 10, padY + 8);
+            this.ctx.stroke();
+
+            // Tracking guide line from cannon
+            this.ctx.restore();
+            this.ctx.save();
+            this.ctx.strokeStyle = 'rgba(6, 182, 212, 0.6)';
+            this.ctx.lineWidth = 2;
+            this.ctx.setLineDash([6, 4]);
+            this.ctx.beginPath();
+            this.ctx.moveTo(width / 2, height - 15);
+            this.ctx.lineTo(w.x, w.y);
+            this.ctx.stroke();
+            this.ctx.restore();
+            this.ctx.save();
+            this.ctx.translate(w.x, w.y);
+          }
+
+          // Draw Text (typed in green, remaining in white)
+          this.ctx.textBaseline = 'middle';
+          this.ctx.textAlign = 'left';
+          const typedStr = w.text.substring(0, w.typedCount);
+          const remainStr = w.text.substring(w.typedCount);
+          const startX = -textW / 2;
+
+          this.ctx.fillStyle = '#10b981';
+          this.ctx.fillText(typedStr, startX, 0);
+
+          const typedW = this.ctx.measureText(typedStr).width;
+          this.ctx.fillStyle = '#ffffff';
+          this.ctx.fillText(remainStr, startX + typedW, 0);
+
+          this.ctx.restore();
+        }
+
+        // 2. Draw Shatter Particles
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life--;
+          if (p.life <= 0) {
+            this.particles.splice(i, 1);
+          } else {
+            this.ctx.save();
+            this.ctx.globalAlpha = p.life / p.maxLife;
+            this.ctx.fillStyle = p.color;
+            this.ctx.fillRect(p.x, p.y, p.size, p.size);
+            this.ctx.restore();
+          }
+        }
+
+        // 3. Heavy Flash Overlay
+        if (this.flashAlpha > 0) {
+          this.ctx.fillStyle = `rgba(255, 255, 255, ${this.flashAlpha})`;
+          this.ctx.fillRect(-50, -50, width + 100, height + 100);
+          this.flashAlpha = Math.max(0, this.flashAlpha - 0.05);
+        }
+
+        // 4. Command turret at bottom
+        this.ctx.save();
+        this.ctx.fillStyle = '#6366f1';
+        this.ctx.shadowColor = '#6366f1';
+        this.ctx.shadowBlur = 15;
+        this.ctx.beginPath();
+        this.ctx.arc(width / 2, height - 10, 18, Math.PI, 0);
+        this.ctx.fill();
+        this.ctx.restore();
+
+        this.ctx.restore();
+
+        requestAnimationFrame(() => this.gameLoop());
+      }
+    }
+
+    /* ========================================================================
+       ARCADE ORCHESTRATOR & COMPATIBILITY FACADE
+       Coordinates all 3 distinct games and maintains complete compatibility
+       with existing test suites referencing `meteorArcade`.
+       ======================================================================== */
+    class ArcadeController {
+      constructor(canvasId) {
+        this.canvasId = canvasId;
+        this.bubbleDrop = new BubbleDropGame(canvasId);
+        this.nitroSprint = new NitroSprintGame(canvasId);
+        this.wordBlaster = new WordBlasterGame(canvasId);
+
+        this.activeMode = 'bubbleDrop'; // 'bubbleDrop' | 'nitroSprint' | 'wordBlaster'
+        this.currentGame = this.bubbleDrop;
+      }
+
+      switchMode(mode) {
+        if (this.currentGame && this.currentGame.isPlaying) {
+          this.currentGame.pauseGame();
+          this.currentGame.isPlaying = false;
+        }
+
+        this.activeMode = mode;
+        if (mode === 'bubbleDrop') this.currentGame = this.bubbleDrop;
+        else if (mode === 'nitroSprint') this.currentGame = this.nitroSprint;
+        else if (mode === 'wordBlaster') this.currentGame = this.wordBlaster;
+
+        document.querySelectorAll('.arcade-mode-tab').forEach(tab => {
+          tab.classList.toggle('active', tab.dataset.mode === mode);
+        });
+
+        // Update Overlays
+        const startTitle = document.getElementById('arcadeStartTitle');
+        const startDesc = document.getElementById('arcadeStartDesc');
+        const startOverlay = document.getElementById('arcadeStartOverlay');
+        const pauseOverlay = document.getElementById('arcadePauseOverlay');
+        const gameOverOverlay = document.getElementById('arcadeGameOverOverlay');
+
+        startOverlay.classList.remove('hidden');
+        pauseOverlay.classList.add('hidden');
+        gameOverOverlay.classList.add('hidden');
+
+        if (mode === 'bubbleDrop') {
+          startTitle.textContent = "Bubble Drop";
+          startDesc.textContent = "Translucent bubbles descend vertically with floating physics! Type each bubble's characters to pop it with fluid particle splashes.";
+        } else if (mode === 'nitroSprint') {
+          startTitle.textContent = "Nitro Sprint";
+          startDesc.textContent = "2D highway sprint against an AI rival! Type full sentences to accelerate. Your real-time WPM directly propels your hypercar.";
+        } else if (mode === 'wordBlaster') {
+          startTitle.textContent = "Word Blaster";
+          startDesc.textContent = "Words float dynamically across space. Type the first letter to lock on with holographic reticles, then blast for screen-shaking explosions!";
+        }
+
+        this.currentGame.resize();
+        this.currentGame.updatePoolBadge();
+      }
+
+      // Delegate properties to match original meteorArcade API and extended tests
+      get activeGame() { return this.currentGame; }
+      get currentMode() { return this.activeMode; }
+      get isPlaying() { return this.currentGame.isPlaying; }
+      get isPaused() { return this.currentGame.isPaused; }
+      get score() { return this.currentGame.score; }
+      get meteors() { return this.bubbleDrop.bubbles; }
+
+      startGame() { this.currentGame.startGame(); }
+      pauseGame() { this.currentGame.pauseGame(); }
+      resumeGame() { this.currentGame.resumeGame(); }
+      resize() { this.currentGame.resize(); }
+      updatePoolBadge() { this.currentGame.updatePoolBadge(); }
+      handleInput(key) { this.currentGame.handleInput(key); }
+    }
+
+    let arcadeController = null;
     let meteorArcade = null;
 
     /* ========================================================================
@@ -2752,15 +4209,14 @@
       const targetTab = document.querySelector(`.nav-tab-btn[data-view="${targetViewId}"]`);
       if (targetTab) targetTab.classList.add('active');
 
-      // View-specific initializations
       if (targetViewId === 'practiceView' && practiceEngine) {
         practiceEngine.renderLevelPills();
         practiceEngine.highlightNextKey();
       }
 
-      if (targetViewId === 'arcadeView' && meteorArcade) {
-        meteorArcade.resize();
-        meteorArcade.updatePoolBadge();
+      if (targetViewId === 'arcadeView' && arcadeController) {
+        arcadeController.resize();
+        arcadeController.updatePoolBadge();
       }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2772,7 +4228,6 @@
       document.getElementById('menuHighScoreVal').textContent = userState.arcadeHighScore || 0;
       document.getElementById('headerLevelNum').textContent = userState.highestLevelUnlocked;
 
-      // Calculate best overall accuracy and WPM from stored state
       let bestAcc = 0;
       let topWpm = userState.bestWpm || 0;
       if (userState.levelStats) {
@@ -2791,7 +4246,6 @@
        KEYBOARD LISTENER (PHYSICAL KEYPRESS HANDLING)
        ======================================================================== */
     window.addEventListener('keydown', (e) => {
-      // Prevent browser default scrolling on spacebar inside typing/arcade view
       const activeView = document.querySelector('.view-section.active');
       if (activeView && (activeView.id === 'practiceView' || activeView.id === 'arcadeView')) {
         if (e.key === ' ') {
@@ -2818,12 +4272,15 @@
       // Arcade mode keystroke handler
       if (activeView && activeView.id === 'arcadeView') {
         if (e.key === 'Escape') {
-          if (meteorArcade.isPlaying) {
-            if (meteorArcade.isPaused) meteorArcade.resumeGame();
-            else meteorArcade.pauseGame();
+          if (arcadeController && arcadeController.isPlaying) {
+            if (arcadeController.isPaused) arcadeController.resumeGame();
+            else arcadeController.pauseGame();
           }
         } else if (e.key.length === 1) {
-          meteorArcade.handleInput(e.key.toLowerCase());
+          // Pass exact key or lowercased based on game requirements
+          if (arcadeController) {
+            arcadeController.handleInput(e.key);
+          }
         }
       }
     });
@@ -2894,17 +4351,52 @@
 
       // 2. Initialize Engines
       practiceEngine = new PracticeEngine();
-      meteorArcade = new MeteorArcade('meteorCanvas');
+      arcadeController = new ArcadeController('meteorCanvas');
+      meteorArcade = arcadeController; // Backward compatibility alias
       updateOverviewMetrics();
 
       // 3. Navigation Bindings
       document.getElementById('brandBtn').addEventListener('click', () => switchView('menuView'));
       document.getElementById('tabMenu').addEventListener('click', () => switchView('menuView'));
-      document.getElementById('tabPractice').addEventListener('click', () => switchView('practiceView'));
+      document.getElementById('tabPractice').addEventListener('click', () => {
+        switchView('practiceView');
+        practiceEngine.switchTrack('standard');
+      });
+      document.getElementById('tabProgrammer').addEventListener('click', () => {
+        switchView('practiceView');
+        practiceEngine.switchTrack('programmer');
+      });
       document.getElementById('tabArcade').addEventListener('click', () => switchView('arcadeView'));
 
-      document.getElementById('cardLaunchPractice').addEventListener('click', () => switchView('practiceView'));
+      // Mode Card Bindings on Main Menu
+      document.getElementById('cardLaunchPractice').addEventListener('click', () => {
+        switchView('practiceView');
+        practiceEngine.switchTrack('standard');
+      });
+      document.getElementById('cardLaunchProgrammer').addEventListener('click', () => {
+        switchView('practiceView');
+        practiceEngine.switchTrack('programmer');
+      });
       document.getElementById('cardLaunchArcade').addEventListener('click', () => switchView('arcadeView'));
+
+      // Track Switcher Buttons inside Practice View
+      document.getElementById('btnTrackStandard').addEventListener('click', () => {
+        practiceEngine.switchTrack('standard');
+      });
+      document.getElementById('btnTrackProgrammer').addEventListener('click', () => {
+        practiceEngine.switchTrack('programmer');
+      });
+
+      // Arcade 3 Game Mode Tabs
+      document.getElementById('tabArcadeBubbleDrop').addEventListener('click', () => {
+        arcadeController.switchMode('bubbleDrop');
+      });
+      document.getElementById('tabArcadeNitroSprint').addEventListener('click', () => {
+        arcadeController.switchMode('nitroSprint');
+      });
+      document.getElementById('tabArcadeWordBlaster').addEventListener('click', () => {
+        arcadeController.switchMode('wordBlaster');
+      });
 
       // 4. Header Action Buttons
       document.getElementById('toggleThemeBtn').addEventListener('click', toggleTheme);
@@ -2918,8 +4410,8 @@
             practiceEngine.renderLevelPills();
             practiceEngine.loadLevel(0, 0);
           }
-          if (meteorArcade) {
-            meteorArcade.updatePoolBadge();
+          if (arcadeController) {
+            arcadeController.updatePoolBadge();
           }
         }
       });
@@ -2943,10 +4435,10 @@
       });
 
       // 7. Arcade Mode Buttons
-      document.getElementById('btnStartArcadeGame').addEventListener('click', () => meteorArcade.startGame());
-      document.getElementById('arcadePauseBtn').addEventListener('click', () => meteorArcade.pauseGame());
-      document.getElementById('btnResumeArcadeGame').addEventListener('click', () => meteorArcade.resumeGame());
-      document.getElementById('btnRestartArcadeGame').addEventListener('click', () => meteorArcade.startGame());
+      document.getElementById('btnStartArcadeGame').addEventListener('click', () => arcadeController.startGame());
+      document.getElementById('arcadePauseBtn').addEventListener('click', () => arcadeController.pauseGame());
+      document.getElementById('btnResumeArcadeGame').addEventListener('click', () => arcadeController.resumeGame());
+      document.getElementById('btnRestartArcadeGame').addEventListener('click', () => arcadeController.startGame());
       document.getElementById('btnArcadeBackToLessons').addEventListener('click', () => switchView('practiceView'));
     });
   </script>
