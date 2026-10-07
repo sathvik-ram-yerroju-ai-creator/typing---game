@@ -1,0 +1,2954 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark light">
+  <title>KeyFlow Pro — Modern Touch Typing & Arcade Practice</title>
+  
+  <!-- Modern Google Fonts: Outfit (UI) and JetBrains Mono (Typing/Monospace) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. CSS DESIGN SYSTEM & TOKENS
+       ========================================================================== */
+    :root {
+      /* Dark Theme (Default) */
+      --bg-canvas: #090d16;
+      --bg-surface: #101726;
+      --bg-surface-elevated: #182238;
+      --bg-surface-glass: rgba(16, 23, 38, 0.75);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(99, 102, 241, 0.6);
+      --border-glow: rgba(56, 189, 248, 0.4);
+      
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #475569;
+      
+      --accent-primary: #6366f1; /* Indigo */
+      --accent-primary-hover: #4f46e5;
+      --accent-secondary: #06b6d4; /* Cyan */
+      --accent-success: #10b981; /* Emerald Green */
+      --accent-danger: #ef4444; /* Rose Red */
+      --accent-warning: #f59e0b; /* Amber */
+      
+      --key-bg: #1e293b;
+      --key-border: #334155;
+      --key-text: #e2e8f0;
+      --key-shadow: 0 4px 0 #0f172a, 0 6px 12px rgba(0,0,0,0.3);
+      --key-pressed: 0 1px 0 #0f172a, 0 2px 4px rgba(0,0,0,0.4);
+      
+      --font-ui: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', "Courier New", Courier, monospace;
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+      
+      --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      --shadow-glow: 0 0 25px rgba(99, 102, 241, 0.25);
+    }
+
+    /* Light Theme */
+    [data-theme="light"] {
+      --bg-canvas: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-surface-elevated: #f1f5f9;
+      --bg-surface-glass: rgba(255, 255, 255, 0.85);
+      --border-subtle: rgba(0, 0, 0, 0.08);
+      --border-focus: rgba(79, 70, 229, 0.5);
+      --border-glow: rgba(14, 165, 233, 0.4);
+      
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      
+      --accent-primary: #4f46e5;
+      --accent-primary-hover: #4338ca;
+      --accent-secondary: #0284c7;
+      --accent-success: #059669;
+      --accent-danger: #dc2626;
+      --accent-warning: #d97706;
+      
+      --key-bg: #ffffff;
+      --key-border: #cbd5e1;
+      --key-text: #1e293b;
+      --key-shadow: 0 4px 0 #94a3b8, 0 6px 10px rgba(0,0,0,0.06);
+      --key-pressed: 0 1px 0 #94a3b8, 0 2px 4px rgba(0,0,0,0.1);
+      
+      --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
+      --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.15);
+    }
+
+    /* ==========================================================================
+       2. RESET & BASE STYLES
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-ui);
+      background-color: var(--bg-canvas);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.07) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.07) 0%, transparent 40%);
+      background-attachment: fixed;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      background: none;
+      user-select: none;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ==========================================================================
+       3. NAVIGATION & HEADER
+       ========================================================================== */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--bg-surface-glass);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.85rem 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      cursor: pointer;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+    }
+
+    .brand-text span {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-tabs {
+      display: flex;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .nav-tab-btn {
+      padding: 0.5rem 1.25rem;
+      border-radius: var(--radius-full);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .nav-tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .nav-tab-btn.active {
+      background: var(--accent-primary);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .icon-btn:hover {
+      color: var(--text-main);
+      border-color: var(--border-focus);
+      transform: translateY(-1px);
+    }
+
+    .progress-pill {
+      font-size: 0.825rem;
+      font-weight: 700;
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--radius-full);
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--accent-success);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* ==========================================================================
+       4. MAIN CONTAINER & VIEW SWITCHING
+       ========================================================================== */
+    .app-main {
+      flex: 1;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.75rem 1.25rem 3rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .view-section {
+      display: none;
+      animation: fadeIn 0.28s ease-out forwards;
+      width: 100%;
+    }
+
+    .view-section.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==========================================================================
+       5. VIEW: MAIN MENU (HUB)
+       ========================================================================== */
+    .hero-banner {
+      text-align: center;
+      margin-bottom: 2.75rem;
+      padding: 1.5rem 0;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 1rem;
+      border-radius: var(--radius-full);
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      color: var(--accent-primary);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+
+    .hero-title {
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.85rem;
+    }
+
+    .hero-title .gradient-text {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      max-width: 620px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .mode-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.75rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .mode-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: var(--shadow-card);
+    }
+
+    .mode-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--border-focus);
+      box-shadow: var(--shadow-glow), var(--shadow-card);
+    }
+
+    .mode-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .mode-card:hover::before {
+      opacity: 1;
+    }
+
+    .mode-card-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .mode-card.practice .mode-card-icon {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--accent-primary);
+    }
+
+    .mode-card.arcade .mode-card-icon {
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--accent-secondary);
+    }
+
+    .mode-card h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mode-card p {
+      color: var(--text-muted);
+      line-height: 1.55;
+      font-size: 0.98rem;
+      margin-bottom: 1.75rem;
+      flex: 1;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 1.25rem;
+    }
+
+    .card-badge {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn-card-action {
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+      padding: 0.6rem 1.25rem;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .mode-card:hover .btn-card-action {
+      background: var(--accent-primary);
+      color: #fff;
+    }
+
+    .overview-strip {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .overview-stat-item {
+      text-align: center;
+    }
+
+    .overview-stat-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .overview-stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 0.25rem;
+    }
+
+    /* ==========================================================================
+       6. VIEW: PRACTICE LESSONS
+       ========================================================================== */
+    .practice-header {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .level-selector-scroll {
+      display: flex;
+      gap: 0.75rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-focus) transparent;
+    }
+
+    .level-pill {
+      flex: 0 0 auto;
+      padding: 0.75rem 1.15rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      min-width: 150px;
+    }
+
+    .level-pill:hover:not(.locked) {
+      border-color: var(--border-focus);
+      background: var(--bg-surface-elevated);
+      transform: translateY(-2px);
+    }
+
+    .level-pill.active {
+      border-color: var(--accent-primary);
+      background: rgba(99, 102, 241, 0.08);
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+    }
+
+    .level-pill.locked {
+      opacity: 0.45;
+      cursor: not-allowed;
+      filter: grayscale(0.6);
+    }
+
+    .level-pill-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .level-pill-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .level-pill-keys {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--accent-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Live Stat Bar */
+    .stats-dashboard {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-info .stat-value {
+      font-size: 1.65rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      line-height: 1.1;
+    }
+
+    .stat-info .stat-name {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 0.25rem;
+    }
+
+    .stat-badge-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      background: var(--bg-surface-elevated);
+      color: var(--accent-primary);
+    }
+
+    /* Typing Arena Display */
+    .typing-arena-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem 2rem;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 1.75rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .target-text-container {
+      font-family: var(--font-mono);
+      font-size: clamp(1.4rem, 2.8vw, 2.1rem);
+      line-height: 1.7;
+      letter-spacing: 0.08em;
+      padding: 1.75rem;
+      background: var(--bg-canvas);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      min-height: 130px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      user-select: none;
+      word-break: break-all;
+    }
+
+    .char-node {
+      position: relative;
+      padding: 0 1px;
+      transition: color 0.1s ease;
+      color: var(--text-muted);
+    }
+
+    .char-node.space-char {
+      display: inline-block;
+      width: 0.65em;
+    }
+
+    .char-node.correct {
+      color: var(--accent-success);
+      font-weight: 700;
+    }
+
+    .char-node.current {
+      color: var(--text-main);
+      font-weight: 800;
+      background: rgba(99, 102, 241, 0.25);
+      border-radius: 4px;
+      box-shadow: 0 0 0 2px var(--accent-primary);
+      animation: pulseCaret 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulseCaret {
+      0%, 100% { box-shadow: 0 0 0 2px var(--accent-primary); }
+      50% { box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.4), 0 0 12px var(--accent-primary); }
+    }
+
+    .char-node.error-shake {
+      color: var(--accent-danger) !important;
+      background: rgba(239, 68, 68, 0.25) !important;
+      border-radius: 4px;
+      box-shadow: 0 0 0 2px var(--accent-danger) !important;
+      animation: shakeChar 0.28s ease-in-out;
+    }
+
+    @keyframes shakeChar {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-4px); }
+      40% { transform: translateX(4px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(3px); }
+    }
+
+    .typing-controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .finger-hint-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      background: var(--bg-surface-elevated);
+      padding: 0.45rem 1rem;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .finger-indicator-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-secondary);
+      box-shadow: 0 0 8px var(--accent-secondary);
+    }
+
+    .action-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn-secondary {
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      padding: 0.55rem 1.15rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: var(--border-subtle);
+      border-color: var(--border-focus);
+    }
+
+    .btn-primary {
+      background: var(--accent-primary);
+      color: #ffffff;
+      padding: 0.55rem 1.25rem;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-primary-hover);
+      transform: translateY(-1px);
+    }
+
+    /* ==========================================================================
+       7. VIRTUAL KEYBOARD (VISUAL & REALISTIC)
+       ========================================================================== */
+    .keyboard-wrapper {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem 1.25rem;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      user-select: none;
+      max-width: 950px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .kb-row {
+      display: flex;
+      justify-content: center;
+      gap: 0.4rem;
+      width: 100%;
+    }
+
+    .kb-key {
+      background: var(--key-bg);
+      border: 1px solid var(--key-border);
+      color: var(--key-text);
+      font-family: var(--font-mono);
+      font-size: 0.92rem;
+      font-weight: 700;
+      height: 48px;
+      min-width: 44px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--key-shadow);
+      position: relative;
+      transition: transform 0.08s ease, background-color 0.15s ease, box-shadow 0.08s ease;
+      cursor: pointer;
+    }
+
+    /* Key Sizes */
+    .kb-key.key-wide { min-width: 65px; font-size: 0.78rem; }
+    .kb-key.key-wider { min-width: 80px; font-size: 0.78rem; }
+    .kb-key.key-widest { min-width: 95px; font-size: 0.78rem; }
+    .kb-key.key-space { flex: 1; max-width: 320px; font-size: 0.8rem; }
+
+    /* Tactile Bumps on F and J */
+    .kb-key[data-key="f"]::after,
+    .kb-key[data-key="j"]::after {
+      content: '';
+      position: absolute;
+      bottom: 6px;
+      width: 10px;
+      height: 2px;
+      background: var(--text-dim);
+      border-radius: 2px;
+    }
+
+    /* Physical Keypress active animation */
+    .kb-key.pressed {
+      transform: translateY(3px);
+      box-shadow: var(--key-pressed);
+      background: var(--accent-primary) !important;
+      color: #fff !important;
+      border-color: var(--accent-primary);
+    }
+
+    /* Next Target Key Glowing Highlight */
+    .kb-key.target-highlight {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.35), rgba(6, 182, 212, 0.45)) !important;
+      border-color: var(--accent-secondary) !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 18px var(--accent-secondary), var(--key-shadow) !important;
+      animation: keyGlowPulse 1.2s ease-in-out infinite alternate;
+      z-index: 2;
+    }
+
+    @keyframes keyGlowPulse {
+      0% {
+        box-shadow: 0 0 10px var(--accent-secondary), var(--key-shadow);
+      }
+      100% {
+        box-shadow: 0 0 24px var(--accent-secondary), 0 0 32px rgba(6, 182, 212, 0.4), var(--key-shadow);
+        border-color: #38bdf8;
+      }
+    }
+
+    /* Finger zone color badges */
+    .kb-key[data-finger="left-pinky"] { border-bottom: 3px solid #ec4899; }
+    .kb-key[data-finger="left-ring"]   { border-bottom: 3px solid #a855f7; }
+    .kb-key[data-finger="left-middle"] { border-bottom: 3px solid #3b82f6; }
+    .kb-key[data-finger="left-index"]  { border-bottom: 3px solid #06b6d4; }
+    .kb-key[data-finger="thumb"]       { border-bottom: 3px solid #10b981; }
+    .kb-key[data-finger="right-index"] { border-bottom: 3px solid #06b6d4; }
+    .kb-key[data-finger="right-middle"]{ border-bottom: 3px solid #3b82f6; }
+    .kb-key[data-finger="right-ring"]  { border-bottom: 3px solid #a855f7; }
+    .kb-key[data-finger="right-pinky"] { border-bottom: 3px solid #ec4899; }
+
+    /* ==========================================================================
+       8. VIEW: ARCADE GAMES (FALLING METEORS)
+       ========================================================================== */
+    .arcade-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      width: 100%;
+    }
+
+    .arcade-hud {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .arcade-hud-group {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .hud-stat-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hud-stat-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .hud-stat-val {
+      font-family: var(--font-mono);
+      font-size: 1.45rem;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .lives-container {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .life-heart {
+      color: var(--accent-danger);
+      font-size: 1.35rem;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .life-heart.lost {
+      color: var(--text-dim);
+      opacity: 0.4;
+      transform: scale(0.85);
+    }
+
+    .difficulty-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-surface-elevated);
+      padding: 0.4rem 0.9rem;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-subtle);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .difficulty-tag {
+      color: var(--accent-secondary);
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    /* Canvas Stage Container */
+    .arcade-stage-container {
+      position: relative;
+      width: 100%;
+      height: 520px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: #040711;
+      border: 2px solid var(--border-subtle);
+      box-shadow: 0 0 35px rgba(0, 0, 0, 0.8), inset 0 0 40px rgba(0, 0, 0, 0.6);
+    }
+
+    #meteorCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Arcade Overlays (Start, Pause, Game Over) */
+    .arcade-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(4, 7, 17, 0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+      z-index: 20;
+      transition: opacity 0.3s ease;
+    }
+
+    .arcade-overlay.hidden {
+      display: none;
+    }
+
+    .arcade-overlay h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
+    }
+
+    .arcade-overlay p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 480px;
+      line-height: 1.5;
+      margin-bottom: 1.75rem;
+    }
+
+    .arcade-btn-lg {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color: #fff;
+      font-size: 1.15rem;
+      font-weight: 800;
+      padding: 0.9rem 2.5rem;
+      border-radius: var(--radius-full);
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.5);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .arcade-btn-lg:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 28px rgba(6, 182, 212, 0.6);
+    }
+
+    /* ==========================================================================
+       9. MODAL & DIALOG SYSTEM
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      padding: 1.5rem;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      transform: scale(0.92);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-backdrop.open .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-icon-badge {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      margin: 0 auto 1.25rem auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .modal-icon-badge.success {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-success);
+    }
+
+    .modal-icon-badge.retry {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--accent-danger);
+    }
+
+    .modal-title {
+      font-size: 1.65rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-message {
+      color: var(--text-muted);
+      font-size: 0.98rem;
+      line-height: 1.5;
+      margin-bottom: 1.75rem;
+    }
+
+    .modal-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1.75rem;
+      text-align: left;
+    }
+
+    .modal-stat-box {
+      background: var(--bg-surface-elevated);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .modal-stat-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .modal-stat-value {
+      font-family: var(--font-mono);
+      font-size: 1.3rem;
+      font-weight: 800;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+    }
+
+    /* Confetti Canvas */
+    #confettiCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 101;
+    }
+
+    /* ==========================================================================
+       10. RESPONSIVE DESIGN
+       ========================================================================== */
+    @media (max-width: 850px) {
+      .app-header {
+        padding: 0.75rem 1rem;
+        flex-wrap: wrap;
+      }
+      .nav-tabs {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+      }
+      .stats-dashboard {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .arcade-stage-container {
+        height: 420px;
+      }
+      .kb-key {
+        height: 40px;
+        min-width: 30px;
+        font-size: 0.8rem;
+      }
+      .kb-key.key-wide { min-width: 44px; }
+      .kb-key.key-wider { min-width: 55px; }
+      .kb-key.key-widest { min-width: 65px; }
+    }
+
+    @media (max-width: 520px) {
+      .stats-dashboard {
+        grid-template-columns: 1fr;
+      }
+      .kb-key {
+        height: 34px;
+        min-width: 24px;
+        font-size: 0.7rem;
+      }
+      .kb-row { gap: 2px; }
+      .target-text-container {
+        font-size: 1.3rem;
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Confetti Layer for Celebration -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- ==========================================================================
+       APP HEADER & GLOBAL NAVIGATION
+       ========================================================================== -->
+  <header class="app-header">
+    <div class="brand" id="brandBtn" title="Go to Main Menu">
+      <div class="brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+          <path d="M6 8h.001M10 8h.001M14 8h.001M18 8h.001M6 12h.001M10 12h.001M14 12h.001M18 12h.001M8 16h8"></path>
+        </svg>
+      </div>
+      <div class="brand-text">Key<span>Flow</span></div>
+    </div>
+
+    <!-- Mode Selector Navigation -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="nav-tab-btn active" id="tabMenu" data-view="menuView">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Menu
+      </button>
+      <button class="nav-tab-btn" id="tabPractice" data-view="practiceView">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path><path d="M6 6h10M6 10h10"></path></svg>
+        Lessons
+      </button>
+      <button class="nav-tab-btn" id="tabArcade" data-view="arcadeView">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        Arcade Meteors
+      </button>
+    </nav>
+
+    <!-- Header Actions & Utility Icons -->
+    <div class="header-actions">
+      <div class="progress-pill" id="globalLevelBadge" title="Your highest unlocked lesson">
+        <span>Level <strong id="headerLevelNum">1</strong>/6</span>
+      </div>
+
+      <!-- Sound Mute/Unmute Button -->
+      <button class="icon-btn" id="toggleSoundBtn" title="Toggle Sound">
+        <svg id="soundOnIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+        <svg id="soundOffIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+      </button>
+
+      <!-- Theme Switcher (Dark / Light) -->
+      <button class="icon-btn" id="toggleThemeBtn" title="Toggle Dark/Light Mode">
+        <svg id="themeMoonIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
+        <svg id="themeSunIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+      </button>
+
+      <!-- Reset Saved Progress -->
+      <button class="icon-btn" id="resetProgressBtn" title="Reset Saved Progress (Levels, WPM, High Score)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       MAIN CONTENT APPLICATION AREA
+       ========================================================================== -->
+  <main class="app-main">
+
+    <!-- ----------------------------------------------------------------------
+         VIEW 1: MAIN MENU (HUB)
+         ---------------------------------------------------------------------- -->
+    <section class="view-section active" id="menuView">
+      <div class="hero-banner">
+        <div class="hero-badge">Touch Typing Mastery for Beginners</div>
+        <h1 class="hero-title">Unlock Muscle Memory.<br><span class="gradient-text">Type at the Speed of Thought.</span></h1>
+        <p class="hero-desc">Progress step-by-step through essential keyboard rows with real-time feedback, or blast through arcade meteors powered dynamically by your unlocked skills.</p>
+      </div>
+
+      <div class="mode-cards-grid">
+        <!-- Practice Lessons Card -->
+        <div class="mode-card practice" id="cardLaunchPractice">
+          <div class="mode-card-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+          </div>
+          <h2>Practice Lessons <span>→</span></h2>
+          <p>Systematic touch-typing lessons from Left Home Row to whole words. Achieve at least 90% accuracy on each lesson to unlock subsequent levels.</p>
+          <div class="card-footer">
+            <div class="card-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+              6 Progressive Tiers
+            </div>
+            <button class="btn-card-action">Start Lessons</button>
+          </div>
+        </div>
+
+        <!-- Arcade Meteors Card -->
+        <div class="mode-card arcade" id="cardLaunchArcade">
+          <div class="mode-card-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg>
+          </div>
+          <h2>Meteor Arcade <span>→</span></h2>
+          <p>Defend ground base from falling meteors! Dynamic difficulty automatically spawns only the letters and words you have earned in lessons.</p>
+          <div class="card-footer">
+            <div class="card-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              High Score: <span id="menuHighScoreVal" style="margin-left:3px;font-family:var(--font-mono);font-weight:700;">0</span>
+            </div>
+            <button class="btn-card-action">Play Arcade</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Stats & Overview Strip -->
+      <div class="overview-strip">
+        <div class="overview-stat-item">
+          <div class="overview-stat-value" id="overviewHighestLevel">Level 1</div>
+          <div class="overview-stat-label">Unlocked Tier</div>
+        </div>
+        <div class="overview-stat-item">
+          <div class="overview-stat-value" id="overviewAvgAccuracy">100%</div>
+          <div class="overview-stat-label">Best Accuracy</div>
+        </div>
+        <div class="overview-stat-item">
+          <div class="overview-stat-value" id="overviewBestWpm">0 WPM</div>
+          <div class="overview-stat-label">Top Speed</div>
+        </div>
+        <div class="overview-stat-item">
+          <div class="overview-stat-value" id="overviewArcadeScore">0</div>
+          <div class="overview-stat-label">Arcade Best</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------------------------
+         VIEW 2: PRACTICE LESSONS
+         ---------------------------------------------------------------------- -->
+    <section class="view-section" id="practiceView">
+      <div class="practice-header">
+        <!-- Level Selector Carousel -->
+        <div class="level-selector-scroll" id="levelSelectorContainer" role="tablist">
+          <!-- Dynamically populated Level Pills -->
+        </div>
+      </div>
+
+      <!-- Real-time Stats Dashboard -->
+      <div class="stats-dashboard">
+        <div class="stat-box">
+          <div class="stat-info">
+            <div class="stat-value" id="liveWpmVal">0</div>
+            <div class="stat-name">Words / Min (WPM)</div>
+          </div>
+          <div class="stat-badge-icon">⚡</div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-info">
+            <div class="stat-value" id="liveAccuracyVal">100%</div>
+            <div class="stat-name">Accuracy (Goal: ≥90%)</div>
+          </div>
+          <div class="stat-badge-icon">🎯</div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-info">
+            <div class="stat-value" id="liveProgressVal">0%</div>
+            <div class="stat-name">Lesson Progress</div>
+          </div>
+          <div class="stat-badge-icon">📊</div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-info">
+            <div class="stat-value" id="liveErrorsVal">0</div>
+            <div class="stat-name">Missed Keystrokes</div>
+          </div>
+          <div class="stat-badge-icon">⚠️</div>
+        </div>
+      </div>
+
+      <!-- Typing Arena Card -->
+      <div class="typing-arena-card">
+        <div class="target-text-container" id="targetTextDisplay" aria-live="polite">
+          <!-- Dynamically rendered character spans -->
+        </div>
+
+        <div class="typing-controls-row">
+          <div class="finger-hint-pill" id="fingerHintContainer">
+            <span class="finger-indicator-dot"></span>
+            <span id="fingerHintText">Press the highlighted key with Left Hand</span>
+          </div>
+
+          <div class="action-btn-group">
+            <button class="btn-secondary" id="restartLessonBtn" title="Restart current drill">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+              Restart Drill
+            </button>
+            <button class="btn-primary" id="nextDrillBtn" title="Next sentence in this level">
+              Next Drill →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- On-Screen Virtual Keyboard -->
+      <div class="keyboard-wrapper" id="visualKeyboard">
+        <!-- Key rows generated by JS for pristine layout & event bindings -->
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------------------------
+         VIEW 3: ARCADE GAMES (METEOR STRIKE)
+         ---------------------------------------------------------------------- -->
+    <section class="view-section" id="arcadeView">
+      <div class="arcade-wrapper">
+        <!-- Arcade HUD Bar -->
+        <div class="arcade-hud">
+          <div class="arcade-hud-group">
+            <div class="hud-stat-box">
+              <span class="hud-stat-title">Score</span>
+              <span class="hud-stat-val" id="arcadeScoreVal" style="color:var(--accent-secondary)">0</span>
+            </div>
+            <div class="hud-stat-box">
+              <span class="hud-stat-title">Accuracy</span>
+              <span class="hud-stat-val" id="arcadeAccuracyVal">100%</span>
+            </div>
+            <div class="hud-stat-box">
+              <span class="hud-stat-title">Combo</span>
+              <span class="hud-stat-val" id="arcadeComboVal">0x</span>
+            </div>
+          </div>
+
+          <!-- Difficulty Pill tied to unlocked progression -->
+          <div class="difficulty-indicator" id="arcadeDifficultyBadge" title="Spawning letters based on your practice progression">
+            <span>Pool:</span>
+            <span class="difficulty-tag" id="arcadePoolDesc">Level 1 Keys (a, s, d, f)</span>
+          </div>
+
+          <div class="arcade-hud-group">
+            <div class="hud-stat-box">
+              <span class="hud-stat-title">Defense Shield</span>
+              <div class="lives-container" id="arcadeLivesContainer">
+                <span class="life-heart">❤️</span>
+                <span class="life-heart">❤️</span>
+                <span class="life-heart">❤️</span>
+              </div>
+            </div>
+            <button class="btn-secondary" id="arcadePauseBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+              Pause
+            </button>
+          </div>
+        </div>
+
+        <!-- Canvas Game Arena Stage -->
+        <div class="arcade-stage-container" id="arcadeStage">
+          <canvas id="meteorCanvas"></canvas>
+
+          <!-- Start / Ready Screen Overlay -->
+          <div class="arcade-overlay" id="arcadeStartOverlay">
+            <h2>Meteor Defense</h2>
+            <p>Meteors are descending on your planetary outpost! Type each meteor's characters before they breach your atmospheric shield.</p>
+            <button class="arcade-btn-lg" id="btnStartArcadeGame">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              Engage Defense
+            </button>
+          </div>
+
+          <!-- Paused Screen Overlay -->
+          <div class="arcade-overlay hidden" id="arcadePauseOverlay">
+            <h2>Simulation Paused</h2>
+            <p>Catch your breath, check your hand posture, and get ready to strike.</p>
+            <button class="arcade-btn-lg" id="btnResumeArcadeGame">Resume Battle</button>
+          </div>
+
+          <!-- Game Over Screen Overlay -->
+          <div class="arcade-overlay hidden" id="arcadeGameOverOverlay">
+            <h2 style="color:var(--accent-danger);">Shield Depleted!</h2>
+            <p id="arcadeGameOverSummary">Meteors breached planetary defense perimeter.</p>
+            <div style="display:flex;gap:1.5rem;margin-bottom:1.5rem;">
+              <div class="hud-stat-box"><span class="hud-stat-title">Final Score</span><span class="hud-stat-val" id="goFinalScore">0</span></div>
+              <div class="hud-stat-box"><span class="hud-stat-title">High Score</span><span class="hud-stat-val" id="goHighScore">0</span></div>
+              <div class="hud-stat-box"><span class="hud-stat-title">Meteors Destroyed</span><span class="hud-stat-val" id="goMeteorsHit">0</span></div>
+            </div>
+            <div style="display:flex;gap:1rem;">
+              <button class="arcade-btn-lg" id="btnRestartArcadeGame">Play Again</button>
+              <button class="btn-secondary" id="btnArcadeBackToLessons" style="padding:0.9rem 1.75rem;border-radius:var(--radius-full);">Practice Lessons</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       MODAL POPUPS (LEVEL COMPLETE / RETRY)
+       ========================================================================== -->
+  <div class="modal-backdrop" id="lessonResultModal" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-icon-badge success" id="modalBadgeIcon">🏆</div>
+      <h3 class="modal-title" id="modalTitle">Level Passed!</h3>
+      <p class="modal-message" id="modalMessage">You achieved the required 90% accuracy benchmark. Outstanding focus!</p>
+
+      <div class="modal-stats-grid">
+        <div class="modal-stat-box">
+          <div class="modal-stat-label">Accuracy</div>
+          <div class="modal-stat-value" id="modalAccuracyVal">95%</div>
+        </div>
+        <div class="modal-stat-box">
+          <div class="modal-stat-label">Typing Speed</div>
+          <div class="modal-stat-value" id="modalWpmVal">28 WPM</div>
+        </div>
+        <div class="modal-stat-box">
+          <div class="modal-stat-label">Time Taken</div>
+          <div class="modal-stat-value" id="modalTimeVal">32s</div>
+        </div>
+        <div class="modal-stat-box">
+          <div class="modal-stat-label">Missed Keys</div>
+          <div class="modal-stat-value" id="modalErrorsVal">2</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="modalRetryBtn">Try Again</button>
+        <button class="btn-primary" id="modalNextBtn">Next Level →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       JAVASCRIPT LOGIC
+       ========================================================================== -->
+  <script>
+    /**
+     * ========================================================================
+     * KEYFLOW PRO - TOUCH TYPING & ARCADE PRACTICE
+     * Single-file implementation containing complete game loop, progression,
+     * synthesized audio, keyboard visualization, and arcade engine.
+     * ========================================================================
+     */
+
+    /* ========================================================================
+       CONFIGURABLE CONTENT: ADD MORE LEVELS OR WORDS HERE
+       To add a new level or expand word lists:
+       1. Follow the object schema below.
+       2. Specify id, name, description, keys, and an array of drills.
+       3. The game loop and arcade will dynamically incorporate it.
+       ======================================================================== */
+    const LESSONS_CONFIG = [
+      {
+        id: 1,
+        name: "Level 1: Left Home Row",
+        description: "Master left hand home row anchor keys: a, s, d, f",
+        keys: ["a", "s", "d", "f"],
+        drills: [
+          "asdf fdsa asdf fads sad dad fad",
+          "fads asfa fada saff daff fads daas",
+          "dad sad fads faff daff sad dad fad"
+        ]
+      },
+      {
+        id: 2,
+        name: "Level 2: Right Home Row",
+        description: "Master right hand home row keys: j, k, l, ;",
+        keys: ["j", "k", "l", ";"],
+        drills: [
+          "jkl; ;lkj jkl; ;klj kjl; ljk;",
+          "kll; ;lkj jk;l lj;k ;ljk lk;j",
+          ";;; lll kkk jjj jkl; ;lkj kll;"
+        ]
+      },
+      {
+        id: 3,
+        name: "Level 3: Full Home Row",
+        description: "Unite both hands across the entire home row",
+        keys: ["a", "s", "d", "f", "j", "k", "l", ";"],
+        drills: [
+          "asdf jkl; fdsa ;lkj dad ask lad",
+          "fall lass flask salads alfalfa alas",
+          "ask a lad; add a salad; all fall;"
+        ]
+      },
+      {
+        id: 4,
+        name: "Level 4: Top Row",
+        description: "Reach upward to introduce q, w, e, r, t, y, u, i, o, p",
+        keys: ["a", "s", "d", "f", "j", "k", "l", ";", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+        drills: [
+          "tree water quote root quiet write",
+          "power tweet street wire pure port",
+          "type were trip your true upper port"
+        ]
+      },
+      {
+        id: 5,
+        name: "Level 5: Bottom Row",
+        description: "Reach downward to introduce z, x, c, v, b, n, m",
+        keys: ["a", "s", "d", "f", "j", "k", "l", ";", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "z", "x", "c", "v", "b", "n", "m"],
+        drills: [
+          "zinc maze calm zero back move",
+          "next view zoom cabin comb context",
+          "brave zone mixer quick brown fox"
+        ]
+      },
+      {
+        id: 6,
+        name: "Level 6: Basic Words",
+        description: "Practice fluent 3-to-5 letter common words",
+        keys: ["all"],
+        drills: [
+          "the and you that was for are with",
+          "his they one have this from word",
+          "some make time like into year good"
+        ]
+      }
+    ];
+
+    /**
+     * Dictionary of words for arcade game spawning at Level 6
+     * (You can freely add more beginner-friendly words here)
+     */
+    const ARCADE_VOCABULARY = [
+      "cat", "sun", "sky", "run", "fast", "code", "star", "glow",
+      "flow", "keys", "type", "play", "wave", "beam", "hero", "fire",
+      "home", "jump", "blue", "wind", "game", "neon", "time", "cool"
+    ];
+
+    /* Finger guide mapping for visual posture assistance */
+    const FINGER_MAP = {
+      'a': { name: "Left Pinky", color: "#ec4899" },
+      'q': { name: "Left Pinky", color: "#ec4899" },
+      'z': { name: "Left Pinky", color: "#ec4899" },
+      's': { name: "Left Ring Finger", color: "#a855f7" },
+      'w': { name: "Left Ring Finger", color: "#a855f7" },
+      'x': { name: "Left Ring Finger", color: "#a855f7" },
+      'd': { name: "Left Middle Finger", color: "#3b82f6" },
+      'e': { name: "Left Middle Finger", color: "#3b82f6" },
+      'c': { name: "Left Middle Finger", color: "#3b82f6" },
+      'f': { name: "Left Index Finger", color: "#06b6d4" },
+      'r': { name: "Left Index Finger", color: "#06b6d4" },
+      't': { name: "Left Index Finger", color: "#06b6d4" },
+      'g': { name: "Left Index Finger", color: "#06b6d4" },
+      'v': { name: "Left Index Finger", color: "#06b6d4" },
+      'b': { name: "Left Index Finger", color: "#06b6d4" },
+      ' ': { name: "Thumb (Spacebar)", color: "#10b981" },
+      'j': { name: "Right Index Finger", color: "#06b6d4" },
+      'u': { name: "Right Index Finger", color: "#06b6d4" },
+      'y': { name: "Right Index Finger", color: "#06b6d4" },
+      'h': { name: "Right Index Finger", color: "#06b6d4" },
+      'm': { name: "Right Index Finger", color: "#06b6d4" },
+      'n': { name: "Right Index Finger", color: "#06b6d4" },
+      'k': { name: "Right Middle Finger", color: "#3b82f6" },
+      'i': { name: "Right Middle Finger", color: "#3b82f6" },
+      ',': { name: "Right Middle Finger", color: "#3b82f6" },
+      'l': { name: "Right Ring Finger", color: "#a855f7" },
+      'o': { name: "Right Ring Finger", color: "#a855f7" },
+      '.': { name: "Right Ring Finger", color: "#a855f7" },
+      ';': { name: "Right Pinky", color: "#ec4899" },
+      'p': { name: "Right Pinky", color: "#ec4899" },
+      '/': { name: "Right Pinky", color: "#ec4899" },
+      "'": { name: "Right Pinky", color: "#ec4899" }
+    };
+
+    /* Standard QWERTY layout for the visual keyboard */
+    const KEYBOARD_LAYOUT = [
+      [
+        { key: '`', label: '`', sub: '~', finger: 'left-pinky' },
+        { key: '1', label: '1', sub: '!', finger: 'left-pinky' },
+        { key: '2', label: '2', sub: '@', finger: 'left-ring' },
+        { key: '3', label: '3', sub: '#', finger: 'left-middle' },
+        { key: '4', label: '4', sub: '$', finger: 'left-index' },
+        { key: '5', label: '5', sub: '%', finger: 'left-index' },
+        { key: '6', label: '6', sub: '^', finger: 'right-index' },
+        { key: '7', label: '7', sub: '&', finger: 'right-index' },
+        { key: '8', label: '8', sub: '*', finger: 'right-middle' },
+        { key: '9', label: '9', sub: '(', finger: 'right-ring' },
+        { key: '0', label: '0', sub: ')', finger: 'right-pinky' },
+        { key: '-', label: '-', sub: '_', finger: 'right-pinky' },
+        { key: '=', label: '=', sub: '+', finger: 'right-pinky' },
+        { key: 'Backspace', label: 'Backspace', class: 'key-wide', finger: 'right-pinky' }
+      ],
+      [
+        { key: 'Tab', label: 'Tab', class: 'key-wide', finger: 'left-pinky' },
+        { key: 'q', label: 'Q', finger: 'left-pinky' },
+        { key: 'w', label: 'W', finger: 'left-ring' },
+        { key: 'e', label: 'E', finger: 'left-middle' },
+        { key: 'r', label: 'R', finger: 'left-index' },
+        { key: 't', label: 'T', finger: 'left-index' },
+        { key: 'y', label: 'Y', finger: 'right-index' },
+        { key: 'u', label: 'U', finger: 'right-index' },
+        { key: 'i', label: 'I', finger: 'right-middle' },
+        { key: 'o', label: 'O', finger: 'right-ring' },
+        { key: 'p', label: 'P', finger: 'right-pinky' },
+        { key: '[', label: '[', sub: '{', finger: 'right-pinky' },
+        { key: ']', label: ']', sub: '}', finger: 'right-pinky' },
+        { key: '\\', label: '\\', sub: '|', finger: 'right-pinky' }
+      ],
+      [
+        { key: 'CapsLock', label: 'Caps', class: 'key-wider', finger: 'left-pinky' },
+        { key: 'a', label: 'A', finger: 'left-pinky' },
+        { key: 's', label: 'S', finger: 'left-ring' },
+        { key: 'd', label: 'D', finger: 'left-middle' },
+        { key: 'f', label: 'F', finger: 'left-index' },
+        { key: 'g', label: 'G', finger: 'left-index' },
+        { key: 'h', label: 'H', finger: 'right-index' },
+        { key: 'j', label: 'J', finger: 'right-index' },
+        { key: 'k', label: 'K', finger: 'right-middle' },
+        { key: 'l', label: 'L', finger: 'right-ring' },
+        { key: ';', label: ';', sub: ':', finger: 'right-pinky' },
+        { key: "'", label: "'", sub: '"', finger: 'right-pinky' },
+        { key: 'Enter', label: 'Enter', class: 'key-widest', finger: 'right-pinky' }
+      ],
+      [
+        { key: 'ShiftLeft', label: 'Shift', class: 'key-widest', finger: 'left-pinky' },
+        { key: 'z', label: 'Z', finger: 'left-pinky' },
+        { key: 'x', label: 'X', finger: 'left-ring' },
+        { key: 'c', label: 'C', finger: 'left-middle' },
+        { key: 'v', label: 'V', finger: 'left-index' },
+        { key: 'b', label: 'B', finger: 'left-index' },
+        { key: 'n', label: 'N', finger: 'right-index' },
+        { key: 'm', label: 'M', finger: 'right-index' },
+        { key: ',', label: ',', sub: '<', finger: 'right-middle' },
+        { key: '.', label: '.', sub: '>', finger: 'right-ring' },
+        { key: '/', label: '/', sub: '?', finger: 'right-pinky' },
+        { key: 'ShiftRight', label: 'Shift', class: 'key-widest', finger: 'right-pinky' }
+      ],
+      [
+        { key: 'ControlLeft', label: 'Ctrl', class: 'key-wide', finger: 'left-pinky' },
+        { key: 'AltLeft', label: 'Alt', class: 'key-wide', finger: 'thumb' },
+        { key: ' ', label: 'Space', class: 'key-space', finger: 'thumb' },
+        { key: 'AltRight', label: 'Alt', class: 'key-wide', finger: 'thumb' },
+        { key: 'ControlRight', label: 'Ctrl', class: 'key-wide', finger: 'right-pinky' }
+      ]
+    ];
+
+    /* ========================================================================
+       STATE & LOCAL STORAGE MANAGEMENT
+       ======================================================================== */
+    class GameStorage {
+      static STORAGE_KEY = 'keyflow_pro_state_v1';
+
+      static getInitialState() {
+        return {
+          highestLevelUnlocked: 1,
+          bestWpm: 0,
+          arcadeHighScore: 0,
+          levelStats: {},
+          theme: 'dark',
+          soundMuted: false
+        };
+      }
+
+      static load() {
+        try {
+          const raw = localStorage.getItem(this.STORAGE_KEY);
+          if (raw) {
+            const data = JSON.parse(raw);
+            return Object.assign(this.getInitialState(), data);
+          }
+        } catch (e) {
+          console.warn('Storage unavailable, using defaults:', e);
+        }
+        return this.getInitialState();
+      }
+
+      static save(state) {
+        try {
+          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {
+          console.warn('Could not persist state to localStorage:', e);
+        }
+      }
+
+      static reset() {
+        try {
+          localStorage.removeItem(this.STORAGE_KEY);
+        } catch (e) {
+          console.warn('Could not clear localStorage:', e);
+        }
+        return this.getInitialState();
+      }
+    }
+
+    let userState = GameStorage.load();
+
+    /* ========================================================================
+       AUDIO SYNTHESIZER (WEB AUDIO API - ZERO DEPENDENCIES)
+       ======================================================================== */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = userState.soundMuted;
+      }
+
+      initCtx() {
+        if (!this.ctx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            this.ctx = new AudioContextClass();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playTone(freq, type = 'sine', duration = 0.08, gainVal = 0.15) {
+        if (this.muted) return;
+        this.initCtx();
+        if (!this.ctx) return;
+
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+          gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {}
+      }
+
+      keySuccess() {
+        this.playTone(600, 'sine', 0.05, 0.08);
+      }
+
+      keyError() {
+        this.playTone(180, 'sawtooth', 0.14, 0.2);
+      }
+
+      laserShot() {
+        if (this.muted) return;
+        this.initCtx();
+        if (!this.ctx) return;
+
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(880, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.12);
+
+          gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.12);
+        } catch (e) {}
+      }
+
+      explosion() {
+        if (this.muted) return;
+        this.initCtx();
+        if (!this.ctx) return;
+
+        try {
+          // Low rumble + noise drop
+          this.playTone(110, 'triangle', 0.3, 0.25);
+          this.playTone(70, 'sawtooth', 0.35, 0.22);
+        } catch (e) {}
+      }
+
+      victoryFanfare() {
+        if (this.muted) return;
+        const notes = [440, 554, 659, 880];
+        notes.forEach((freq, idx) => {
+          setTimeout(() => {
+            this.playTone(freq, 'triangle', 0.22, 0.2);
+          }, idx * 110);
+        });
+      }
+
+      levelFail() {
+        if (this.muted) return;
+        const notes = [320, 280, 240, 190];
+        notes.forEach((freq, idx) => {
+          setTimeout(() => {
+            this.playTone(freq, 'sawtooth', 0.2, 0.2);
+          }, idx * 120);
+        });
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    /* ========================================================================
+       CONFETTI SYSTEM FOR CELEBRATIONS
+       ======================================================================== */
+    class ConfettiManager {
+      constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d');
+        this.particles = [];
+        this.animId = null;
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+      }
+
+      resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+      }
+
+      launch(count = 90) {
+        this.particles = [];
+        const colors = ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#38bdf8'];
+        for (let i = 0; i < count; i++) {
+          this.particles.push({
+            x: this.canvas.width / 2 + (Math.random() * 200 - 100),
+            y: this.canvas.height / 2 + (Math.random() * 50 - 25),
+            vx: (Math.random() - 0.5) * 16,
+            vy: (Math.random() - 1) * 16 - 4,
+            size: Math.random() * 8 + 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rotation: Math.random() * 360,
+            vRot: (Math.random() - 0.5) * 12,
+            gravity: 0.38,
+            opacity: 1
+          });
+        }
+
+        if (this.animId) cancelAnimationFrame(this.animId);
+        this.loop();
+      }
+
+      loop() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        let activeParticles = 0;
+
+        for (let p of this.particles) {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += p.gravity;
+          p.rotation += p.vRot;
+          p.opacity -= 0.009;
+
+          if (p.opacity > 0 && p.y < this.canvas.height + 20) {
+            activeParticles++;
+            this.ctx.save();
+            this.ctx.translate(p.x, p.y);
+            this.ctx.rotate((p.rotation * Math.PI) / 180);
+            this.ctx.fillStyle = p.color;
+            this.ctx.globalAlpha = Math.max(0, p.opacity);
+            this.ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 1.3);
+            this.ctx.restore();
+          }
+        }
+
+        if (activeParticles > 0) {
+          this.animId = requestAnimationFrame(() => this.loop());
+        } else {
+          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+      }
+    }
+
+    const confetti = new ConfettiManager('confettiCanvas');
+
+    /* ========================================================================
+       PRACTICE LESSONS ENGINE
+       ======================================================================== */
+    class PracticeEngine {
+      constructor() {
+        this.currentLevelIndex = 0;
+        this.currentDrillIndex = 0;
+        this.targetString = "";
+        this.charIndex = 0;
+        
+        // Metrics tracking
+        this.startTime = null;
+        this.totalKeystrokes = 0;
+        this.correctKeystrokes = 0;
+        this.errorCount = 0;
+        this.isCompleted = false;
+
+        // Elements
+        this.displayContainer = document.getElementById('targetTextDisplay');
+        this.liveWpm = document.getElementById('liveWpmVal');
+        this.liveAccuracy = document.getElementById('liveAccuracyVal');
+        this.liveProgress = document.getElementById('liveProgressVal');
+        this.liveErrors = document.getElementById('liveErrorsVal');
+        this.fingerHintText = document.getElementById('fingerHintText');
+        this.fingerIndicatorDot = document.querySelector('.finger-indicator-dot');
+
+        this.initKeyboard();
+        this.renderLevelPills();
+        this.loadLevel(0, 0);
+      }
+
+      initKeyboard() {
+        const container = document.getElementById('visualKeyboard');
+        container.innerHTML = '';
+
+        KEYBOARD_LAYOUT.forEach(row => {
+          const rowDiv = document.createElement('div');
+          rowDiv.className = 'kb-row';
+
+          row.forEach(item => {
+            const keyBtn = document.createElement('div');
+            keyBtn.className = `kb-key ${item.class || ''}`;
+            keyBtn.dataset.key = item.key.toLowerCase();
+            if (item.finger) keyBtn.dataset.finger = item.finger;
+
+            if (item.sub) {
+              const subSpan = document.createElement('span');
+              subSpan.style.fontSize = '0.65rem';
+              subSpan.style.opacity = '0.6';
+              subSpan.textContent = item.sub;
+              keyBtn.appendChild(subSpan);
+            }
+
+            const mainSpan = document.createElement('span');
+            mainSpan.textContent = item.label;
+            keyBtn.appendChild(mainSpan);
+
+            // Optional mouse click typing trigger
+            keyBtn.addEventListener('click', () => {
+              if (item.key.length === 1 || item.key === ' ') {
+                this.handleKeystroke(item.key);
+              }
+            });
+
+            rowDiv.appendChild(keyBtn);
+          });
+
+          container.appendChild(rowDiv);
+        });
+      }
+
+      renderLevelPills() {
+        const container = document.getElementById('levelSelectorContainer');
+        container.innerHTML = '';
+
+        LESSONS_CONFIG.forEach((lvl, idx) => {
+          const isUnlocked = lvl.id <= userState.highestLevelUnlocked;
+          const isCurrent = idx === this.currentLevelIndex;
+
+          const pill = document.createElement('div');
+          pill.className = `level-pill ${isCurrent ? 'active' : ''} ${!isUnlocked ? 'locked' : ''}`;
+          pill.dataset.levelIndex = idx;
+
+          const stats = userState.levelStats && userState.levelStats[lvl.id];
+          const bestLabel = stats && stats.bestAccuracy 
+            ? `⭐ ${stats.bestAccuracy}% (${stats.bestWpm || 0} WPM)` 
+            : (isUnlocked ? (idx < userState.highestLevelUnlocked - 1 ? '✓ Complete' : 'Unlocked') : '🔒 Locked');
+
+          pill.innerHTML = `
+            <div class="level-pill-top">
+              <span>Level ${lvl.id}</span>
+              <span>${bestLabel}</span>
+            </div>
+            <div class="level-pill-name">${lvl.name.split(': ')[1] || lvl.name}</div>
+            <div class="level-pill-keys">${lvl.keys[0] === 'all' ? 'All words' : lvl.keys.join(' ')}</div>
+          `;
+
+          pill.addEventListener('click', () => {
+            if (isUnlocked) {
+              this.loadLevel(idx, 0);
+            }
+          });
+
+          container.appendChild(pill);
+        });
+
+        // Update header level indicator
+        document.getElementById('headerLevelNum').textContent = userState.highestLevelUnlocked;
+        document.getElementById('overviewHighestLevel').textContent = `Level ${userState.highestLevelUnlocked}`;
+      }
+
+      loadLevel(levelIndex, drillIndex = 0) {
+        this.currentLevelIndex = levelIndex;
+        this.currentDrillIndex = drillIndex;
+        const levelData = LESSONS_CONFIG[levelIndex];
+        
+        // Wrap drill index if needed
+        if (this.currentDrillIndex >= levelData.drills.length) {
+          this.currentDrillIndex = 0;
+        }
+
+        this.targetString = levelData.drills[this.currentDrillIndex];
+        this.charIndex = 0;
+        this.startTime = null;
+        this.totalKeystrokes = 0;
+        this.correctKeystrokes = 0;
+        this.errorCount = 0;
+        this.isCompleted = false;
+
+        this.renderText();
+        this.updateStats();
+        this.highlightNextKey();
+        this.renderLevelPills();
+      }
+
+      renderText() {
+        this.displayContainer.innerHTML = '';
+
+        for (let i = 0; i < this.targetString.length; i++) {
+          const char = this.targetString[i];
+          const span = document.createElement('span');
+          span.className = 'char-node';
+          span.id = `char-${i}`;
+
+          if (char === ' ') {
+            span.classList.add('space-char');
+            span.innerHTML = '&nbsp;';
+          } else {
+            span.textContent = char;
+          }
+
+          if (i === 0) span.classList.add('current');
+          this.displayContainer.appendChild(span);
+        }
+      }
+
+      highlightNextKey() {
+        // Clear old highlights
+        document.querySelectorAll('.kb-key.target-highlight').forEach(k => k.classList.remove('target-highlight'));
+
+        if (this.charIndex >= this.targetString.length) return;
+
+        const targetChar = this.targetString[this.charIndex];
+        let keySelector = targetChar.toLowerCase();
+        if (targetChar === ' ') keySelector = ' ';
+
+        const targetKeyEl = document.querySelector(`.kb-key[data-key="${CSS.escape(keySelector)}"]`);
+        if (targetKeyEl) {
+          targetKeyEl.classList.add('target-highlight');
+        }
+
+        // Update Finger Posture Hint
+        const fingerInfo = FINGER_MAP[targetChar.toLowerCase()] || { name: "Comfortable Finger", color: "#38bdf8" };
+        this.fingerHintText.textContent = `Type '${targetChar === ' ' ? 'Space' : targetChar}' with your ${fingerInfo.name}`;
+        this.fingerIndicatorDot.style.background = fingerInfo.color;
+        this.fingerIndicatorDot.style.boxShadow = `0 0 8px ${fingerInfo.color}`;
+      }
+
+      handleKeystroke(key) {
+        if (this.isCompleted) return;
+
+        // Initialize clock on first valid keypress
+        if (!this.startTime) {
+          this.startTime = Date.now();
+        }
+
+        const expectedChar = this.targetString[this.charIndex];
+        const currentCharNode = document.getElementById(`char-${this.charIndex}`);
+
+        this.totalKeystrokes++;
+
+        // Correct key pressed
+        if (key === expectedChar) {
+          sound.keySuccess();
+          this.correctKeystrokes++;
+
+          if (currentCharNode) {
+            currentCharNode.classList.remove('current', 'error-shake');
+            currentCharNode.classList.add('correct');
+          }
+
+          this.charIndex++;
+
+          // Check if drill completed
+          if (this.charIndex >= this.targetString.length) {
+            this.completeDrill();
+            return;
+          }
+
+          // Advance cursor to next character
+          const nextCharNode = document.getElementById(`char-${this.charIndex}`);
+          if (nextCharNode) {
+            nextCharNode.classList.add('current');
+          }
+
+          this.highlightNextKey();
+        } 
+        // Incorrect key pressed: ENFORCE beginner touch typing discipline
+        else {
+          sound.keyError();
+          this.errorCount++;
+
+          if (currentCharNode) {
+            currentCharNode.classList.remove('error-shake');
+            // Force DOM reflow to retrigger shake animation
+            void currentCharNode.offsetWidth;
+            currentCharNode.classList.add('error-shake');
+          }
+          // Do NOT move cursor forward! The user must press the exact key.
+        }
+
+        this.updateStats();
+      }
+
+      updateStats() {
+        const accuracy = this.totalKeystrokes > 0 
+          ? Math.max(0, Math.round((this.correctKeystrokes / this.totalKeystrokes) * 100))
+          : 100;
+
+        let wpm = 0;
+        if (this.startTime && this.correctKeystrokes > 0) {
+          const minutesElapsed = Math.max(0.005, (Date.now() - this.startTime) / 60000);
+          wpm = Math.round((this.correctKeystrokes / 5) / minutesElapsed);
+        }
+
+        const progress = Math.round((this.charIndex / this.targetString.length) * 100);
+
+        this.liveWpm.textContent = wpm;
+        this.liveAccuracy.textContent = `${accuracy}%`;
+        this.liveProgress.textContent = `${progress}%`;
+        this.liveErrors.textContent = this.errorCount;
+
+        // Color coding for accuracy feedback
+        if (accuracy >= 90) {
+          this.liveAccuracy.style.color = "var(--accent-success)";
+        } else {
+          this.liveAccuracy.style.color = "var(--accent-danger)";
+        }
+
+        return { accuracy, wpm };
+      }
+
+      completeDrill() {
+        this.isCompleted = true;
+        const timeTakenSec = Math.max(1, Math.round((Date.now() - this.startTime) / 1000));
+        const { accuracy, wpm } = this.updateStats();
+
+        const currentLvl = LESSONS_CONFIG[this.currentLevelIndex];
+        const passedLevel = accuracy >= 90;
+
+        // Save best stats per level and global top speed
+        const currentStats = (userState.levelStats && userState.levelStats[currentLvl.id]) || { bestAccuracy: 0, bestWpm: 0 };
+        currentStats.bestAccuracy = Math.max(currentStats.bestAccuracy || 0, accuracy);
+        currentStats.bestWpm = Math.max(currentStats.bestWpm || 0, wpm);
+        if (!userState.levelStats) userState.levelStats = {};
+        userState.levelStats[currentLvl.id] = currentStats;
+
+        // Persist all-time best WPM
+        userState.bestWpm = Math.max(userState.bestWpm || 0, wpm);
+
+        // Unlock next level if criteria met (>= 90% accuracy)
+        let newlyUnlocked = false;
+        if (passedLevel && currentLvl.id === userState.highestLevelUnlocked && userState.highestLevelUnlocked < LESSONS_CONFIG.length) {
+          userState.highestLevelUnlocked++;
+          newlyUnlocked = true;
+        }
+
+        // Automatic persistence to browser localStorage
+        GameStorage.save(userState);
+        this.renderLevelPills();
+        updateOverviewMetrics();
+
+        // Show Modal Popup with results
+        this.showResultsModal(passedLevel, accuracy, wpm, timeTakenSec, newlyUnlocked);
+      }
+
+      showResultsModal(passed, accuracy, wpm, timeTaken, newlyUnlocked) {
+        const modal = document.getElementById('lessonResultModal');
+        const modalIcon = document.getElementById('modalBadgeIcon');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMsg = document.getElementById('modalMessage');
+        const modalAcc = document.getElementById('modalAccuracyVal');
+        const modalWpm = document.getElementById('modalWpmVal');
+        const modalTime = document.getElementById('modalTimeVal');
+        const modalErrors = document.getElementById('modalErrorsVal');
+        const nextBtn = document.getElementById('modalNextBtn');
+
+        modalAcc.textContent = `${accuracy}%`;
+        modalWpm.textContent = `${wpm} WPM`;
+        modalTime.textContent = `${timeTaken}s`;
+        modalErrors.textContent = this.errorCount;
+
+        if (passed) {
+          sound.victoryFanfare();
+          confetti.launch(80);
+
+          modalIcon.textContent = "🏆";
+          modalIcon.className = "modal-icon-badge success";
+          modalTitle.textContent = newlyUnlocked ? "New Level Unlocked!" : "Lesson Passed!";
+          modalMsg.textContent = `You scored ${accuracy}% accuracy, beating the 90% benchmark! Outstanding touch typing precision.`;
+          nextBtn.textContent = "Next Level →";
+          nextBtn.style.display = "inline-flex";
+        } else {
+          sound.levelFail();
+
+          modalIcon.textContent = "⚠️";
+          modalIcon.className = "modal-icon-badge retry";
+          modalTitle.textContent = "90% Accuracy Required";
+          modalMsg.textContent = `You achieved ${accuracy}% accuracy. To unlock the next level, focus on precision first—speed naturally follows!`;
+          nextBtn.style.display = "none";
+        }
+
+        modal.classList.add('open');
+      }
+
+      nextDrillOrLevel() {
+        const currentLvl = LESSONS_CONFIG[this.currentLevelIndex];
+        if (this.currentDrillIndex + 1 < currentLvl.drills.length) {
+          this.loadLevel(this.currentLevelIndex, this.currentDrillIndex + 1);
+        } else if (this.currentLevelIndex + 1 < userState.highestLevelUnlocked) {
+          this.loadLevel(this.currentLevelIndex + 1, 0);
+        } else {
+          this.loadLevel(this.currentLevelIndex, 0);
+        }
+      }
+    }
+
+    let practiceEngine = null;
+
+    /* ========================================================================
+       ARCADE GAMES ENGINE: FALLING METEORS
+       ======================================================================== */
+    class MeteorArcade {
+      constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d');
+        
+        // Game state
+        this.isPlaying = false;
+        this.isPaused = false;
+        this.score = 0;
+        this.lives = 3;
+        this.combo = 0;
+        this.totalTyped = 0;
+        this.correctTyped = 0;
+        this.meteorsDestroyed = 0;
+        this.spawnTimer = 0;
+        this.spawnInterval = 110; // Frames between spawns
+
+        // Game entities
+        this.meteors = [];
+        this.particles = [];
+        this.lasers = [];
+        this.stars = [];
+        this.currentTargetMeteor = null;
+
+        // UI DOM elements
+        this.scoreDisplay = document.getElementById('arcadeScoreVal');
+        this.accuracyDisplay = document.getElementById('arcadeAccuracyVal');
+        this.comboDisplay = document.getElementById('arcadeComboVal');
+        this.poolDesc = document.getElementById('arcadePoolDesc');
+        this.livesContainer = document.getElementById('arcadeLivesContainer');
+        this.startOverlay = document.getElementById('arcadeStartOverlay');
+        this.pauseOverlay = document.getElementById('arcadePauseOverlay');
+        this.gameOverOverlay = document.getElementById('arcadeGameOverOverlay');
+
+        this.resize();
+        this.initStars();
+        window.addEventListener('resize', () => {
+          this.resize();
+          this.initStars();
+        });
+
+        this.updatePoolBadge();
+      }
+
+      resize() {
+        const rect = this.canvas.parentElement.getBoundingClientRect();
+        this.canvas.width = rect.width;
+        this.canvas.height = rect.height;
+      }
+
+      initStars() {
+        this.stars = [];
+        const count = Math.floor((this.canvas.width * this.canvas.height) / 3200);
+        for (let i = 0; i < count; i++) {
+          this.stars.push({
+            x: Math.random() * this.canvas.width,
+            y: Math.random() * this.canvas.height,
+            size: Math.random() * 1.8 + 0.5,
+            alpha: Math.random() * 0.8 + 0.2,
+            twinkleSpeed: Math.random() * 0.02 + 0.005
+          });
+        }
+      }
+
+      /**
+       * DYNAMIC DIFFICULTY:
+       * Generates pool strictly from the user's unlocked practice levels!
+       */
+      getPool() {
+        const highestLvl = userState.highestLevelUnlocked;
+        let pool = [];
+
+        // Level 1: a,s,d,f
+        if (highestLvl === 1) {
+          pool = ["a", "s", "d", "f"];
+        } 
+        // Level 2: Left + Right Home Row
+        else if (highestLvl === 2) {
+          pool = ["a", "s", "d", "f", "j", "k", "l", ";"];
+        } 
+        // Level 3: Full Home Row
+        else if (highestLvl === 3) {
+          pool = ["a", "s", "d", "f", "j", "k", "l", ";"];
+        } 
+        // Level 4: Top row + Home row
+        else if (highestLvl === 4) {
+          pool = ["a", "s", "d", "f", "j", "k", "l", ";", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p"];
+        } 
+        // Level 5: Full Alphabet
+        else if (highestLvl === 5) {
+          pool = "abcdefghijklmnopqrstuvwxyz;".split('');
+        } 
+        // Level 6+: Full alphabet letters + short words!
+        else {
+          pool = [...ARCADE_VOCABULARY, "a", "s", "d", "f", "j", "k", "l", ";", "q", "w", "e", "r"];
+        }
+
+        return pool;
+      }
+
+      updatePoolBadge() {
+        const lvl = userState.highestLevelUnlocked;
+        let desc = `Level ${lvl} Unlocked Keys`;
+        if (lvl === 1) desc = `Level 1 Keys (a, s, d, f)`;
+        else if (lvl === 2) desc = `Level 2 Keys (Home Row + ;)`;
+        else if (lvl === 3) desc = `Level 3 (Full Home Row)`;
+        else if (lvl === 4) desc = `Level 4 (Top & Home Row)`;
+        else if (lvl === 5) desc = `Level 5 (All Alphabet Keys)`;
+        else if (lvl >= 6) desc = `Level 6 (Full Alphabet & Words)`;
+
+        this.poolDesc.textContent = desc;
+      }
+
+      startGame() {
+        this.updatePoolBadge();
+        this.isPlaying = true;
+        this.isPaused = false;
+        this.score = 0;
+        this.lives = 3;
+        this.combo = 0;
+        this.totalTyped = 0;
+        this.correctTyped = 0;
+        this.meteorsDestroyed = 0;
+        this.meteors = [];
+        this.particles = [];
+        this.lasers = [];
+        this.currentTargetMeteor = null;
+        this.spawnTimer = 0;
+        this.spawnInterval = 100;
+
+        this.updateUI();
+        this.startOverlay.classList.add('hidden');
+        this.pauseOverlay.classList.add('hidden');
+        this.gameOverOverlay.classList.add('hidden');
+
+        sound.initCtx();
+        this.gameLoop();
+      }
+
+      pauseGame() {
+        if (!this.isPlaying) return;
+        this.isPaused = true;
+        this.pauseOverlay.classList.remove('hidden');
+      }
+
+      resumeGame() {
+        if (!this.isPlaying) return;
+        this.isPaused = false;
+        this.pauseOverlay.classList.add('hidden');
+        this.gameLoop();
+      }
+
+      endGame() {
+        this.isPlaying = false;
+        sound.explosion();
+
+        if (this.score > userState.arcadeHighScore) {
+          userState.arcadeHighScore = this.score;
+          GameStorage.save(userState);
+          confetti.launch(50);
+        }
+
+        updateOverviewMetrics();
+
+        document.getElementById('goFinalScore').textContent = this.score;
+        document.getElementById('goHighScore').textContent = userState.arcadeHighScore;
+        document.getElementById('goMeteorsHit').textContent = this.meteorsDestroyed;
+        this.gameOverOverlay.classList.remove('hidden');
+      }
+
+      spawnMeteor() {
+        const pool = this.getPool();
+        const text = pool[Math.floor(Math.random() * pool.length)];
+
+        // Speed gently scales with score
+        const baseSpeed = 0.85 + Math.min(this.score / 2500, 1.8);
+        const radius = Math.max(22, text.length * 9 + 14);
+
+        const margin = radius + 20;
+        const x = margin + Math.random() * (this.canvas.width - margin * 2);
+
+        this.meteors.push({
+          id: Math.random().toString(36).substring(7),
+          text: text,
+          typedCount: 0,
+          x: x,
+          y: -radius,
+          radius: radius,
+          speed: baseSpeed + (Math.random() * 0.3 - 0.15),
+          hue: (Math.random() * 50 + 190) // Cyan to Indigo neon tones
+        });
+      }
+
+      handleInput(key) {
+        if (!this.isPlaying || this.isPaused) return;
+
+        this.totalTyped++;
+
+        // 1. If currently locked onto a meteor, verify next required letter
+        if (this.currentTargetMeteor) {
+          const neededChar = this.currentTargetMeteor.text[this.currentTargetMeteor.typedCount];
+          if (key === neededChar) {
+            this.hitMeteorChar(this.currentTargetMeteor);
+            return;
+          }
+        }
+
+        // 2. Otherwise find the lowest falling meteor that begins with this key
+        let candidates = this.meteors.filter(m => m.text[m.typedCount] === key);
+        if (candidates.length > 0) {
+          // Target the one lowest on screen (most urgent threat)
+          candidates.sort((a, b) => b.y - a.y);
+          const chosen = candidates[0];
+          this.currentTargetMeteor = chosen;
+          this.hitMeteorChar(chosen);
+        } else {
+          // Missed key: reset combo
+          sound.keyError();
+          this.combo = 0;
+          this.updateUI();
+        }
+      }
+
+      hitMeteorChar(meteor) {
+        this.correctTyped++;
+        meteor.typedCount++;
+        this.combo++;
+        this.score += 20 * Math.min(this.combo, 5);
+
+        sound.laserShot();
+
+        // Laser beam effect from player station at bottom center
+        this.lasers.push({
+          startX: this.canvas.width / 2,
+          startY: this.canvas.height - 15,
+          endX: meteor.x,
+          endY: meteor.y,
+          life: 8
+        });
+
+        // Sparks at impact site
+        this.createParticles(meteor.x, meteor.y, 6, '#38bdf8');
+
+        // If entire word/letter on meteor is fully typed
+        if (meteor.typedCount >= meteor.text.length) {
+          this.destroyMeteor(meteor);
+          if (this.currentTargetMeteor === meteor) {
+            this.currentTargetMeteor = null;
+          }
+        }
+
+        this.updateUI();
+      }
+
+      destroyMeteor(meteor) {
+        sound.explosion();
+        this.meteorsDestroyed++;
+        this.score += 100 * Math.min(this.combo, 5);
+
+        // Big particle explosion
+        this.createParticles(meteor.x, meteor.y, 25, `hsl(${meteor.hue}, 90%, 60%)`);
+
+        // Remove from list
+        this.meteors = this.meteors.filter(m => m !== meteor);
+      }
+
+      createParticles(x, y, count, color) {
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = Math.random() * 4 + 1;
+          this.particles.push({
+            x: x,
+            y: y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: Math.random() * 20 + 15,
+            maxLife: 35,
+            color: color,
+            size: Math.random() * 3 + 2
+          });
+        }
+      }
+
+      updateUI() {
+        this.scoreDisplay.textContent = this.score;
+        this.comboDisplay.textContent = `${this.combo}x`;
+        const acc = this.totalTyped > 0 ? Math.round((this.correctTyped / this.totalTyped) * 100) : 100;
+        this.accuracyDisplay.textContent = `${acc}%`;
+
+        // Render hearts
+        const hearts = this.livesContainer.querySelectorAll('.life-heart');
+        hearts.forEach((h, idx) => {
+          if (idx < this.lives) {
+            h.classList.remove('lost');
+          } else {
+            h.classList.add('lost');
+          }
+        });
+      }
+
+      gameLoop() {
+        if (!this.isPlaying || this.isPaused) return;
+
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // 1. Draw Starfield
+        this.ctx.fillStyle = '#ffffff';
+        for (let s of this.stars) {
+          s.alpha += s.twinkleSpeed;
+          if (s.alpha > 0.9 || s.alpha < 0.2) s.twinkleSpeed = -s.twinkleSpeed;
+          this.ctx.globalAlpha = Math.max(0.1, Math.min(1, s.alpha));
+          this.ctx.beginPath();
+          this.ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+          this.ctx.fill();
+        }
+        this.ctx.globalAlpha = 1;
+
+        // 2. Spawn Meteors
+        this.spawnTimer++;
+        if (this.spawnTimer >= this.spawnInterval) {
+          this.spawnMeteor();
+          this.spawnTimer = 0;
+          // Slowly decrease spawn interval to ramp intensity
+          this.spawnInterval = Math.max(45, 100 - Math.floor(this.score / 600));
+        }
+
+        // 3. Update & Draw Meteors
+        for (let i = this.meteors.length - 1; i >= 0; i--) {
+          const m = this.meteors[i];
+          m.y += m.speed;
+
+          // Check if reached atmospheric bottom shield
+          if (m.y + m.radius >= this.canvas.height - 20) {
+            this.lives--;
+            sound.explosion();
+            this.createParticles(m.x, this.canvas.height - 20, 20, '#ef4444');
+            this.meteors.splice(i, 1);
+            if (this.currentTargetMeteor === m) this.currentTargetMeteor = null;
+            this.updateUI();
+
+            if (this.lives <= 0) {
+              this.endGame();
+              return;
+            }
+            continue;
+          }
+
+          // Draw Meteor Body
+          this.ctx.save();
+          this.ctx.shadowColor = `hsl(${m.hue}, 90%, 55%)`;
+          this.ctx.shadowBlur = 15;
+
+          const isTargeted = (this.currentTargetMeteor === m);
+          this.ctx.fillStyle = isTargeted ? '#1e1b4b' : '#0f172a';
+          this.ctx.strokeStyle = isTargeted ? '#38bdf8' : `hsl(${m.hue}, 80%, 50%)`;
+          this.ctx.lineWidth = isTargeted ? 3 : 2;
+
+          this.ctx.beginPath();
+          this.ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2);
+          this.ctx.fill();
+          this.ctx.stroke();
+
+          // Draw Meteor Text
+          this.ctx.font = 'bold 20px "JetBrains Mono", monospace';
+          this.ctx.textAlign = 'center';
+          this.ctx.textBaseline = 'middle';
+
+          // Show typed prefix in green, remaining in white/cyan
+          const typedPart = m.text.substring(0, m.typedCount);
+          const remainPart = m.text.substring(m.typedCount);
+
+          if (m.typedCount === 0) {
+            this.ctx.fillStyle = '#f8fafc';
+            this.ctx.fillText(m.text, m.x, m.y);
+          } else {
+            const fullWidth = this.ctx.measureText(m.text).width;
+            let startX = m.x - fullWidth / 2;
+
+            this.ctx.textAlign = 'left';
+            this.ctx.fillStyle = '#10b981'; // Green typed part
+            this.ctx.fillText(typedPart, startX, m.y);
+
+            const typedWidth = this.ctx.measureText(typedPart).width;
+            this.ctx.fillStyle = '#f8fafc'; // Remaining part
+            this.ctx.fillText(remainPart, startX + typedWidth, m.y);
+          }
+
+          this.ctx.restore();
+        }
+
+        // 4. Update & Draw Lasers
+        for (let i = this.lasers.length - 1; i >= 0; i--) {
+          const l = this.lasers[i];
+          this.ctx.save();
+          this.ctx.strokeStyle = '#38bdf8';
+          this.ctx.shadowColor = '#06b6d4';
+          this.ctx.shadowBlur = 10;
+          this.ctx.lineWidth = Math.max(1, l.life / 2);
+          this.ctx.globalAlpha = l.life / 8;
+          this.ctx.beginPath();
+          this.ctx.moveTo(l.startX, l.startY);
+          this.ctx.lineTo(l.endX, l.endY);
+          this.ctx.stroke();
+          this.ctx.restore();
+
+          l.life--;
+          if (l.life <= 0) this.lasers.splice(i, 1);
+        }
+
+        // 5. Update & Draw Particles
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life--;
+
+          if (p.life <= 0) {
+            this.particles.splice(i, 1);
+          } else {
+            this.ctx.save();
+            this.ctx.globalAlpha = p.life / p.maxLife;
+            this.ctx.fillStyle = p.color;
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.restore();
+          }
+        }
+
+        // 6. Draw Bottom Defense Cannon / Shield Line
+        this.ctx.save();
+        this.ctx.strokeStyle = 'rgba(6, 182, 212, 0.4)';
+        this.ctx.lineWidth = 2;
+        this.ctx.setLineDash([8, 6]);
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, this.canvas.height - 20);
+        this.ctx.lineTo(this.canvas.width, this.canvas.height - 20);
+        this.ctx.stroke();
+
+        // Cannon Node at bottom center
+        this.ctx.setLineDash([]);
+        this.ctx.fillStyle = '#6366f1';
+        this.ctx.shadowColor = '#6366f1';
+        this.ctx.shadowBlur = 15;
+        this.ctx.beginPath();
+        this.ctx.arc(this.canvas.width / 2, this.canvas.height - 10, 16, Math.PI, 0);
+        this.ctx.fill();
+        this.ctx.restore();
+
+        requestAnimationFrame(() => this.gameLoop());
+      }
+    }
+
+    let meteorArcade = null;
+
+    /* ========================================================================
+       GLOBAL VIEW NAVIGATION & UI CONTROLLER
+       ======================================================================== */
+    function switchView(targetViewId) {
+      document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+      document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      const targetSection = document.getElementById(targetViewId);
+      if (targetSection) targetSection.classList.add('active');
+
+      const targetTab = document.querySelector(`.nav-tab-btn[data-view="${targetViewId}"]`);
+      if (targetTab) targetTab.classList.add('active');
+
+      // View-specific initializations
+      if (targetViewId === 'practiceView' && practiceEngine) {
+        practiceEngine.renderLevelPills();
+        practiceEngine.highlightNextKey();
+      }
+
+      if (targetViewId === 'arcadeView' && meteorArcade) {
+        meteorArcade.resize();
+        meteorArcade.updatePoolBadge();
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateOverviewMetrics() {
+      document.getElementById('overviewHighestLevel').textContent = `Level ${userState.highestLevelUnlocked}`;
+      document.getElementById('overviewArcadeScore').textContent = userState.arcadeHighScore || 0;
+      document.getElementById('menuHighScoreVal').textContent = userState.arcadeHighScore || 0;
+      document.getElementById('headerLevelNum').textContent = userState.highestLevelUnlocked;
+
+      // Calculate best overall accuracy and WPM from stored state
+      let bestAcc = 0;
+      let topWpm = userState.bestWpm || 0;
+      if (userState.levelStats) {
+        Object.values(userState.levelStats).forEach(s => {
+          if (s.bestAccuracy) bestAcc = Math.max(bestAcc, s.bestAccuracy);
+          if (s.bestWpm) topWpm = Math.max(topWpm, s.bestWpm);
+        });
+      }
+      userState.bestWpm = topWpm;
+
+      document.getElementById('overviewAvgAccuracy').textContent = bestAcc > 0 ? `${bestAcc}%` : `--`;
+      document.getElementById('overviewBestWpm').textContent = `${topWpm} WPM`;
+    }
+
+    /* ========================================================================
+       KEYBOARD LISTENER (PHYSICAL KEYPRESS HANDLING)
+       ======================================================================== */
+    window.addEventListener('keydown', (e) => {
+      // Prevent browser default scrolling on spacebar inside typing/arcade view
+      const activeView = document.querySelector('.view-section.active');
+      if (activeView && (activeView.id === 'practiceView' || activeView.id === 'arcadeView')) {
+        if (e.key === ' ') {
+          e.preventDefault();
+        }
+      }
+
+      // Visual press animation on virtual keyboard
+      const keyStr = e.key.toLowerCase();
+      let keySelector = keyStr;
+      if (e.code === 'Space') keySelector = ' ';
+      else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keySelector = e.code.toLowerCase();
+
+      const keyEl = document.querySelector(`.kb-key[data-key="${CSS.escape(keySelector)}"]`);
+      if (keyEl) keyEl.classList.add('pressed');
+
+      // Practice mode keystroke handler
+      if (activeView && activeView.id === 'practiceView') {
+        if (e.key.length === 1 || e.key === ' ') {
+          practiceEngine.handleKeystroke(e.key);
+        }
+      }
+
+      // Arcade mode keystroke handler
+      if (activeView && activeView.id === 'arcadeView') {
+        if (e.key === 'Escape') {
+          if (meteorArcade.isPlaying) {
+            if (meteorArcade.isPaused) meteorArcade.resumeGame();
+            else meteorArcade.pauseGame();
+          }
+        } else if (e.key.length === 1) {
+          meteorArcade.handleInput(e.key.toLowerCase());
+        }
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      const keyStr = e.key.toLowerCase();
+      let keySelector = keyStr;
+      if (e.code === 'Space') keySelector = ' ';
+      else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keySelector = e.code.toLowerCase();
+
+      const keyEl = document.querySelector(`.kb-key[data-key="${CSS.escape(keySelector)}"]`);
+      if (keyEl) keyEl.classList.remove('pressed');
+    });
+
+    /* ========================================================================
+       THEME & SOUND TOGGLES
+       ======================================================================== */
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      const moonIcon = document.getElementById('themeMoonIcon');
+      const sunIcon = document.getElementById('themeSunIcon');
+
+      if (theme === 'dark') {
+        moonIcon.style.display = 'block';
+        sunIcon.style.display = 'none';
+      } else {
+        moonIcon.style.display = 'none';
+        sunIcon.style.display = 'block';
+      }
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      userState.theme = next;
+      GameStorage.save(userState);
+      applyTheme(next);
+    }
+
+    function toggleSound() {
+      sound.muted = !sound.muted;
+      userState.soundMuted = sound.muted;
+      GameStorage.save(userState);
+
+      const soundOn = document.getElementById('soundOnIcon');
+      const soundOff = document.getElementById('soundOffIcon');
+      if (sound.muted) {
+        soundOn.style.display = 'none';
+        soundOff.style.display = 'block';
+      } else {
+        soundOn.style.display = 'block';
+        soundOff.style.display = 'none';
+        sound.initCtx();
+        sound.keySuccess();
+      }
+    }
+
+    /* ========================================================================
+       INITIALIZATION & DOM EVENT BINDING
+       ======================================================================== */
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Initialize Theme & Sound
+      applyTheme(userState.theme || 'dark');
+      if (userState.soundMuted) {
+        document.getElementById('soundOnIcon').style.display = 'none';
+        document.getElementById('soundOffIcon').style.display = 'block';
+      }
+
+      // 2. Initialize Engines
+      practiceEngine = new PracticeEngine();
+      meteorArcade = new MeteorArcade('meteorCanvas');
+      updateOverviewMetrics();
+
+      // 3. Navigation Bindings
+      document.getElementById('brandBtn').addEventListener('click', () => switchView('menuView'));
+      document.getElementById('tabMenu').addEventListener('click', () => switchView('menuView'));
+      document.getElementById('tabPractice').addEventListener('click', () => switchView('practiceView'));
+      document.getElementById('tabArcade').addEventListener('click', () => switchView('arcadeView'));
+
+      document.getElementById('cardLaunchPractice').addEventListener('click', () => switchView('practiceView'));
+      document.getElementById('cardLaunchArcade').addEventListener('click', () => switchView('arcadeView'));
+
+      // 4. Header Action Buttons
+      document.getElementById('toggleThemeBtn').addEventListener('click', toggleTheme);
+      document.getElementById('toggleSoundBtn').addEventListener('click', toggleSound);
+      document.getElementById('resetProgressBtn').addEventListener('click', () => {
+        if (confirm("Reset all saved progress (unlocked levels, best WPM, and arcade high score)?")) {
+          userState = GameStorage.reset();
+          applyTheme(userState.theme || 'dark');
+          updateOverviewMetrics();
+          if (practiceEngine) {
+            practiceEngine.renderLevelPills();
+            practiceEngine.loadLevel(0, 0);
+          }
+          if (meteorArcade) {
+            meteorArcade.updatePoolBadge();
+          }
+        }
+      });
+
+      // 5. Practice Mode Control Buttons
+      document.getElementById('restartLessonBtn').addEventListener('click', () => {
+        practiceEngine.loadLevel(practiceEngine.currentLevelIndex, practiceEngine.currentDrillIndex);
+      });
+      document.getElementById('nextDrillBtn').addEventListener('click', () => {
+        practiceEngine.nextDrillOrLevel();
+      });
+
+      // 6. Modal Buttons
+      document.getElementById('modalRetryBtn').addEventListener('click', () => {
+        document.getElementById('lessonResultModal').classList.remove('open');
+        practiceEngine.loadLevel(practiceEngine.currentLevelIndex, practiceEngine.currentDrillIndex);
+      });
+      document.getElementById('modalNextBtn').addEventListener('click', () => {
+        document.getElementById('lessonResultModal').classList.remove('open');
+        practiceEngine.nextDrillOrLevel();
+      });
+
+      // 7. Arcade Mode Buttons
+      document.getElementById('btnStartArcadeGame').addEventListener('click', () => meteorArcade.startGame());
+      document.getElementById('arcadePauseBtn').addEventListener('click', () => meteorArcade.pauseGame());
+      document.getElementById('btnResumeArcadeGame').addEventListener('click', () => meteorArcade.resumeGame());
+      document.getElementById('btnRestartArcadeGame').addEventListener('click', () => meteorArcade.startGame());
+      document.getElementById('btnArcadeBackToLessons').addEventListener('click', () => switchView('practiceView'));
+    });
+  </script>
+</body>
+</html>
