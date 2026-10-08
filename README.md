@@ -1,7 +1,7 @@
 # KeyFlow Pro — Modern Touch Typing & Arcade Practice
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-blue?style=for-the-badge&logo=github)](https://sathvik-ram-yerroju-ai-creator.github.io/typing---game/)
-[![Automated Tests](https://img.shields.io/badge/Tests-63%2F63%20Passing-success?style=for-the-badge&logo=playwright)](https://sathvik-ram-yerroju-ai-creator.github.io/typing---game/)
+[![Automated Tests](https://img.shields.io/badge/Tests-64%2F64%20Passing-success?style=for-the-badge&logo=playwright)](https://sathvik-ram-yerroju-ai-creator.github.io/typing---game/)
 
 > **Unlock Muscle Memory. Type at the Speed of Thought.**  
 > A sleek, responsive, and feature-rich touch typing master suite built with pure HTML, modern CSS, and vanilla JavaScript. Completely self-contained with zero runtime dependencies.
@@ -110,11 +110,11 @@ All sound effects are generated procedurally in real time via the native browser
 KeyFlow Pro includes a comprehensive Playwright test suite in `run_tests.js`:
 
 ```bash
-# Run the 63 automated tests
+# Run the 64 automated tests
 node run_tests.js
 ```
 
-All 63 test assertions pass with 100% success across:
+All 64 test assertions pass with 100% success across:
 1. Main menu navigation & visual structure
 2. Virtual keyboard highlighting & finger posture hints
 3. Keystroke discipline, error handling, and cursor lock

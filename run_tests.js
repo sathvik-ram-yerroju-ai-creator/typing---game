@@ -341,9 +341,11 @@ async function runTestSuite() {
   const crashChip = await page.textContent('#nitroStatusChip');
   assert('Collision Impact results dashboard displayed upon idle timeout crash', crashResultsVisible && crashTitle.includes('Obstacle Impact') && crashChip.includes('COLLISION IMPACT'));
 
-  // Cleanly dismiss results for next tests
-  await page.click('#btnRestartNitroSprint');
+  // 7. Test keyboard shortcut 'Enter' to restart solo racer from results dashboard
+  await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
+  const restartedViaKeyboard = await page.evaluate(() => arcadeController.nitroSprint.isPlaying);
+  assert('Pressing Enter key on results dashboard restarts racer cleanly', restartedViaKeyboard);
   // -------------------------------------------------------------
   // TEST 8: Alphabet Sprint (A to Z Time Trial)
   // -------------------------------------------------------------
