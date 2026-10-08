@@ -1183,6 +1183,71 @@
       box-shadow: 0 6px 28px rgba(6, 182, 212, 0.6);
     }
 
+    /* Alphabet Sprint & Level Progression Styles */
+    .sprint-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin: 1.25rem 0;
+      width: 100%;
+      max-width: 620px;
+      background: var(--bg-surface-elevated);
+      padding: 1.25rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+    }
+
+    @media (max-width: 680px) {
+      .sprint-stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .sprint-record-banner {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--accent-success);
+      color: var(--accent-success);
+      font-weight: 800;
+      padding: 0.5rem 1.25rem;
+      border-radius: var(--radius-full);
+      letter-spacing: 0.05em;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      animation: pulseGlow 1.5s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.03); opacity: 0.88; }
+    }
+
+    .level-up-toast {
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.95), rgba(6, 182, 212, 0.95));
+      color: #ffffff;
+      padding: 0.6rem 1.4rem;
+      border-radius: var(--radius-full);
+      font-weight: 800;
+      font-size: 1rem;
+      letter-spacing: 0.05em;
+      box-shadow: 0 4px 20px rgba(6, 182, 212, 0.6);
+      z-index: 25;
+      pointer-events: none;
+      animation: toastPop 1.6s ease-out forwards;
+    }
+
+    @keyframes toastPop {
+      0% { opacity: 0; transform: translate(-50%, -10px) scale(0.9); }
+      15% { opacity: 1; transform: translate(-50%, 0) scale(1.05); }
+      80% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -12px) scale(0.95); }
+    }
+
     /* ==========================================================================
        9. MODAL & DIALOG SYSTEM
        ========================================================================== */
@@ -1469,7 +1534,7 @@
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg>
           </div>
           <h2>Arcade Arena <span>→</span></h2>
-          <p>3 expanded game modes: Bubble Drop vertical popper, Nitro Sprint 2D horizontal racer, and Word Blaster targeting lock-on. Powered dynamically by your unlocked keys.</p>
+          <p>4 expanded game modes: Bubble Drop vertical popper, Nitro Sprint 2D horizontal racer, Word Blaster targeting lock-on, and Alphabet Sprint A-Z speed trial. Powered dynamically by your unlocked keys.</p>
           <div class="card-footer">
             <div class="card-badge">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
@@ -1593,7 +1658,7 @@
          ---------------------------------------------------------------------- -->
     <section class="view-section" id="arcadeView">
       <div class="arcade-wrapper">
-        <!-- 3 Distinct Game Mode Selector Tabs -->
+        <!-- 4 Distinct Game Mode Selector Tabs -->
         <div class="arcade-mode-tabs" role="tablist">
           <button class="arcade-mode-tab active" id="tabArcadeBubbleDrop" data-mode="bubbleDrop">
             <span class="mode-tab-icon">🫧</span>
@@ -1616,13 +1681,24 @@
               <span class="mode-tab-sub">Targeting Lock-On</span>
             </div>
           </button>
+          <button class="arcade-mode-tab" id="tabArcadeAlphabetSprint" data-mode="alphabetSprint">
+            <span class="mode-tab-icon">🔤</span>
+            <div class="mode-tab-text">
+              <span class="mode-tab-title">Alphabet Sprint</span>
+              <span class="mode-tab-sub">A to Z Time Trial</span>
+            </div>
+          </button>
         </div>
 
         <!-- Arcade HUD Bar -->
         <div class="arcade-hud">
           <div class="arcade-hud-group">
+            <div class="hud-stat-box" id="hudLevelBox">
+              <span class="hud-stat-title">Level</span>
+              <span class="hud-stat-val" id="arcadeLevelVal" style="color:var(--accent-warning)">1</span>
+            </div>
             <div class="hud-stat-box">
-              <span class="hud-stat-title">Score</span>
+              <span class="hud-stat-title" id="arcadeScoreTitle">Score</span>
               <span class="hud-stat-val" id="arcadeScoreVal" style="color:var(--accent-secondary)">0</span>
             </div>
             <div class="hud-stat-box">
@@ -1642,7 +1718,7 @@
           </div>
 
           <div class="arcade-hud-group">
-            <div class="hud-stat-box">
+            <div class="hud-stat-box" id="hudLivesBox">
               <span class="hud-stat-title" id="arcadeHealthTitle">Defense Shield</span>
               <div class="lives-container" id="arcadeLivesContainer">
                 <span class="life-heart">❤️</span>
@@ -1653,6 +1729,10 @@
             <button class="btn-secondary" id="arcadePauseBtn">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
               Pause
+            </button>
+            <button class="btn-secondary" id="arcadeExitBtn" title="Exit Game and return to menu">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              Exit Game
             </button>
           </div>
         </div>
@@ -1675,7 +1755,10 @@
           <div class="arcade-overlay hidden" id="arcadePauseOverlay">
             <h2 id="arcadePauseTitle">Game Paused</h2>
             <p>Catch your breath, check your hand posture, and get ready to strike.</p>
-            <button class="arcade-btn-lg" id="btnResumeArcadeGame">Resume Battle</button>
+            <div style="display:flex;gap:1rem;">
+              <button class="arcade-btn-lg" id="btnResumeArcadeGame">Resume Battle</button>
+              <button class="btn-secondary" id="btnPauseExitArcade" style="padding:0.9rem 1.75rem;border-radius:var(--radius-full);">Back to Menu</button>
+            </div>
           </div>
 
           <!-- Game Over Screen Overlay -->
@@ -1690,6 +1773,46 @@
             <div style="display:flex;gap:1rem;">
               <button class="arcade-btn-lg" id="btnRestartArcadeGame">Play Again</button>
               <button class="btn-secondary" id="btnArcadeBackToLessons" style="padding:0.9rem 1.75rem;border-radius:var(--radius-full);">Practice Lessons</button>
+              <button class="btn-secondary" id="btnArcadeGameOverBackToMenu" style="padding:0.9rem 1.75rem;border-radius:var(--radius-full);">Back to Menu</button>
+            </div>
+          </div>
+
+          <!-- Alphabet Sprint Results Screen Overlay -->
+          <div class="arcade-overlay hidden" id="alphabetSprintResultsOverlay">
+            <h2 id="sprintResultsTitle" style="color:var(--accent-success);font-size:2.2rem;margin-bottom:0.4rem;">⚡ Sprint Complete!</h2>
+            <p id="sprintResultsSubtitle" style="margin-bottom:1.25rem;">Full English alphabet A to Z typed in record time.</p>
+            
+            <div class="sprint-stats-grid">
+              <div class="hud-stat-box">
+                <span class="hud-stat-title">Total Time</span>
+                <span class="hud-stat-val" id="sprintFinalTime" style="color:var(--accent-secondary);font-size:1.8rem;">0.000s</span>
+              </div>
+              <div class="hud-stat-box">
+                <span class="hud-stat-title">Typing Speed</span>
+                <span class="hud-stat-val" id="sprintFinalWpm" style="color:var(--accent-success);font-size:1.8rem;">0 WPM</span>
+              </div>
+              <div class="hud-stat-box">
+                <span class="hud-stat-title">Keystrokes / Min</span>
+                <span class="hud-stat-val" id="sprintFinalKpm" style="font-size:1.8rem;">0 KPM</span>
+              </div>
+              <div class="hud-stat-box">
+                <span class="hud-stat-title">Accuracy</span>
+                <span class="hud-stat-val" id="sprintFinalAccuracy" style="font-size:1.8rem;">100%</span>
+              </div>
+            </div>
+
+            <div id="sprintBestRecordBanner" class="sprint-record-banner hidden">
+              🏆 NEW PERSONAL RECORD!
+            </div>
+
+            <div style="display:flex;gap:1rem;margin-top:1.5rem;">
+              <button class="arcade-btn-lg" id="btnRestartAlphabetSprint">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+                Play Again
+              </button>
+              <button class="btn-secondary" id="btnExitAlphabetSprint" style="padding:0.9rem 1.75rem;border-radius:var(--radius-full);">
+                Back to Menu
+              </button>
             </div>
           </div>
         </div>
@@ -2052,6 +2175,7 @@
           highestLevelUnlocked: 1,
           bestWpm: 0,
           arcadeHighScore: 0,
+          alphabetSprintBestTime: null,
           levelStats: {},
           theme: 'dark',
           soundMuted: false
@@ -2356,6 +2480,16 @@
           setTimeout(() => {
             this.playTone(freq, 'sawtooth', 0.2, 0.2);
           }, idx * 120);
+        });
+      }
+
+      levelUp() {
+        if (this.muted) return;
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((freq, idx) => {
+          setTimeout(() => {
+            this.playTone(freq, 'triangle', 0.18, 0.18);
+          }, idx * 75);
         });
       }
     }
@@ -2836,10 +2970,23 @@
 
     let practiceEngine = null;
 
+    function triggerLevelUpToast(level) {
+      const container = document.getElementById('arcadeStage');
+      if (!container) return;
+      const existing = container.querySelector('.level-up-toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.className = 'level-up-toast';
+      toast.textContent = `⚡ LEVEL ${level} — SPEED UP!`;
+      container.appendChild(toast);
+      setTimeout(() => { if (toast.parentNode) toast.remove(); }, 1600);
+    }
+
     /* ========================================================================
        ARCADE GAME 1: BUBBLE DROP (VERTICAL)
        Revamped Falling Meteors into smooth translucent bubbles with fluid
        particle popping animations and synthesized bubble pop sounds.
+       Now includes Slow Start System (Level 1) and In-Game Level Scaling.
        ======================================================================== */
     class BubbleDropGame {
       constructor(canvasId) {
@@ -2849,6 +2996,8 @@
         this.isPlaying = false;
         this.isPaused = false;
         this.score = 0;
+        this.currentLevel = 1;
+        this.baseSpeed = 0.55; // Slow beginner-friendly start pace
         this.lives = 3;
         this.combo = 0;
         this.totalTyped = 0;
@@ -2867,6 +3016,7 @@
         this.accuracyDisplay = document.getElementById('arcadeAccuracyVal');
         this.comboDisplay = document.getElementById('arcadeComboVal');
         this.poolDesc = document.getElementById('arcadePoolDesc');
+        this.levelDisplay = document.getElementById('arcadeLevelVal');
         this.livesContainer = document.getElementById('arcadeLivesContainer');
         this.startOverlay = document.getElementById('arcadeStartOverlay');
         this.pauseOverlay = document.getElementById('arcadePauseOverlay');
@@ -2908,13 +3058,19 @@
         else if (lvl >= 6) desc = `Level 6 (Full Alphabet & Words)`;
 
         if (this.poolDesc) this.poolDesc.textContent = desc;
+        if (this.levelDisplay) this.levelDisplay.textContent = this.currentLevel;
+        const comboLabel = document.getElementById('arcadeComboLabel');
+        if (comboLabel) comboLabel.textContent = "Combo";
+        const healthTitle = document.getElementById('arcadeHealthTitle');
+        if (healthTitle) healthTitle.textContent = "Defense Shield";
       }
 
       startGame() {
-        this.updatePoolBadge();
         this.isPlaying = true;
         this.isPaused = false;
         this.score = 0;
+        this.currentLevel = 1;
+        this.baseSpeed = 0.55;
         this.lives = 3;
         this.combo = 0;
         this.totalTyped = 0;
@@ -2926,15 +3082,35 @@
         this.currentTargetBubble = null;
         this.spawnTimer = 0;
         this.spawnInterval = 95;
-        this.spawnBubble();
 
+        this.updatePoolBadge();
+        this.spawnBubble();
         this.updateUI();
+
         this.startOverlay.classList.add('hidden');
         this.pauseOverlay.classList.add('hidden');
         this.gameOverOverlay.classList.add('hidden');
 
         sound.initCtx();
         this.gameLoop();
+      }
+
+      hardReset() {
+        this.isPlaying = false;
+        this.isPaused = false;
+        this.score = 0;
+        this.currentLevel = 1;
+        this.baseSpeed = 0.55;
+        this.lives = 3;
+        this.combo = 0;
+        this.totalTyped = 0;
+        this.correctTyped = 0;
+        this.bubblesPopped = 0;
+        this.bubbles = [];
+        this.particles = [];
+        this.ripples = [];
+        this.currentTargetBubble = null;
+        this.updateUI();
       }
 
       pauseGame() {
@@ -2970,16 +3146,37 @@
         this.gameOverOverlay.classList.remove('hidden');
       }
 
+      onLevelUp() {
+        sound.levelUp();
+        triggerLevelUpToast(this.currentLevel);
+        const scaledSpeed = this.baseSpeed + (this.currentLevel * 0.2);
+        for (const b of this.bubbles) {
+          b.speed = scaledSpeed;
+        }
+        this.updateUI();
+      }
+
+      addScore(pts) {
+        this.score += pts;
+        const newLevel = 1 + Math.floor(this.score / 250);
+        if (newLevel > this.currentLevel) {
+          this.currentLevel = newLevel;
+          this.onLevelUp();
+        }
+        this.updateUI();
+      }
+
       spawnBubble() {
         const pool = this.getPool();
         const text = pool[Math.floor(Math.random() * pool.length)];
-        const baseSpeed = 0.85 + Math.min(this.score / 2800, 1.75);
+        // Dynamic speed scaling: speed = baseSpeed + (currentLevel * 0.2)
+        const speed = this.baseSpeed + (this.currentLevel * 0.2) + (Math.random() * 0.16 - 0.08);
         const radius = Math.max(26, text.length * 9 + 16);
 
         const margin = radius + 25;
         const x = margin + Math.random() * (this.canvas.width - margin * 2);
 
-        this.bubbles.push({
+        const newBubble = {
           id: Math.random().toString(36).substring(7),
           text: text,
           typedCount: 0,
@@ -2987,11 +3184,13 @@
           x: x,
           y: -radius,
           radius: radius,
-          speed: baseSpeed + (Math.random() * 0.3 - 0.15),
+          speed: Math.max(0.6, speed),
           swayPhase: Math.random() * Math.PI * 2,
           swayAmp: 15 + Math.random() * 15,
           hue: 185 + Math.random() * 70 // Beautiful cyan, sky, and violet tones
-        });
+        };
+        this.bubbles.push(newBubble);
+        return newBubble;
       }
 
       handleInput(key) {
@@ -3029,6 +3228,13 @@
         // Small pop droplet on character hit
         this.createParticles(bubble.x, bubble.y, 6, `hsl(${bubble.hue}, 90%, 65%)`, 2.5);
 
+        // In-Game Leveling progression check
+        const newLevel = 1 + Math.floor(this.score / 250);
+        if (newLevel > this.currentLevel) {
+          this.currentLevel = newLevel;
+          this.onLevelUp();
+        }
+
         if (bubble.typedCount >= bubble.text.length) {
           this.popBubble(bubble);
           if (this.currentTargetBubble === bubble) {
@@ -3045,6 +3251,13 @@
         sound.bubblePop();
         this.bubblesPopped++;
         this.score += 100 * Math.min(this.combo, 5);
+
+        // In-Game Leveling progression check
+        const newLevel = 1 + Math.floor(this.score / 250);
+        if (newLevel > this.currentLevel) {
+          this.currentLevel = newLevel;
+          this.onLevelUp();
+        }
 
         // Smooth Canvas Particle Splash Animation (Watery droplets)
         this.createParticles(bubble.x, bubble.y, 24, `hsl(${bubble.hue}, 95%, 70%)`, 4.5);
@@ -3081,16 +3294,23 @@
       }
 
       updateUI() {
-        this.scoreDisplay.textContent = this.score;
-        this.comboDisplay.textContent = `${this.combo}x`;
+        if (this.scoreDisplay) this.scoreDisplay.textContent = this.score;
+        if (this.comboDisplay) this.comboDisplay.textContent = `${this.combo}x`;
+        if (this.levelDisplay) this.levelDisplay.textContent = this.currentLevel;
         const acc = this.totalTyped > 0 ? Math.round((this.correctTyped / this.totalTyped) * 100) : 100;
-        this.accuracyDisplay.textContent = `${acc}%`;
+        if (this.accuracyDisplay) this.accuracyDisplay.textContent = `${acc}%`;
 
-        const hearts = this.livesContainer.querySelectorAll('.life-heart');
-        hearts.forEach((h, idx) => {
-          if (idx < this.lives) h.classList.remove('lost');
-          else h.classList.add('lost');
-        });
+        if (this.livesContainer) {
+          // Ensure hearts format is preserved
+          if (!this.livesContainer.querySelector('.life-heart')) {
+            this.livesContainer.innerHTML = `<span class="life-heart">❤️</span><span class="life-heart">❤️</span><span class="life-heart">❤️</span>`;
+          }
+          const hearts = this.livesContainer.querySelectorAll('.life-heart');
+          hearts.forEach((h, idx) => {
+            if (idx < this.lives) h.classList.remove('lost');
+            else h.classList.add('lost');
+          });
+        }
       }
 
       gameLoop() {
@@ -3272,7 +3492,9 @@
         this.aiDistance = 0;     // 0 to 1000m
         this.targetDistance = 1000;
         this.playerSpeed = 0;
-        this.aiSpeed = 0;
+        this.currentLevel = 1;
+        this.baseSpeed = 1.4;
+        this.aiSpeed = 1.8 + (this.currentLevel * 0.2);
 
         this.currentSentence = "";
         this.charIndex = 0;
@@ -3289,6 +3511,7 @@
         this.accuracyDisplay = document.getElementById('arcadeAccuracyVal');
         this.comboDisplay = document.getElementById('arcadeComboVal');
         this.poolDesc = document.getElementById('arcadePoolDesc');
+        this.levelDisplay = document.getElementById('arcadeLevelVal');
         this.startOverlay = document.getElementById('arcadeStartOverlay');
         this.pauseOverlay = document.getElementById('arcadePauseOverlay');
         this.gameOverOverlay = document.getElementById('arcadeGameOverOverlay');
@@ -3357,16 +3580,24 @@
         if (this.poolDesc) {
           this.poolDesc.textContent = `Nitro Sprint (Level ${lvl} Phrases)`;
         }
+        if (this.levelDisplay) {
+          this.levelDisplay.textContent = this.currentLevel;
+        }
+        const comboLabel = document.getElementById('arcadeComboLabel');
+        if (comboLabel) comboLabel.textContent = "Real WPM";
+        const healthTitle = document.getElementById('arcadeHealthTitle');
+        if (healthTitle) healthTitle.textContent = "AI Rival";
       }
 
       startGame() {
-        this.updatePoolBadge();
         this.isPlaying = true;
         this.isPaused = false;
         this.playerDistance = 0;
         this.aiDistance = 0;
         this.playerSpeed = 1.0;
-        this.aiSpeed = 3.6;
+        this.currentLevel = 1;
+        // Slow Start System: Level 1 AI begins at slow ~2.0 (20 WPM)
+        this.aiSpeed = 1.8 + (this.currentLevel * 0.2);
         this.currentWpm = 0;
         this.score = 0;
         this.totalTyped = 0;
@@ -3379,7 +3610,7 @@
         this.currentSentence = pool[Math.floor(Math.random() * pool.length)];
         this.charIndex = 0;
 
-        document.getElementById('arcadeComboLabel').textContent = "Real WPM";
+        this.updatePoolBadge();
         this.updateUI();
         this.startOverlay.classList.add('hidden');
         this.pauseOverlay.classList.add('hidden');
@@ -3387,6 +3618,24 @@
 
         sound.initCtx();
         this.gameLoop();
+      }
+
+      hardReset() {
+        this.isPlaying = false;
+        this.isPaused = false;
+        this.playerDistance = 0;
+        this.aiDistance = 0;
+        this.playerSpeed = 0;
+        this.currentLevel = 1;
+        this.aiSpeed = 1.8 + (this.currentLevel * 0.2);
+        this.currentWpm = 0;
+        this.score = 0;
+        this.charIndex = 0;
+        this.totalTyped = 0;
+        this.correctTyped = 0;
+        this.recentKeyTimes = [];
+        this.exhaustParticles = [];
+        this.updateUI();
       }
 
       pauseGame() {
@@ -3400,6 +3649,22 @@
         this.isPaused = false;
         this.pauseOverlay.classList.add('hidden');
         this.gameLoop();
+      }
+
+      onLevelUp() {
+        sound.levelUp();
+        triggerLevelUpToast(this.currentLevel);
+        this.updateUI();
+      }
+
+      addScore(pts) {
+        this.score += pts;
+        const newLevel = 1 + Math.floor(this.score / 250);
+        if (newLevel > this.currentLevel) {
+          this.currentLevel = newLevel;
+          this.onLevelUp();
+        }
+        this.updateUI();
       }
 
       endGame(playerWon) {
@@ -3441,6 +3706,13 @@
           this.charIndex++;
           this.score += 15;
 
+          // In-Game Leveling check
+          const newLevel = 1 + Math.floor(this.score / 250);
+          if (newLevel > this.currentLevel) {
+            this.currentLevel = newLevel;
+            this.onLevelUp();
+          }
+
           // Record timestamp for WPM calculation
           const now = Date.now();
           this.recentKeyTimes.push(now);
@@ -3463,6 +3735,12 @@
             this.currentSentence = pool[Math.floor(Math.random() * pool.length)];
             this.charIndex = 0;
             this.score += 200;
+
+            const newLvlAfterSentence = 1 + Math.floor(this.score / 250);
+            if (newLvlAfterSentence > this.currentLevel) {
+              this.currentLevel = newLvlAfterSentence;
+              this.onLevelUp();
+            }
           }
         } else {
           sound.keyError();
@@ -3474,10 +3752,16 @@
       }
 
       updateUI() {
-        this.scoreDisplay.textContent = this.score;
-        this.comboDisplay.textContent = `${this.currentWpm} WPM`;
+        if (this.scoreDisplay) this.scoreDisplay.textContent = this.score;
+        if (this.comboDisplay) this.comboDisplay.textContent = `${this.currentWpm} WPM`;
+        if (this.levelDisplay) this.levelDisplay.textContent = this.currentLevel;
         const acc = this.totalTyped > 0 ? Math.round((this.correctTyped / this.totalTyped) * 100) : 100;
-        this.accuracyDisplay.textContent = `${acc}%`;
+        if (this.accuracyDisplay) this.accuracyDisplay.textContent = `${acc}%`;
+
+        const livesBox = document.getElementById('arcadeLivesContainer');
+        if (livesBox) {
+          livesBox.innerHTML = `<span style="font-family:var(--font-mono);font-weight:700;color:var(--accent-danger);font-size:1.1rem;">${Math.round(this.aiSpeed * 10)} WPM</span>`;
+        }
       }
 
       gameLoop() {
@@ -3485,12 +3769,13 @@
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // 1. Natural speed calculation driven directly by WPM
-        const targetPlayerSpeed = 1.0 + (this.currentWpm * 0.16);
+        // 1. Natural speed calculation driven directly by WPM & Level
+        const targetPlayerSpeed = 1.0 + (this.currentWpm * 0.16) + (this.currentLevel * 0.12);
         this.playerSpeed += (targetPlayerSpeed - this.playerSpeed) * 0.08;
 
-        // Competitive AI speed (fluctuates ~4.4)
-        this.aiSpeed = 4.2 + Math.sin(Date.now() / 1400) * 0.8;
+        // Dynamic AI speed scaled by Level: (baseSpeed + (currentLevel * 0.2))
+        const targetAiSpeed = (1.8 + (this.currentLevel * 0.2)) + Math.sin(Date.now() / 1400) * 0.4;
+        this.aiSpeed = targetAiSpeed;
 
         this.playerDistance += this.playerSpeed * 0.42;
         this.aiDistance += this.aiSpeed * 0.42;
@@ -3730,6 +4015,8 @@
         this.flashAlpha = 0;
 
         this.score = 0;
+        this.currentLevel = 1;
+        this.baseSpeed = 0.35; // Slow beginner-friendly start pace
         this.lives = 3;
         this.combo = 0;
         this.totalTyped = 0;
@@ -3742,6 +4029,7 @@
         this.accuracyDisplay = document.getElementById('arcadeAccuracyVal');
         this.comboDisplay = document.getElementById('arcadeComboVal');
         this.poolDesc = document.getElementById('arcadePoolDesc');
+        this.levelDisplay = document.getElementById('arcadeLevelVal');
         this.livesContainer = document.getElementById('arcadeLivesContainer');
         this.startOverlay = document.getElementById('arcadeStartOverlay');
         this.pauseOverlay = document.getElementById('arcadePauseOverlay');
@@ -3776,10 +4064,16 @@
         if (this.poolDesc) {
           this.poolDesc.textContent = `Word Blaster (Level ${lvl} Targets)`;
         }
+        if (this.levelDisplay) {
+          this.levelDisplay.textContent = this.currentLevel;
+        }
+        const comboLabel = document.getElementById('arcadeComboLabel');
+        if (comboLabel) comboLabel.textContent = "Combo";
+        const healthTitle = document.getElementById('arcadeHealthTitle');
+        if (healthTitle) healthTitle.textContent = "Defense Shield";
       }
 
       startGame() {
-        this.updatePoolBadge();
         this.isPlaying = true;
         this.isPaused = false;
         this.words = [];
@@ -3788,6 +4082,8 @@
         this.shakeFrames = 0;
         this.flashAlpha = 0;
         this.score = 0;
+        this.currentLevel = 1;
+        this.baseSpeed = 0.35;
         this.lives = 3;
         this.combo = 0;
         this.totalTyped = 0;
@@ -3795,19 +4091,36 @@
         this.wordsDestroyed = 0;
         this.spawnTimer = 0;
 
-        document.getElementById('arcadeComboLabel').textContent = "Combo";
+        this.updatePoolBadge();
         this.updateUI();
         this.startOverlay.classList.add('hidden');
         this.pauseOverlay.classList.add('hidden');
         this.gameOverOverlay.classList.add('hidden');
 
-        // Spawn initial wave of floating words
+        // Spawn initial wave of floating words (slow Level 1 pace)
         for (let i = 0; i < 4; i++) {
           this.spawnWord();
         }
 
         sound.initCtx();
         this.gameLoop();
+      }
+
+      hardReset() {
+        this.isPlaying = false;
+        this.isPaused = false;
+        this.words = [];
+        this.targetWord = null;
+        this.particles = [];
+        this.score = 0;
+        this.currentLevel = 1;
+        this.baseSpeed = 0.35;
+        this.lives = 3;
+        this.combo = 0;
+        this.totalTyped = 0;
+        this.correctTyped = 0;
+        this.wordsDestroyed = 0;
+        this.updateUI();
       }
 
       pauseGame() {
@@ -3821,6 +4134,28 @@
         this.isPaused = false;
         this.pauseOverlay.classList.add('hidden');
         this.gameLoop();
+      }
+
+      onLevelUp() {
+        sound.levelUp();
+        triggerLevelUpToast(this.currentLevel);
+        const scaledSpeed = this.baseSpeed + (this.currentLevel * 0.2);
+        for (const w of this.words) {
+          const angle = Math.atan2(w.vy, w.vx);
+          w.vx = Math.cos(angle) * scaledSpeed;
+          w.vy = Math.sin(angle) * scaledSpeed;
+        }
+        this.updateUI();
+      }
+
+      addScore(pts) {
+        this.score += pts;
+        const newLevel = 1 + Math.floor(this.score / 250);
+        if (newLevel > this.currentLevel) {
+          this.currentLevel = newLevel;
+          this.onLevelUp();
+        }
+        this.updateUI();
       }
 
       endGame() {
@@ -3847,9 +4182,10 @@
         const text = pool[Math.floor(Math.random() * pool.length)];
 
         const angle = Math.random() * Math.PI * 2;
-        const speed = 0.5 + Math.random() * 0.7;
+        // Dynamic speed scaling: speed = baseSpeed + (currentLevel * 0.2)
+        const speed = this.baseSpeed + (this.currentLevel * 0.2) + (Math.random() * 0.1 - 0.05);
 
-        this.words.push({
+        const newWord = {
           id: Math.random().toString(36).substring(7),
           text: text,
           typedCount: 0,
@@ -3860,7 +4196,9 @@
           timer: 1000,
           maxTimer: 1000,
           hue: 195 + Math.random() * 60
-        });
+        };
+        this.words.push(newWord);
+        return newWord;
       }
 
       handleInput(key) {
@@ -3877,6 +4215,13 @@
             this.combo++;
             this.score += 25 * Math.min(this.combo, 5);
             sound.keySuccess();
+
+            // In-Game Leveling check
+            const newLevel = 1 + Math.floor(this.score / 250);
+            if (newLevel > this.currentLevel) {
+              this.currentLevel = newLevel;
+              this.onLevelUp();
+            }
 
             // Check if entire word completed -> HEAVY FLASH & SHAKE!
             if (this.targetWord.typedCount >= this.targetWord.text.length) {
@@ -3901,6 +4246,13 @@
           this.score += 25;
           sound.targetLock();
 
+          // In-Game Leveling check
+          const newLevel = 1 + Math.floor(this.score / 250);
+          if (newLevel > this.currentLevel) {
+            this.currentLevel = newLevel;
+            this.onLevelUp();
+          }
+
           if (this.targetWord.typedCount >= this.targetWord.text.length) {
             this.blastWord(this.targetWord);
             this.targetWord = null;
@@ -3916,6 +4268,13 @@
       blastWord(word) {
         this.wordsDestroyed++;
         this.score += 150 * Math.min(this.combo, 5);
+
+        // In-Game Leveling check
+        const newLevel = 1 + Math.floor(this.score / 250);
+        if (newLevel > this.currentLevel) {
+          this.currentLevel = newLevel;
+          this.onLevelUp();
+        }
 
         // Required: HEAVY FLASH & SHAKE ANIMATION
         this.shakeFrames = 18; // 18 frames of violent screen shake
@@ -3944,16 +4303,22 @@
       }
 
       updateUI() {
-        this.scoreDisplay.textContent = this.score;
-        this.comboDisplay.textContent = `${this.combo}x`;
+        if (this.scoreDisplay) this.scoreDisplay.textContent = this.score;
+        if (this.comboDisplay) this.comboDisplay.textContent = `${this.combo}x`;
+        if (this.levelDisplay) this.levelDisplay.textContent = this.currentLevel;
         const acc = this.totalTyped > 0 ? Math.round((this.correctTyped / this.totalTyped) * 100) : 100;
-        this.accuracyDisplay.textContent = `${acc}%`;
+        if (this.accuracyDisplay) this.accuracyDisplay.textContent = `${acc}%`;
 
-        const hearts = this.livesContainer.querySelectorAll('.life-heart');
-        hearts.forEach((h, idx) => {
-          if (idx < this.lives) h.classList.remove('lost');
-          else h.classList.add('lost');
-        });
+        if (this.livesContainer) {
+          if (!this.livesContainer.querySelector('.life-heart')) {
+            this.livesContainer.innerHTML = `<span class="life-heart">❤️</span><span class="life-heart">❤️</span><span class="life-heart">❤️</span>`;
+          }
+          const hearts = this.livesContainer.querySelectorAll('.life-heart');
+          hearts.forEach((h, idx) => {
+            if (idx < this.lives) h.classList.remove('lost');
+            else h.classList.add('lost');
+          });
+        }
       }
 
       gameLoop() {
@@ -4121,8 +4486,497 @@
     }
 
     /* ========================================================================
+       ARCADE GAME 4: ALPHABET SPRINT (A TO Z TIME TRIAL)
+       Player must type the entire English alphabet from A to Z in exact
+       alphabetical order as fast as possible.
+       - Displays full alphabet on screen, highlighting current target letter
+       - Timer starts exact millisecond 'a' is pressed
+       - Progression prevented if wrong letter typed
+       - Timer stops exact millisecond 'z' is pressed
+       - Clean results screen showing total time, WPM, and KPM
+       - Instant "Play Again" button for immediate restart
+       ======================================================================== */
+    class AlphabetSprintGame {
+      constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d');
+
+        this.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+        this.isPlaying = false;
+        this.isWaitingForStart = true;
+        this.isTimerRunning = false;
+        this.isFinished = false;
+
+        this.currentIndex = 0;
+        this.startTime = 0;
+        this.endTime = 0;
+        this.elapsedTime = 0;
+        this.totalKeystrokes = 0;
+        this.correctKeystrokes = 0;
+        this.errors = 0;
+        this.shakeFrames = 0;
+        this.particles = [];
+        this.score = 0;
+        this.currentLevel = 1;
+
+        // UI references
+        this.scoreDisplay = document.getElementById('arcadeScoreVal');
+        this.accuracyDisplay = document.getElementById('arcadeAccuracyVal');
+        this.comboLabel = document.getElementById('arcadeComboLabel');
+        this.comboDisplay = document.getElementById('arcadeComboVal');
+        this.poolDesc = document.getElementById('arcadePoolDesc');
+        this.levelDisplay = document.getElementById('arcadeLevelVal');
+        this.startOverlay = document.getElementById('arcadeStartOverlay');
+        this.pauseOverlay = document.getElementById('arcadePauseOverlay');
+        this.gameOverOverlay = document.getElementById('arcadeGameOverOverlay');
+        this.resultsOverlay = document.getElementById('alphabetSprintResultsOverlay');
+
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+      }
+
+      get meteors() {
+        return [];
+      }
+
+      resize() {
+        const rect = this.canvas.parentElement.getBoundingClientRect();
+        this.canvas.width = rect.width;
+        this.canvas.height = rect.height;
+      }
+
+      updatePoolBadge() {
+        if (this.poolDesc) {
+          this.poolDesc.textContent = "Alphabet Sprint (A to Z exact order)";
+        }
+        if (this.levelDisplay) {
+          this.levelDisplay.textContent = "A-Z";
+        }
+        if (this.comboLabel) {
+          this.comboLabel.textContent = "Time";
+        }
+        const healthTitle = document.getElementById('arcadeHealthTitle');
+        if (healthTitle) healthTitle.textContent = "Letters Left";
+        const livesBox = document.getElementById('arcadeLivesContainer');
+        if (livesBox) {
+          const remaining = 26 - this.currentIndex;
+          livesBox.innerHTML = `<span style="font-family:var(--font-mono);font-weight:700;color:var(--accent-secondary);font-size:1.15rem;">${remaining} left</span>`;
+        }
+      }
+
+      startGame() {
+        this.isPlaying = true;
+        this.resetSprint();
+        this.updatePoolBadge();
+
+        if (this.startOverlay) this.startOverlay.classList.add('hidden');
+        if (this.pauseOverlay) this.pauseOverlay.classList.add('hidden');
+        if (this.gameOverOverlay) this.gameOverOverlay.classList.add('hidden');
+        if (this.resultsOverlay) this.resultsOverlay.classList.add('hidden');
+
+        sound.initCtx();
+        this.gameLoop();
+      }
+
+      resetSprint() {
+        this.isWaitingForStart = true;
+        this.isTimerRunning = false;
+        this.isFinished = false;
+        this.currentIndex = 0;
+        this.startTime = 0;
+        this.endTime = 0;
+        this.elapsedTime = 0;
+        this.totalKeystrokes = 0;
+        this.correctKeystrokes = 0;
+        this.errors = 0;
+        this.shakeFrames = 0;
+        this.particles = [];
+        this.score = 0;
+        this.currentLevel = 1;
+
+        if (this.resultsOverlay) this.resultsOverlay.classList.add('hidden');
+        this.updateUI();
+      }
+
+      hardReset() {
+        this.isPlaying = false;
+        this.resetSprint();
+        if (this.resultsOverlay) this.resultsOverlay.classList.add('hidden');
+      }
+
+      pauseGame() {
+        if (!this.isPlaying || this.isFinished) return;
+        this.isTimerRunning = false;
+        if (this.pauseOverlay) this.pauseOverlay.classList.remove('hidden');
+      }
+
+      resumeGame() {
+        if (!this.isPlaying) return;
+        if (this.pauseOverlay) this.pauseOverlay.classList.add('hidden');
+        if (this.currentIndex > 0 && !this.isFinished) {
+          this.isTimerRunning = true;
+          this.startTime = performance.now() - (this.elapsedTime * 1000);
+        }
+        this.gameLoop();
+      }
+
+      handleInput(key) {
+        if (!this.isPlaying || this.isFinished) return;
+
+        const letter = key.toUpperCase();
+        if (!/^[A-Z]$/.test(letter)) return;
+
+        // 1. Initial State: Waiting for 'a' / 'A' keypress
+        if (this.isWaitingForStart) {
+          if (letter === 'A') {
+            // The timer starts the exact millisecond they press 'a'
+            this.startTime = performance.now();
+            this.isTimerRunning = true;
+            this.isWaitingForStart = false;
+            this.currentIndex = 1; // Advance to 'B'
+            this.correctKeystrokes = 1;
+            this.totalKeystrokes = 1;
+            this.score = 1;
+            sound.keySuccess();
+            this.createCardBurst(0);
+            this.updateUI();
+          } else {
+            // Prevent progression if they type the wrong letter
+            this.totalKeystrokes++;
+            this.errors++;
+            this.shakeFrames = 14;
+            sound.keyError();
+            this.updateUI();
+          }
+          return;
+        }
+
+        // 2. Sprinting: Expect exact alphabetical order
+        if (this.isTimerRunning) {
+          const expected = this.alphabet[this.currentIndex];
+          if (letter === expected) {
+            this.correctKeystrokes++;
+            this.totalKeystrokes++;
+            this.createCardBurst(this.currentIndex);
+
+            // Check if user just struck 'Z' (index 25)
+            if (this.currentIndex === 25) {
+              // The timer stops the exact millisecond they press 'z'
+              this.endTime = performance.now();
+              this.elapsedTime = (this.endTime - this.startTime) / 1000;
+              this.isTimerRunning = false;
+              this.isFinished = true;
+              this.currentIndex = 26; // All 26 completed
+              this.score = 26;
+
+              sound.victoryFanfare();
+              confetti.launch(85);
+              this.showResults();
+            } else {
+              this.currentIndex++;
+              this.score = this.currentIndex;
+              sound.keySuccess();
+            }
+          } else {
+            // Prevent progression if they type the wrong letter
+            this.totalKeystrokes++;
+            this.errors++;
+            this.shakeFrames = 14;
+            sound.keyError();
+          }
+
+          this.updateUI();
+        }
+      }
+
+      createCardBurst(index) {
+        const pos = this.getCardPos(index);
+        for (let i = 0; i < 16; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = Math.random() * 4.5 + 1.5;
+          this.particles.push({
+            x: pos.x + pos.w / 2,
+            y: pos.y + pos.h / 2,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            size: Math.random() * 4 + 2,
+            color: '#10b981',
+            life: 25,
+            maxLife: 25
+          });
+        }
+      }
+
+      getCardPos(index) {
+        const cols = 13;
+        const row = Math.floor(index / cols);
+        const col = index % cols;
+
+        const padX = 10;
+        const padY = 16;
+        const cardW = Math.max(38, Math.min(68, (this.canvas.width - 60 - (cols - 1) * padX) / cols));
+        const cardH = Math.max(54, Math.min(84, cardW * 1.25));
+
+        const gridTotalW = cols * cardW + (cols - 1) * padX;
+        const startX = (this.canvas.width - gridTotalW) / 2;
+        const startY = 175;
+
+        return {
+          x: startX + col * (cardW + padX),
+          y: startY + row * (cardH + padY),
+          w: cardW,
+          h: cardH
+        };
+      }
+
+      updateUI() {
+        if (this.scoreDisplay) this.scoreDisplay.textContent = `${this.currentIndex} / 26`;
+        const acc = this.totalKeystrokes > 0 ? Math.round((this.correctKeystrokes / this.totalKeystrokes) * 100) : 100;
+        if (this.accuracyDisplay) this.accuracyDisplay.textContent = `${acc}%`;
+        if (this.comboDisplay) this.comboDisplay.textContent = `${this.elapsedTime.toFixed(3)}s`;
+        if (this.levelDisplay) this.levelDisplay.textContent = "A-Z";
+
+        const remaining = 26 - this.currentIndex;
+        const livesBox = document.getElementById('arcadeLivesContainer');
+        if (livesBox) {
+          livesBox.innerHTML = `<span style="font-family:var(--font-mono);font-weight:700;color:var(--accent-secondary);font-size:1.15rem;">${remaining} left</span>`;
+        }
+      }
+
+      showResults() {
+        const timeSec = this.elapsedTime;
+        // WPM = (26 chars / 5 chars per word) / (timeSec / 60) = 312 / timeSec
+        const wpm = timeSec > 0 ? Math.round(312 / timeSec) : 0;
+        // KPM = (26 / timeSec) * 60
+        const kpm = timeSec > 0 ? Math.round((26 / timeSec) * 60) : 0;
+        const acc = this.totalKeystrokes > 0 ? Math.round((this.correctKeystrokes / this.totalKeystrokes) * 100) : 100;
+
+        let isNewRecord = false;
+        if (!userState.alphabetSprintBestTime || timeSec < userState.alphabetSprintBestTime) {
+          userState.alphabetSprintBestTime = parseFloat(timeSec.toFixed(3));
+          GameStorage.save(userState);
+          isNewRecord = true;
+        }
+
+        document.getElementById('sprintFinalTime').textContent = `${timeSec.toFixed(3)}s`;
+        document.getElementById('sprintFinalWpm').textContent = `${wpm} WPM`;
+        document.getElementById('sprintFinalKpm').textContent = `${kpm} KPM`;
+        document.getElementById('sprintFinalAccuracy').textContent = `${acc}%`;
+
+        const banner = document.getElementById('sprintBestRecordBanner');
+        if (banner) {
+          if (isNewRecord) banner.classList.remove('hidden');
+          else banner.classList.add('hidden');
+        }
+
+        if (this.resultsOverlay) {
+          this.resultsOverlay.classList.remove('hidden');
+        }
+      }
+
+      gameLoop() {
+        if (!this.isPlaying) return;
+
+        if (this.isTimerRunning) {
+          this.elapsedTime = (performance.now() - this.startTime) / 1000;
+          if (this.comboDisplay) this.comboDisplay.textContent = `${this.elapsedTime.toFixed(2)}s`;
+        }
+
+        const width = this.canvas.width;
+        const height = this.canvas.height;
+        this.ctx.clearRect(0, 0, width, height);
+
+        // 1. Cosmic cyber backdrop
+        const grad = this.ctx.createLinearGradient(0, 0, 0, height);
+        grad.addColorStop(0, '#060b17');
+        grad.addColorStop(1, '#0c1322');
+        this.ctx.fillStyle = grad;
+        this.ctx.fillRect(0, 0, width, height);
+
+        // Subtle ambient horizontal grid lines
+        this.ctx.save();
+        this.ctx.strokeStyle = 'rgba(99, 102, 241, 0.07)';
+        this.ctx.lineWidth = 1;
+        for (let y = 40; y < height; y += 40) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(0, y);
+          this.ctx.lineTo(width, y);
+          this.ctx.stroke();
+        }
+        this.ctx.restore();
+
+        // 2. Top Cockpit Banner: Stopwatch & Status
+        this.ctx.save();
+        this.ctx.beginPath();
+        this.ctx.fillStyle = 'rgba(16, 23, 38, 0.85)';
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        this.ctx.lineWidth = 1;
+        this.ctx.roundRect(30, 20, width - 60, 115, 14);
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        // Large Stopwatch readout
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.font = '800 40px "JetBrains Mono", monospace';
+        this.ctx.fillStyle = this.isTimerRunning ? '#06b6d4' : '#f1f5f9';
+        this.ctx.shadowColor = this.isTimerRunning ? '#06b6d4' : 'transparent';
+        this.ctx.shadowBlur = this.isTimerRunning ? 18 : 0;
+        this.ctx.fillText(`${this.elapsedTime.toFixed(3)}s`, width / 2, 60);
+
+        // Status instruction
+        this.ctx.shadowBlur = 0;
+        this.ctx.font = '700 13px "Outfit", sans-serif';
+        if (this.isWaitingForStart) {
+          this.ctx.fillStyle = '#38bdf8';
+          this.ctx.fillText("⚡ PRESS 'A' TO START TIMER (A TO Z TRIAL)", width / 2, 98);
+        } else if (this.isTimerRunning) {
+          const nextChar = this.alphabet[this.currentIndex];
+          this.ctx.fillStyle = '#10b981';
+          this.ctx.fillText(`TARGET KEY: [ ${nextChar} ] — KEEP SPRINTING!`, width / 2, 98);
+        } else if (this.isFinished) {
+          this.ctx.fillStyle = '#10b981';
+          this.ctx.fillText(`🎉 SPRINT COMPLETE! TIME: ${this.elapsedTime.toFixed(3)}s`, width / 2, 98);
+        }
+
+        // Mini track progress bar in cockpit
+        const barW = Math.min(480, width - 120);
+        const barX = (width - barW) / 2;
+        const barY = 115;
+        this.ctx.beginPath();
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        this.ctx.roundRect(barX, barY, barW, 6, 3);
+        this.ctx.fill();
+
+        const fillW = (this.currentIndex / 26) * barW;
+        if (fillW > 0) {
+          this.ctx.beginPath();
+          this.ctx.fillStyle = '#10b981';
+          this.ctx.shadowColor = '#10b981';
+          this.ctx.shadowBlur = 10;
+          this.ctx.roundRect(barX, barY, fillW, 6, 3);
+          this.ctx.fill();
+        }
+        this.ctx.restore();
+
+        // 3. Render the 26 Alphabet Letter Cards
+        for (let i = 0; i < 26; i++) {
+          const char = this.alphabet[i];
+          const pos = this.getCardPos(i);
+
+          const isCompleted = (i < this.currentIndex);
+          const isTarget = (i === this.currentIndex);
+
+          this.ctx.save();
+
+          let cardX = pos.x;
+          let cardY = pos.y;
+          let cardW = pos.w;
+          let cardH = pos.h;
+
+          // Target card shake effect if wrong key pressed
+          if (isTarget && this.shakeFrames > 0) {
+            const shakeMag = (this.shakeFrames / 14) * 8;
+            cardX += (Math.random() - 0.5) * shakeMag * 2;
+            cardY += (Math.random() - 0.5) * shakeMag * 2;
+          }
+
+          if (isTarget) {
+            const scale = 1.08;
+            const cx = cardX + cardW / 2;
+            const cy = cardY + cardH / 2;
+            this.ctx.translate(cx, cy);
+            this.ctx.scale(scale, scale);
+            this.ctx.translate(-cx, -cy);
+
+            this.ctx.shadowColor = (this.shakeFrames > 0) ? '#ef4444' : '#38bdf8';
+            this.ctx.shadowBlur = 22;
+          }
+
+          // Card Background
+          if (isCompleted) {
+            this.ctx.fillStyle = 'rgba(16, 185, 129, 0.22)';
+            this.ctx.strokeStyle = '#10b981';
+            this.ctx.lineWidth = 2;
+          } else if (isTarget) {
+            if (this.shakeFrames > 0) {
+              this.ctx.fillStyle = 'rgba(239, 68, 68, 0.35)';
+              this.ctx.strokeStyle = '#ef4444';
+              this.ctx.lineWidth = 3;
+            } else {
+              this.ctx.fillStyle = 'rgba(99, 102, 241, 0.38)';
+              this.ctx.strokeStyle = '#38bdf8';
+              this.ctx.lineWidth = 3;
+            }
+          } else {
+            this.ctx.fillStyle = 'rgba(30, 41, 59, 0.6)';
+            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            this.ctx.lineWidth = 1;
+          }
+
+          this.ctx.beginPath();
+          this.ctx.roundRect(cardX, cardY, cardW, cardH, 10);
+          this.ctx.fill();
+          this.ctx.stroke();
+
+          // Card Letter
+          this.ctx.shadowBlur = 0;
+          this.ctx.textAlign = 'center';
+          this.ctx.textBaseline = 'middle';
+          this.ctx.font = `800 ${Math.round(cardH * 0.42)}px "JetBrains Mono", monospace`;
+
+          if (isCompleted) {
+            this.ctx.fillStyle = '#10b981';
+          } else if (isTarget) {
+            this.ctx.fillStyle = (this.shakeFrames > 0) ? '#fca5a5' : '#ffffff';
+          } else {
+            this.ctx.fillStyle = '#64748b';
+          }
+
+          this.ctx.fillText(char, cardX + cardW / 2, cardY + cardH / 2);
+
+          // Sub-indicator
+          if (isCompleted) {
+            this.ctx.font = '700 10px "Outfit", sans-serif';
+            this.ctx.fillStyle = '#10b981';
+            this.ctx.fillText('✓', cardX + cardW / 2, cardY + cardH - 10);
+          } else if (isTarget) {
+            this.ctx.font = '700 9px "Outfit", sans-serif';
+            this.ctx.fillStyle = '#38bdf8';
+            this.ctx.fillText('PRESS', cardX + cardW / 2, cardY + cardH - 10);
+          }
+
+          this.ctx.restore();
+        }
+
+        // 4. Update and Draw Particles
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life--;
+          if (p.life <= 0) {
+            this.particles.splice(i, 1);
+          } else {
+            this.ctx.save();
+            this.ctx.globalAlpha = p.life / p.maxLife;
+            this.ctx.fillStyle = p.color;
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.restore();
+          }
+        }
+
+        if (this.shakeFrames > 0) this.shakeFrames--;
+
+        requestAnimationFrame(() => this.gameLoop());
+      }
+    }
+
+    /* ========================================================================
        ARCADE ORCHESTRATOR & COMPATIBILITY FACADE
-       Coordinates all 3 distinct games and maintains complete compatibility
+       Coordinates all 4 distinct games and maintains complete compatibility
        with existing test suites referencing `meteorArcade`.
        ======================================================================== */
     class ArcadeController {
@@ -4131,8 +4985,9 @@
         this.bubbleDrop = new BubbleDropGame(canvasId);
         this.nitroSprint = new NitroSprintGame(canvasId);
         this.wordBlaster = new WordBlasterGame(canvasId);
+        this.alphabetSprint = new AlphabetSprintGame(canvasId);
 
-        this.activeMode = 'bubbleDrop'; // 'bubbleDrop' | 'nitroSprint' | 'wordBlaster'
+        this.activeMode = 'bubbleDrop'; // 'bubbleDrop' | 'nitroSprint' | 'wordBlaster' | 'alphabetSprint'
         this.currentGame = this.bubbleDrop;
       }
 
@@ -4146,6 +5001,7 @@
         if (mode === 'bubbleDrop') this.currentGame = this.bubbleDrop;
         else if (mode === 'nitroSprint') this.currentGame = this.nitroSprint;
         else if (mode === 'wordBlaster') this.currentGame = this.wordBlaster;
+        else if (mode === 'alphabetSprint') this.currentGame = this.alphabetSprint;
 
         document.querySelectorAll('.arcade-mode-tab').forEach(tab => {
           tab.classList.toggle('active', tab.dataset.mode === mode);
@@ -4157,10 +5013,12 @@
         const startOverlay = document.getElementById('arcadeStartOverlay');
         const pauseOverlay = document.getElementById('arcadePauseOverlay');
         const gameOverOverlay = document.getElementById('arcadeGameOverOverlay');
+        const sprintResultsOverlay = document.getElementById('alphabetSprintResultsOverlay');
 
-        startOverlay.classList.remove('hidden');
-        pauseOverlay.classList.add('hidden');
-        gameOverOverlay.classList.add('hidden');
+        if (startOverlay) startOverlay.classList.remove('hidden');
+        if (pauseOverlay) pauseOverlay.classList.add('hidden');
+        if (gameOverOverlay) gameOverOverlay.classList.add('hidden');
+        if (sprintResultsOverlay) sprintResultsOverlay.classList.add('hidden');
 
         if (mode === 'bubbleDrop') {
           startTitle.textContent = "Bubble Drop";
@@ -4171,7 +5029,29 @@
         } else if (mode === 'wordBlaster') {
           startTitle.textContent = "Word Blaster";
           startDesc.textContent = "Words float dynamically across space. Type the first letter to lock on with holographic reticles, then blast for screen-shaking explosions!";
+        } else if (mode === 'alphabetSprint') {
+          startTitle.textContent = "Alphabet Sprint";
+          startDesc.textContent = "Type the entire English alphabet from A to Z in exact order as fast as humanly possible! Timer starts the instant you strike 'A' and stops on 'Z'.";
         }
+
+        this.currentGame.resize();
+        this.currentGame.updatePoolBadge();
+      }
+
+      hardReset() {
+        this.bubbleDrop.hardReset();
+        this.nitroSprint.hardReset();
+        this.wordBlaster.hardReset();
+        this.alphabetSprint.hardReset();
+
+        const startOverlay = document.getElementById('arcadeStartOverlay');
+        const pauseOverlay = document.getElementById('arcadePauseOverlay');
+        const gameOverOverlay = document.getElementById('arcadeGameOverOverlay');
+        const sprintResults = document.getElementById('alphabetSprintResultsOverlay');
+        if (startOverlay) startOverlay.classList.remove('hidden');
+        if (pauseOverlay) pauseOverlay.classList.add('hidden');
+        if (gameOverOverlay) gameOverOverlay.classList.add('hidden');
+        if (sprintResults) sprintResults.classList.add('hidden');
 
         this.currentGame.resize();
         this.currentGame.updatePoolBadge();
@@ -4183,6 +5063,7 @@
       get isPlaying() { return this.currentGame.isPlaying; }
       get isPaused() { return this.currentGame.isPaused; }
       get score() { return this.currentGame.score; }
+      get currentLevel() { return this.currentGame.currentLevel || 1; }
       get meteors() { return this.bubbleDrop.bubbles; }
 
       startGame() { this.currentGame.startGame(); }
@@ -4191,6 +5072,11 @@
       resize() { this.currentGame.resize(); }
       updatePoolBadge() { this.currentGame.updatePoolBadge(); }
       handleInput(key) { this.currentGame.handleInput(key); }
+      addScore(pts) {
+        if (this.currentGame && typeof this.currentGame.addScore === 'function') {
+          this.currentGame.addScore(pts);
+        }
+      }
     }
 
     let arcadeController = null;
@@ -4200,6 +5086,10 @@
        GLOBAL VIEW NAVIGATION & UI CONTROLLER
        ======================================================================== */
     function switchView(targetViewId) {
+      if (targetViewId !== 'arcadeView' && arcadeController) {
+        arcadeController.hardReset();
+      }
+
       document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
       document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -4387,7 +5277,7 @@
         practiceEngine.switchTrack('programmer');
       });
 
-      // Arcade 3 Game Mode Tabs
+      // Arcade 4 Game Mode Tabs
       document.getElementById('tabArcadeBubbleDrop').addEventListener('click', () => {
         arcadeController.switchMode('bubbleDrop');
       });
@@ -4397,6 +5287,12 @@
       document.getElementById('tabArcadeWordBlaster').addEventListener('click', () => {
         arcadeController.switchMode('wordBlaster');
       });
+      const tabSprint = document.getElementById('tabArcadeAlphabetSprint');
+      if (tabSprint) {
+        tabSprint.addEventListener('click', () => {
+          arcadeController.switchMode('alphabetSprint');
+        });
+      }
 
       // 4. Header Action Buttons
       document.getElementById('toggleThemeBtn').addEventListener('click', toggleTheme);
@@ -4439,7 +5335,50 @@
       document.getElementById('arcadePauseBtn').addEventListener('click', () => arcadeController.pauseGame());
       document.getElementById('btnResumeArcadeGame').addEventListener('click', () => arcadeController.resumeGame());
       document.getElementById('btnRestartArcadeGame').addEventListener('click', () => arcadeController.startGame());
-      document.getElementById('btnArcadeBackToLessons').addEventListener('click', () => switchView('practiceView'));
+
+      const arcadeExitBtn = document.getElementById('arcadeExitBtn');
+      if (arcadeExitBtn) {
+        arcadeExitBtn.addEventListener('click', () => {
+          arcadeController.hardReset();
+          switchView('menuView');
+        });
+      }
+
+      const btnPauseExitArcade = document.getElementById('btnPauseExitArcade');
+      if (btnPauseExitArcade) {
+        btnPauseExitArcade.addEventListener('click', () => {
+          arcadeController.hardReset();
+          switchView('menuView');
+        });
+      }
+
+      const btnArcadeGameOverBackToMenu = document.getElementById('btnArcadeGameOverBackToMenu');
+      if (btnArcadeGameOverBackToMenu) {
+        btnArcadeGameOverBackToMenu.addEventListener('click', () => {
+          arcadeController.hardReset();
+          switchView('menuView');
+        });
+      }
+
+      const btnRestartAlphabetSprint = document.getElementById('btnRestartAlphabetSprint');
+      if (btnRestartAlphabetSprint) {
+        btnRestartAlphabetSprint.addEventListener('click', () => {
+          arcadeController.alphabetSprint.startGame();
+        });
+      }
+
+      const btnExitAlphabetSprint = document.getElementById('btnExitAlphabetSprint');
+      if (btnExitAlphabetSprint) {
+        btnExitAlphabetSprint.addEventListener('click', () => {
+          arcadeController.hardReset();
+          switchView('menuView');
+        });
+      }
+
+      document.getElementById('btnArcadeBackToLessons').addEventListener('click', () => {
+        arcadeController.hardReset();
+        switchView('practiceView');
+      });
     });
   </script>
 </body>

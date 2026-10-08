@@ -1,7 +1,7 @@
 # KeyFlow Pro — Modern Touch Typing & Arcade Practice
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-blue?style=for-the-badge&logo=github)](https://sathvik-ram-yerroju-ai-creator.github.io/typing---game/)
-[![Automated Tests](https://img.shields.io/badge/Tests-51%2F51%20Passing-success?style=for-the-badge&logo=playwright)](https://sathvik-ram-yerroju-ai-creator.github.io/typing---game/)
+[![Automated Tests](https://img.shields.io/badge/Tests-50%2F50%20Passing-success?style=for-the-badge&logo=playwright)](https://sathvik-ram-yerroju-ai-creator.github.io/typing---game/)
 
 > **Unlock Muscle Memory. Type at the Speed of Thought.**  
 > A sleek, responsive, and feature-rich touch typing master suite built with pure HTML, modern CSS, and vanilla JavaScript. Completely self-contained with zero runtime dependencies.
@@ -28,21 +28,31 @@ Designed specifically for software engineers and power users:
 
 ---
 
-### 2. 🎮 Expanded Arcade Arena (3 Distinct Mini-Games)
-Every mini-game dynamically pulls its vocabulary and target characters based on the player's unlocked practice levels:
+### 2. 🎮 Arcade Arena (4 Distinct Mini-Games & Dynamic Speed Scaling)
+The Arcade Arena features 4 high-octane modes equipped with **Dynamic Speed Scaling** and **Hard Reset on Exit**:
 
-* **Bubble Drop (Vertical Popper)**:
+* **🌊 Dynamic Speed Scaling & Slow Start System**:
+  * **Slow Start (Level 1)**: All arcade modes start at a relaxed, beginner-friendly pace (Bubble Drop base `0.55`, Nitro Sprint base `1.4`, Word Blaster base `0.35`).
+  * **In-Game Leveling**: As your score increases, your in-game Level rises automatically with audio chimes and a level-up banner.
+  * **Speed Formula**: Game elements dynamically accelerate as you level up (`speed = baseSpeed + (currentLevel * 0.2)`).
+  * **Hard Reset on Exit**: Clicking "Exit Game" or "Back to Menu" hard-resets all mid-game states immediately. Reopening the game starts fresh at score 0 and slow Level 1 pace.
+
+* **Mode 1: Bubble Drop (Vertical Popper)**:
   * Translucent glass bubbles fall downward with organic floating physics and sway.
   * Correct typing triggers a smooth canvas particle splash and ripple wave.
-  * Bandpass noise fizz & upward sine chirp synthesized audio.
-* **Nitro Sprint (Horizontal 2D Racer)**:
+* **Mode 2: Nitro Sprint (Horizontal 2D Racer)**:
   * 2D highway sprint against an intelligent AI rival car.
   * Players type complete sentences to accelerate down the 1000m track.
-  * Real-time WPM directly controls the player vehicle's velocity, igniting nitro exhaust particles and engine sweeps at >50 WPM.
-* **Word Blaster (Dynamic Targeting & Heavy FX)**:
-  * Words drift across a 2D arena.
-  * Typing the first letter immediately activates a holographic targeting reticle with tracking guidance.
+  * Real-time WPM directly controls player velocity, igniting nitro exhaust particles and engine sweeps at >50 WPM.
+* **Mode 3: Word Blaster (Dynamic Targeting & Heavy FX)**:
+  * Words drift across a 2D cosmic arena.
+  * Typing the first letter activates a holographic targeting reticle with tracking guidance.
   * Completing the word triggers a heavy screen shake (18 frames), full-screen flare flash, and a 35+ shard particle explosion.
+* **Mode 4: Alphabet Sprint (A to Z Time Trial)**:
+  * **Objective**: Type the entire English alphabet from A to Z in exact order as fast as possible!
+  * **Millisecond-Accurate Timer**: Timer starts the exact millisecond `A` is struck, and stops the exact millisecond `Z` is pressed.
+  * **Strict Order Validation**: Prevent progression if the wrong letter is typed (red card shake and error counter).
+  * **Stats & Results Screen**: Instant results overlay displaying Total Time (to 3 decimals), equivalent WPM (`312 / totalTime`), Keystrokes Per Minute (KPM), Accuracy, and a 1-click **Play Again** instant restart.
 
 ---
 
@@ -53,6 +63,7 @@ All sound effects are generated procedurally in real time via the native browser
 * **Harsh Buzzer (`keyError`)**: Low square wave (130Hz) with odd harmonics for immediate error awareness.
 * **Bubble Pop (`bubblePop`)**: Bandpassed procedural white noise burst paired with an upward sine chirp.
 * **Word Explosion (`wordExplosion`)**: Resonant falling lowpass noise shockwave paired with a sub-bass triangle punch.
+* **Level Up Fanfare (`levelUp`)**: Ascending 4-tone synthesizer arpeggio.
 * **Nitro Thrust & Target Lock**: Dynamic saw sweeps and triangle frequency shifts.
 
 ---
@@ -78,23 +89,22 @@ All sound effects are generated procedurally in real time via the native browser
 KeyFlow Pro includes a comprehensive Playwright test suite in `run_tests.js`:
 
 ```bash
-# Run the 51 automated tests
+# Run the 50 automated tests
 node run_tests.js
 ```
 
-All 51 test assertions pass with 100% success across:
+All 50 test assertions pass with 100% success across:
 1. Main menu navigation & visual structure
 2. Virtual keyboard highlighting & finger posture hints
 3. Keystroke discipline, error handling, and cursor lock
 4. Drill completion & 90% accuracy gating
 5. Retro arcade backwards-compatibility
-6. Dark/Light theme & sound toggle preferences
-7. Progress reset functionality
-8. Programmer Track instant unlock & syntax pool verification
-9. Bubble Drop particle splash mechanics
-10. Nitro Sprint AI racer & real-time WPM physics
-11. Word Blaster reticle lock-on & screen flash/shake
-12. Synthesized Web Audio API compliance
+6. Dynamic Speed Scaling & Slow Start system (Bubble Drop, Nitro Sprint, Word Blaster)
+7. In-game level progression and hard reset on exit (score reset to 0, slow pace restored)
+8. Alphabet Sprint mode (millisecond start on 'A', strict letter gating, millisecond stop on 'Z')
+9. Alphabet Sprint results calculations (Time, WPM, KPM, Accuracy) and instant Play Again restart
+10. Dark/Light theme & sound toggle preferences
+11. Progress reset confirmation
 
 ---
 

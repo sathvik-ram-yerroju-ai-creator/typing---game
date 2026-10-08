@@ -180,9 +180,154 @@ async function runTestSuite() {
   assert('Arcade resumed', isResumed);
 
   // -------------------------------------------------------------
-  // TEST 6: Theme Toggle & Sound Toggle
+  // TEST 6: Dynamic Speed Scaling & Level Progression (Arcade Games)
   // -------------------------------------------------------------
-  console.log('\n--- Test 6: Theme & Audio Preferences ---');
+  console.log('\n--- Test 6: Dynamic Speed Scaling & Hard Reset on Exit ---');
+  // Check slow start pace (Level 1)
+  const initialArcadeLvl = await page.evaluate(() => arcadeController.currentLevel);
+  assert('Arcade starts at Level 1 slow pace', initialArcadeLvl === 1, `(Level: ${initialArcadeLvl})`);
+
+  const initialBaseSpeed = await page.evaluate(() => arcadeController.bubbleDrop.baseSpeed);
+  assert('Bubble Drop baseSpeed is slow beginner pace (0.55)', initialBaseSpeed === 0.55);
+
+  // In-Game Leveling: As score increases, level increases
+  await page.evaluate(() => {
+    arcadeController.bubbleDrop.addScore(450); // score crosses 300 milestone -> level 2
+  });
+  const lvlAfterScore = await page.evaluate(() => arcadeController.bubbleDrop.currentLevel);
+  assert('Score increase triggers in-game level up', lvlAfterScore >= 2, `(Level: ${lvlAfterScore})`);
+
+  // Check speed calculation formula: speed = baseSpeed + (currentLevel * 0.2)
+  const expectedBubbleSpeed = 0.55 + (lvlAfterScore * 0.2);
+  const testBubble = await page.evaluate(() => {
+    const b = arcadeController.bubbleDrop.spawnBubble();
+    return b.speed;
+  });
+  assert('Spawned bubble speed scales with Level (baseSpeed + level*0.2)', Math.abs(testBubble - expectedBubbleSpeed) <= 0.25);
+
+  // Check Nitro Sprint and Word Blaster slow start & speed scaling
+  const nitroBaseSpeed = await page.evaluate(() => arcadeController.nitroSprint.baseSpeed);
+  const nitroRivalSpeed = await page.evaluate(() => arcadeController.nitroSprint.aiSpeed);
+  assert('Nitro Sprint starts at slow baseSpeed 1.4', nitroBaseSpeed === 1.4);
+  assert('Nitro Sprint AI rival speed scales with base + level*0.2', Math.abs(nitroRivalSpeed - (1.8 + 1 * 0.2)) < 0.01);
+
+  const wordBlasterBaseSpeed = await page.evaluate(() => arcadeController.wordBlaster.baseSpeed);
+  assert('Word Blaster starts at slow baseSpeed 0.35', wordBlasterBaseSpeed === 0.35);
+
+  // Hard Reset on Exit:
+  // Click Exit Game button
+  await page.click('#arcadeExitBtn');
+  await page.waitForTimeout(300);
+
+  const menuActiveAfterExit = await page.isVisible('#menuView.active');
+  assert('Exit Game returns to Main Menu', menuActiveAfterExit);
+
+  // Verify state completely reset: score = 0, level = 1, mid-game states NOT saved
+  const resetBubbleScore = await page.evaluate(() => arcadeController.bubbleDrop.score);
+  const resetBubbleLevel = await page.evaluate(() => arcadeController.bubbleDrop.currentLevel);
+  const resetBubbleCount = await page.evaluate(() => arcadeController.bubbleDrop.bubbles.length);
+  assert('Hard Reset reset score to 0', resetBubbleScore === 0);
+  assert('Hard Reset reset level to Level 1', resetBubbleLevel === 1);
+  assert('Hard Reset cleared active bubbles', resetBubbleCount === 0);
+
+  // Re-enter Arcade mode from Menu
+  await page.click('#cardLaunchArcade');
+  await page.waitForTimeout(300);
+  const arcadeReopened = await page.isVisible('#arcadeView.active');
+  assert('Reopened Arcade view', arcadeReopened);
+
+  const recheckScore = await page.evaluate(() => arcadeController.score);
+  const recheckLevel = await page.evaluate(() => arcadeController.currentLevel);
+  assert('Arcade state remains reset on reopen (score 0, level 1)', recheckScore === 0 && recheckLevel === 1);
+
+  // -------------------------------------------------------------
+  // TEST 7: Alphabet Sprint (A to Z Time Trial)
+  // -------------------------------------------------------------
+  console.log('\n--- Test 7: Alphabet Sprint (A to Z) Mode ---');
+  // Switch to Alphabet Sprint mode
+  await page.click('#tabArcadeAlphabetSprint');
+  await page.waitForTimeout(300);
+
+  const isSprintMode = await page.evaluate(() => arcadeController.activeMode === 'alphabetSprint');
+  assert('Alphabet Sprint mode selected', isSprintMode);
+
+  const startTitle = await page.textContent('#arcadeStartTitle');
+  assert('Start overlay displays Alphabet Sprint', startTitle.includes('Alphabet Sprint'));
+
+  // Start Alphabet Sprint
+  await page.click('#btnStartArcadeGame');
+  await page.waitForTimeout(400);
+
+  const sprintStarted = await page.evaluate(() => arcadeController.alphabetSprint.isPlaying);
+  const isWaitingA = await page.evaluate(() => arcadeController.alphabetSprint.isWaitingForStart);
+  assert('Alphabet Sprint game initiated and waiting for "A"', sprintStarted && isWaitingA);
+
+  // Mechanics: Prevent progression if typing wrong letter before start
+  await page.keyboard.press('x');
+  await page.waitForTimeout(100);
+  const waitingStill = await page.evaluate(() => arcadeController.alphabetSprint.isWaitingForStart);
+  const timerNotRunning = await page.evaluate(() => arcadeController.alphabetSprint.isTimerRunning);
+  const errorsCount = await page.evaluate(() => arcadeController.alphabetSprint.errors);
+  assert('Wrong key "x" rejected, timer did not start', waitingStill && !timerNotRunning && errorsCount === 1);
+
+  // Mechanics: Timer starts the exact millisecond player presses 'a'
+  await page.keyboard.press('a');
+  await page.waitForTimeout(100);
+  const timerRunning = await page.evaluate(() => arcadeController.alphabetSprint.isTimerRunning);
+  const currIdxAfterA = await page.evaluate(() => arcadeController.alphabetSprint.currentIndex);
+  assert('Pressing "a" starts timer and advances target to "B"', timerRunning && currIdxAfterA === 1);
+
+  // Mechanics: Prevent progression if typing wrong letter during sprint
+  await page.keyboard.press('z');
+  await page.waitForTimeout(100);
+  const currIdxAfterWrong = await page.evaluate(() => arcadeController.alphabetSprint.currentIndex);
+  const errorsAfterWrong = await page.evaluate(() => arcadeController.alphabetSprint.errors);
+  assert('Wrong key "z" when expecting "B" rejected and prevented progression', currIdxAfterWrong === 1 && errorsAfterWrong === 2);
+
+  // Sprint through remaining letters B through Y
+  const lettersBtoY = 'bcdefghijklmnopqrstuvwxy';
+  for (const letter of lettersBtoY) {
+    await page.keyboard.press(letter);
+  }
+  await page.waitForTimeout(100);
+  const currIdxBeforeZ = await page.evaluate(() => arcadeController.alphabetSprint.currentIndex);
+  assert('Accurately sprinted through B-Y (now on Z, index 25)', currIdxBeforeZ === 25);
+
+  // Mechanics: Timer stops the exact millisecond player presses 'z'
+  await page.keyboard.press('z');
+  await page.waitForTimeout(300);
+
+  const isFinished = await page.evaluate(() => arcadeController.alphabetSprint.isFinished);
+  const timerStopped = await page.evaluate(() => !arcadeController.alphabetSprint.isTimerRunning);
+  const totalTime = await page.evaluate(() => arcadeController.alphabetSprint.elapsedTime);
+  assert('Pressing "z" finishes sprint and stops timer', isFinished && timerStopped && totalTime > 0, `(Time: ${totalTime.toFixed(3)}s)`);
+
+  // Results & Stats: Overlay displayed with Time, WPM, KPM, Accuracy
+  const resultsVisible = await page.isVisible('#alphabetSprintResultsOverlay:not(.hidden)');
+  assert('Results overlay immediately displayed upon finish', resultsVisible);
+
+  const displayTime = await page.textContent('#sprintFinalTime');
+  const displayWpm = await page.textContent('#sprintFinalWpm');
+  const displayKpm = await page.textContent('#sprintFinalKpm');
+  const displayAcc = await page.textContent('#sprintFinalAccuracy');
+  assert('Results display valid stats (Time, WPM, KPM, Acc)', 
+    displayTime.includes('s') && displayWpm.includes('WPM') && displayKpm.includes('KPM') && displayAcc.includes('%'),
+    `(${displayTime}, ${displayWpm}, ${displayKpm}, ${displayAcc})`
+  );
+
+  // Play Again button: instantly restart
+  await page.click('#btnRestartAlphabetSprint');
+  await page.waitForTimeout(300);
+
+  const restartedWaiting = await page.evaluate(() => arcadeController.alphabetSprint.isWaitingForStart);
+  const restartedIndex = await page.evaluate(() => arcadeController.alphabetSprint.currentIndex);
+  const resultsHidden = await page.isHidden('#alphabetSprintResultsOverlay');
+  assert('Play Again button instantly restarts sprint (waiting for "A", index 0, overlay hidden)', restartedWaiting && restartedIndex === 0 && resultsHidden);
+
+  // -------------------------------------------------------------
+  // TEST 8: Theme Toggle & Sound Toggle
+  // -------------------------------------------------------------
+  console.log('\n--- Test 8: Theme & Audio Preferences ---');
   const initialTheme = await page.getAttribute('html', 'data-theme');
   await page.click('#toggleThemeBtn');
   const toggledTheme = await page.getAttribute('html', 'data-theme');
@@ -197,9 +342,9 @@ async function runTestSuite() {
   assert('Sound muted via header toggle', isMuted === true);
 
   // -------------------------------------------------------------
-  // TEST 7: Reset Progress
+  // TEST 9: Reset Progress
   // -------------------------------------------------------------
-  console.log('\n--- Test 7: Reset Progress Confirmation ---');
+  console.log('\n--- Test 9: Reset Progress Confirmation ---');
   page.on('dialog', async dialog => {
     await dialog.accept();
   });
