@@ -269,12 +269,17 @@ async function runTestSuite() {
   const hasAiRival = await page.evaluate(() => typeof arcadeController.nitroSprint.aiDistance !== 'undefined');
   assert('Multiplayer & AI bots removed (strictly endless solo runner)', !hasAiRival);
 
-  // Curriculum-based word generation: Level 1 generates words using ONLY Home Row keys
+  // 1. Movement strictly tied to typing: car is stationary initially (0 speed, 0 distance)
+  const initialSpeed = await page.evaluate(() => arcadeController.nitroSprint.playerSpeed);
+  const initialDistance = await page.evaluate(() => arcadeController.nitroSprint.playerDistance);
+  assert('Car does not drive forward automatically (speed=0, dist=0 when idle)', initialSpeed === 0 && initialDistance === 0);
+
+  // 2. Curriculum-based word generation: Level 1 generates words using ONLY Home Row keys
   const initialWord = await page.evaluate(() => arcadeController.nitroSprint.currentWord);
   const tier1Words = await page.evaluate(() => arcadeController.nitroSprint.tiers[1].words);
   assert('Level 1 curriculum strictly generates Home Row words (e.g. SAD, DAD, FALL)', tier1Words.includes(initialWord), `(Target: "${initialWord}")`);
 
-  // Progressively type the first word correctly
+  // 3. Keystroke Validation: Typing correct character advances car and charIndex
   console.log(`  🏎️ Typing Home Row curriculum word: "${initialWord}"`);
   for (const ch of initialWord) {
     await page.keyboard.press(ch);
@@ -284,9 +289,10 @@ async function runTestSuite() {
 
   const completedWords = await page.evaluate(() => arcadeController.nitroSprint.wordsCompleted);
   const distanceTraveled = await page.evaluate(() => arcadeController.nitroSprint.playerDistance);
-  assert('Correct typing advances word counter and accumulates distance', completedWords >= 1 && distanceTraveled > 0, `(Distance: ${distanceTraveled.toFixed(1)}m)`);
+  const speedAfterTyping = await page.evaluate(() => arcadeController.nitroSprint.playerSpeed);
+  assert('Correct typing advances word counter, speed, and distance', completedWords >= 1 && distanceTraveled > 0 && speedAfterTyping > 0, `(Dist: ${distanceTraveled.toFixed(1)}m, Speed: ${speedAfterTyping.toFixed(1)})`);
 
-  // Strike System (Failure Condition): 5-mistake limit. More than 5 errors triggers emergency braking!
+  // 4. Strike System (Failure Condition): 5-mistake limit. More than 5 errors triggers emergency braking!
   console.log('  ⚠️ Testing Strike System: making consecutive errors...');
   for (let i = 0; i < 6; i++) {
     await page.keyboard.press('1'); // number key is never expected in tier 1 words
@@ -307,12 +313,13 @@ async function runTestSuite() {
   const finalTimeText = await page.textContent('#nitroFinalTime');
   const finalAccText = await page.textContent('#nitroFinalAccuracy');
   const finalDistText = await page.textContent('#nitroFinalDistance');
-  assert('Results dashboard displays valid telemetry (WPM, Time, Acc, Distance)',
-    finalWpmText.includes('WPM') && finalTimeText.includes('s') && finalAccText.includes('%') && finalDistText.includes('m'),
-    `(${finalWpmText}, ${finalTimeText}, ${finalAccText}, ${finalDistText})`
+  const strikeStatusChip = await page.textContent('#nitroStatusChip');
+  assert('Results dashboard displays valid telemetry & Engine Halted chip',
+    finalWpmText.includes('WPM') && finalTimeText.includes('s') && finalAccText.includes('%') && strikeStatusChip.includes('ENGINE HALTED'),
+    `(${finalWpmText}, ${finalTimeText}, ${finalAccText}, ${strikeStatusChip})`
   );
 
-  // Test "Re-engage Engine" button
+  // 5. Test "Re-engage Engine" button
   await page.click('#btnRestartNitroSprint');
   await page.waitForTimeout(300);
 
@@ -320,6 +327,23 @@ async function runTestSuite() {
   const restartedMistakes = await page.evaluate(() => arcadeController.nitroSprint.mistakes);
   const resultsOverlayHidden = await page.isHidden('#nitroSprintResultsOverlay');
   assert('Re-engage Engine button restarts solo racer cleanly', restartedNitroPlaying && restartedMistakes === 0 && resultsOverlayHidden);
+
+  // 6. Test 5-Second Idle Timeout & Obstacle Crash:
+  console.log('  🛑 Testing 5-Second Idle Timeout (waiting without typing)...');
+  await page.waitForTimeout(5300);
+
+  const isCrashed = await page.evaluate(() => arcadeController.nitroSprint.isCrashed);
+  assert('5s idle timeout triggers obstacle crash', isCrashed);
+
+  await page.waitForTimeout(1100);
+  const crashResultsVisible = await page.isVisible('#nitroSprintResultsOverlay:not(.hidden)');
+  const crashTitle = await page.textContent('#nitroResultsTitle');
+  const crashChip = await page.textContent('#nitroStatusChip');
+  assert('Collision Impact results dashboard displayed upon idle timeout crash', crashResultsVisible && crashTitle.includes('Obstacle Impact') && crashChip.includes('COLLISION IMPACT'));
+
+  // Cleanly dismiss results for next tests
+  await page.click('#btnRestartNitroSprint');
+  await page.waitForTimeout(300);
   // -------------------------------------------------------------
   // TEST 8: Alphabet Sprint (A to Z Time Trial)
   // -------------------------------------------------------------
