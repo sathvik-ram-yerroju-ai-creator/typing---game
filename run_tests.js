@@ -159,6 +159,12 @@ async function runTestSuite() {
   const meteorsCount = await page.evaluate(() => meteorArcade.meteors.length);
   assert('Meteors spawned on Canvas', meteorsCount > 0, `(${meteorsCount} meteors)`);
 
+  // Single Letter Spawns Assertion: verify all spawned bubbles contain strictly single letters (A-Z)
+  const allBubblesSingleLetters = await page.evaluate(() => {
+    return arcadeController.bubbleDrop.bubbles.every(b => b.text && b.text.length === 1);
+  });
+  assert('Bubble Drop strictly spawns single letters (A-Z) per UI requirement', allBubblesSingleLetters);
+
   // Target and type the first meteor's letter
   const meteorChar = await page.evaluate(() => meteorArcade.meteors[0].text[0]);
   console.log(`  🎯 Typing meteor target key: "${meteorChar}"`);
@@ -180,7 +186,7 @@ async function runTestSuite() {
   assert('Arcade resumed', isResumed);
 
   // -------------------------------------------------------------
-  // TEST 6: Dynamic Speed Scaling & Level Progression (Arcade Games)
+  // TEST 6: Dynamic Speed Scaling & Hard Reset on Exit
   // -------------------------------------------------------------
   console.log('\n--- Test 6: Dynamic Speed Scaling & Hard Reset on Exit ---');
   // Check slow start pace (Level 1)
@@ -205,11 +211,9 @@ async function runTestSuite() {
   });
   assert('Spawned bubble speed scales with Level (baseSpeed + level*0.2)', Math.abs(testBubble - expectedBubbleSpeed) <= 0.25);
 
-  // Check Nitro Sprint and Word Blaster slow start & speed scaling
+  // Check Nitro Sprint and Word Blaster slow start
   const nitroBaseSpeed = await page.evaluate(() => arcadeController.nitroSprint.baseSpeed);
-  const nitroRivalSpeed = await page.evaluate(() => arcadeController.nitroSprint.aiSpeed);
   assert('Nitro Sprint starts at slow baseSpeed 1.4', nitroBaseSpeed === 1.4);
-  assert('Nitro Sprint AI rival speed scales with base + level*0.2', Math.abs(nitroRivalSpeed - (1.8 + 1 * 0.2)) < 0.01);
 
   const wordBlasterBaseSpeed = await page.evaluate(() => arcadeController.wordBlaster.baseSpeed);
   assert('Word Blaster starts at slow baseSpeed 0.35', wordBlasterBaseSpeed === 0.35);
@@ -241,9 +245,85 @@ async function runTestSuite() {
   assert('Arcade state remains reset on reopen (score 0, level 1)', recheckScore === 0 && recheckLevel === 1);
 
   // -------------------------------------------------------------
-  // TEST 7: Alphabet Sprint (A to Z Time Trial)
+  // TEST 7: Nitro Sprint Overhaul (Endless Solo Mode)
   // -------------------------------------------------------------
-  console.log('\n--- Test 7: Alphabet Sprint (A to Z) Mode ---');
+  console.log('\n--- Test 7: Nitro Sprint Overhaul (Endless Solo Mode) ---');
+  await page.click('#tabArcadeNitroSprint');
+  await page.waitForTimeout(300);
+
+  const isNitroMode = await page.evaluate(() => arcadeController.activeMode === 'nitroSprint');
+  assert('Nitro Sprint mode selected', isNitroMode);
+
+  // Verify Start Overlay description reflects Endless Solo Racer
+  const nitroStartDesc = await page.textContent('#arcadeStartDesc');
+  assert('Nitro Sprint overlay describes Endless Solo Racer', nitroStartDesc.includes('Endless Solo Racer'));
+
+  // Start Nitro Sprint
+  await page.click('#btnStartArcadeGame');
+  await page.waitForTimeout(400);
+
+  const nitroPlaying = await page.evaluate(() => arcadeController.nitroSprint.isPlaying);
+  assert('Nitro Sprint game loop active', nitroPlaying);
+
+  // Solo Runner: verify NO AI rival bot exists
+  const hasAiRival = await page.evaluate(() => typeof arcadeController.nitroSprint.aiDistance !== 'undefined');
+  assert('Multiplayer & AI bots removed (strictly endless solo runner)', !hasAiRival);
+
+  // Curriculum-based word generation: Level 1 generates words using ONLY Home Row keys
+  const initialWord = await page.evaluate(() => arcadeController.nitroSprint.currentWord);
+  const tier1Words = await page.evaluate(() => arcadeController.nitroSprint.tiers[1].words);
+  assert('Level 1 curriculum strictly generates Home Row words (e.g. SAD, DAD, FALL)', tier1Words.includes(initialWord), `(Target: "${initialWord}")`);
+
+  // Progressively type the first word correctly
+  console.log(`  🏎️ Typing Home Row curriculum word: "${initialWord}"`);
+  for (const ch of initialWord) {
+    await page.keyboard.press(ch);
+    await page.waitForTimeout(50);
+  }
+  await page.waitForTimeout(200);
+
+  const completedWords = await page.evaluate(() => arcadeController.nitroSprint.wordsCompleted);
+  const distanceTraveled = await page.evaluate(() => arcadeController.nitroSprint.playerDistance);
+  assert('Correct typing advances word counter and accumulates distance', completedWords >= 1 && distanceTraveled > 0, `(Distance: ${distanceTraveled.toFixed(1)}m)`);
+
+  // Strike System (Failure Condition): 5-mistake limit. More than 5 errors triggers emergency braking!
+  console.log('  ⚠️ Testing Strike System: making consecutive errors...');
+  for (let i = 0; i < 6; i++) {
+    await page.keyboard.press('1'); // number key is never expected in tier 1 words
+    await page.waitForTimeout(50);
+  }
+
+  const mistakesRecorded = await page.evaluate(() => arcadeController.nitroSprint.mistakes);
+  const isEmergencyBraking = await page.evaluate(() => arcadeController.nitroSprint.isBraking);
+  assert('Recorded 6 errors and immediately engaged emergency braking', mistakesRecorded > 5 && isEmergencyBraking);
+
+  // Allow braking animation to decelerate to halt and trigger results dashboard
+  await page.waitForTimeout(1200);
+
+  const nitroResultsVisible = await page.isVisible('#nitroSprintResultsOverlay:not(.hidden)');
+  assert('Results Dashboard displayed upon 5-strike Game Over', nitroResultsVisible);
+
+  const finalWpmText = await page.textContent('#nitroFinalWpm');
+  const finalTimeText = await page.textContent('#nitroFinalTime');
+  const finalAccText = await page.textContent('#nitroFinalAccuracy');
+  const finalDistText = await page.textContent('#nitroFinalDistance');
+  assert('Results dashboard displays valid telemetry (WPM, Time, Acc, Distance)',
+    finalWpmText.includes('WPM') && finalTimeText.includes('s') && finalAccText.includes('%') && finalDistText.includes('m'),
+    `(${finalWpmText}, ${finalTimeText}, ${finalAccText}, ${finalDistText})`
+  );
+
+  // Test "Re-engage Engine" button
+  await page.click('#btnRestartNitroSprint');
+  await page.waitForTimeout(300);
+
+  const restartedNitroPlaying = await page.evaluate(() => arcadeController.nitroSprint.isPlaying);
+  const restartedMistakes = await page.evaluate(() => arcadeController.nitroSprint.mistakes);
+  const resultsOverlayHidden = await page.isHidden('#nitroSprintResultsOverlay');
+  assert('Re-engage Engine button restarts solo racer cleanly', restartedNitroPlaying && restartedMistakes === 0 && resultsOverlayHidden);
+  // -------------------------------------------------------------
+  // TEST 8: Alphabet Sprint (A to Z Time Trial)
+  // -------------------------------------------------------------
+  console.log('\n--- Test 8: Alphabet Sprint (A to Z) Mode ---');
   // Switch to Alphabet Sprint mode
   await page.click('#tabArcadeAlphabetSprint');
   await page.waitForTimeout(300);
@@ -325,9 +405,9 @@ async function runTestSuite() {
   assert('Play Again button instantly restarts sprint (waiting for "A", index 0, overlay hidden)', restartedWaiting && restartedIndex === 0 && resultsHidden);
 
   // -------------------------------------------------------------
-  // TEST 8: Theme Toggle & Sound Toggle
+  // TEST 9: Theme Toggle & Sound Toggle
   // -------------------------------------------------------------
-  console.log('\n--- Test 8: Theme & Audio Preferences ---');
+  console.log('\n--- Test 9: Theme & Audio Preferences ---');
   const initialTheme = await page.getAttribute('html', 'data-theme');
   await page.click('#toggleThemeBtn');
   const toggledTheme = await page.getAttribute('html', 'data-theme');
@@ -342,9 +422,9 @@ async function runTestSuite() {
   assert('Sound muted via header toggle', isMuted === true);
 
   // -------------------------------------------------------------
-  // TEST 9: Reset Progress
+  // TEST 10: Reset Progress
   // -------------------------------------------------------------
-  console.log('\n--- Test 9: Reset Progress Confirmation ---');
+  console.log('\n--- Test 10: Reset Progress Confirmation ---');
   page.on('dialog', async dialog => {
     await dialog.accept();
   });

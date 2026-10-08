@@ -1248,6 +1248,65 @@
       100% { opacity: 0; transform: translate(-50%, -12px) scale(0.95); }
     }
 
+    /* Futuristic Sci-Fi Overhaul & Nitro Sprint Results Dashboard */
+    .futuristic-panel-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .hud-status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+      margin-bottom: 0.4rem;
+    }
+
+    .hud-status-chip.hazard {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #ef4444;
+      box-shadow: 0 0 14px rgba(239, 68, 68, 0.35);
+      animation: hazardFlash 1.2s infinite alternate;
+    }
+
+    .hud-status-chip.success {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #10b981;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
+    }
+
+    @keyframes hazardFlash {
+      0% { opacity: 0.75; transform: scale(0.98); }
+      100% { opacity: 1; transform: scale(1.02); }
+    }
+
+    /* Subtle Cyber Stage Scanlines */
+    .arcade-stage-container::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0) 0px,
+        rgba(0, 0, 0, 0) 2px,
+        rgba(0, 0, 0, 0.12) 3px,
+        rgba(0, 0, 0, 0.12) 4px
+      );
+      pointer-events: none;
+      z-index: 5;
+      opacity: 0.5;
+    }
+
     /* ==========================================================================
        9. MODAL & DIALOG SYSTEM
        ========================================================================== */
@@ -1671,7 +1730,7 @@
             <span class="mode-tab-icon">🏎️</span>
             <div class="mode-tab-text">
               <span class="mode-tab-title">Nitro Sprint</span>
-              <span class="mode-tab-sub">2D WPM Racer</span>
+              <span class="mode-tab-sub">Endless Solo Racer</span>
             </div>
           </button>
           <button class="arcade-mode-tab" id="tabArcadeWordBlaster" data-mode="wordBlaster">
@@ -1811,6 +1870,48 @@
                 Play Again
               </button>
               <button class="btn-secondary" id="btnExitAlphabetSprint" style="padding:0.9rem 1.75rem;border-radius:var(--radius-full);">
+                Back to Menu
+              </button>
+            </div>
+          </div>
+
+          <!-- Nitro Sprint Results Dashboard Overlay -->
+          <div class="arcade-overlay hidden" id="nitroSprintResultsOverlay">
+            <div class="futuristic-panel-header">
+              <div class="hud-status-chip hazard">⚠️ ENGINE HALTED</div>
+              <h2 id="nitroResultsTitle" style="color:var(--accent-warning);font-size:2.2rem;margin:0.4rem 0 0.2rem;">Sprint Telemetry</h2>
+              <p id="nitroResultsSubtitle" style="color:var(--text-secondary);font-size:0.95rem;margin-bottom:1.25rem;">5 Strikes Exceeded — Emergency braking engaged</p>
+            </div>
+            
+            <div class="sprint-stats-grid">
+              <div class="hud-stat-box">
+                <span class="hud-stat-title">Final WPM</span>
+                <span class="hud-stat-val" id="nitroFinalWpm" style="color:var(--accent-secondary);font-size:1.8rem;">0 WPM</span>
+              </div>
+              <div class="hud-stat-box">
+                <span class="hud-stat-title">Time Survived</span>
+                <span class="hud-stat-val" id="nitroFinalTime" style="color:var(--accent-success);font-size:1.8rem;">0.0s</span>
+              </div>
+              <div class="hud-stat-box">
+                <span class="hud-stat-title">Accuracy</span>
+                <span class="hud-stat-val" id="nitroFinalAccuracy" style="font-size:1.8rem;">100%</span>
+              </div>
+              <div class="hud-stat-box">
+                <span class="hud-stat-title">Distance Traveled</span>
+                <span class="hud-stat-val" id="nitroFinalDistance" style="color:var(--accent-warning);font-size:1.8rem;">0 m</span>
+              </div>
+            </div>
+
+            <div id="nitroBestRecordBanner" class="sprint-record-banner hidden" style="margin-top:1rem;">
+              🏆 NEW DISTANCE RECORD!
+            </div>
+
+            <div style="display:flex;gap:1rem;margin-top:1.5rem;">
+              <button class="arcade-btn-lg" id="btnRestartNitroSprint">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+                Re-engage Engine
+              </button>
+              <button class="btn-secondary" id="btnExitNitroSprint" style="padding:0.9rem 1.75rem;border-radius:var(--radius-full);">
                 Back to Menu
               </button>
             </div>
@@ -2463,6 +2564,49 @@
         } catch (e) {}
       }
 
+      // High-tech friction brake screech for 5-strike failure
+      nitroBrake() {
+        if (this.muted) return;
+        this.initCtx();
+        if (!this.ctx || !this.noiseBuffer) return;
+        try {
+          const t = this.ctx.currentTime;
+          // Friction screech noise
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = this.noiseBuffer;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(3200, t);
+          filter.frequency.exponentialRampToValueAtTime(700, t + 0.45);
+          filter.Q.setValueAtTime(5, t);
+
+          const noiseGain = this.ctx.createGain();
+          noiseGain.gain.setValueAtTime(0.24, t);
+          noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.48);
+
+          noise.connect(filter);
+          filter.connect(noiseGain);
+          noiseGain.connect(this.ctx.destination);
+          noise.start(t);
+          noise.stop(t + 0.48);
+
+          // Downward screeching pitch bend
+          const osc = this.ctx.createOscillator();
+          const oscGain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(720, t);
+          osc.frequency.exponentialRampToValueAtTime(80, t + 0.46);
+
+          oscGain.gain.setValueAtTime(0.2, t);
+          oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.46);
+
+          osc.connect(oscGain);
+          oscGain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.46);
+        } catch (e) {}
+      }
+
       victoryFanfare() {
         if (this.muted) return;
         const notes = [440, 554, 659, 880];
@@ -3041,21 +3185,19 @@
         const lvl = userState.highestLevelUnlocked;
         if (lvl === 1) return ["a", "s", "d", "f"];
         if (lvl === 2) return ["a", "s", "d", "f", "j", "k", "l", ";"];
-        if (lvl === 3) return ["a", "s", "d", "f", "j", "k", "l", ";"];
+        if (lvl === 3) return ["a", "s", "d", "f", "j", "k", "l", ";", "g", "h"];
         if (lvl === 4) return ["a", "s", "d", "f", "j", "k", "l", ";", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p"];
-        if (lvl === 5) return "abcdefghijklmnopqrstuvwxyz;".split('');
-        return [...ARCADE_VOCABULARY, "a", "s", "d", "f", "j", "k", "l", ";", "q", "w", "e", "r"];
+        return "abcdefghijklmnopqrstuvwxyz;".split('');
       }
 
       updatePoolBadge() {
         const lvl = userState.highestLevelUnlocked;
-        let desc = `Level ${lvl} Keys`;
-        if (lvl === 1) desc = `Level 1 Keys (a, s, d, f)`;
-        else if (lvl === 2) desc = `Level 2 Keys (Home Row + ;)`;
-        else if (lvl === 3) desc = `Level 3 (Full Home Row)`;
-        else if (lvl === 4) desc = `Level 4 (Top & Home Row)`;
-        else if (lvl === 5) desc = `Level 5 (All Alphabet Keys)`;
-        else if (lvl >= 6) desc = `Level 6 (Full Alphabet & Words)`;
+        let desc = `Level ${lvl} Letters`;
+        if (lvl === 1) desc = `Level 1 Letters (a, s, d, f)`;
+        else if (lvl === 2) desc = `Level 2 Letters (Home Row + ;)`;
+        else if (lvl === 3) desc = `Level 3 (Full Home Row Letters)`;
+        else if (lvl === 4) desc = `Level 4 (Top & Home Row Letters)`;
+        else if (lvl >= 5) desc = `Level ${lvl} (Full Alphabet Letters)`;
 
         if (this.poolDesc) this.poolDesc.textContent = desc;
         if (this.levelDisplay) this.levelDisplay.textContent = this.currentLevel;
@@ -3171,7 +3313,7 @@
         const text = pool[Math.floor(Math.random() * pool.length)];
         // Dynamic speed scaling: speed = baseSpeed + (currentLevel * 0.2)
         const speed = this.baseSpeed + (this.currentLevel * 0.2) + (Math.random() * 0.16 - 0.08);
-        const radius = Math.max(26, text.length * 9 + 16);
+        const radius = 28 + Math.random() * 8; // Perfectly sized for single letters
 
         const margin = radius + 25;
         const x = margin + Math.random() * (this.canvas.width - margin * 2);
@@ -3404,29 +3546,12 @@
           this.ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
           this.ctx.fill();
 
-          // Bubble Text
-          this.ctx.font = 'bold 20px "JetBrains Mono", monospace';
+          // Bubble Single Letter Text
+          this.ctx.font = '800 24px "JetBrains Mono", monospace';
           this.ctx.textAlign = 'center';
           this.ctx.textBaseline = 'middle';
-
-          const typedPart = b.text.substring(0, b.typedCount);
-          const remainPart = b.text.substring(b.typedCount);
-
-          if (b.typedCount === 0) {
-            this.ctx.fillStyle = '#ffffff';
-            this.ctx.fillText(b.text, b.x, b.y);
-          } else {
-            const fullWidth = this.ctx.measureText(b.text).width;
-            const startX = b.x - fullWidth / 2;
-
-            this.ctx.textAlign = 'left';
-            this.ctx.fillStyle = '#10b981';
-            this.ctx.fillText(typedPart, startX, b.y);
-
-            const typedWidth = this.ctx.measureText(typedPart).width;
-            this.ctx.fillStyle = '#ffffff';
-            this.ctx.fillText(remainPart, startX + typedWidth, b.y);
-          }
+          this.ctx.fillStyle = isTargeted ? '#38bdf8' : '#ffffff';
+          this.ctx.fillText(b.text, b.x, b.y);
 
           this.ctx.restore();
         }
@@ -3476,10 +3601,12 @@
     }
 
     /* ========================================================================
-       ARCADE GAME 2: NITRO SPRINT (HORIZONTAL 2D RACER)
-       Player controls a sports car, typing full sentences to accelerate.
-       Features an AI opponent car, with real-time WPM directly controlling
-       player car movement speed and nitro thrust.
+       ARCADE GAME 2: NITRO SPRINT (ENDLESS SOLO RACER)
+       Strictly single-player endless highway runner.
+       - Progressive speed scaling & distance advancement.
+       - Touch-typing curriculum word tiers: Home Row -> Top Row -> Bottom Row -> Shift/Capitals.
+       - 5-Mistake Strike System with emergency friction braking animation.
+       - Futuristic Results Dashboard on Game Over.
        ======================================================================== */
     class NitroSprintGame {
       constructor(canvasId) {
@@ -3488,25 +3615,56 @@
 
         this.isPlaying = false;
         this.isPaused = false;
-        this.playerDistance = 0; // 0 to 1000m
-        this.aiDistance = 0;     // 0 to 1000m
-        this.targetDistance = 1000;
-        this.playerSpeed = 0;
-        this.currentLevel = 1;
-        this.baseSpeed = 1.4;
-        this.aiSpeed = 1.8 + (this.currentLevel * 0.2);
+        this.isBraking = false;
+        this.shakeFrames = 0;
+        this.brakingStartTime = 0;
 
-        this.currentSentence = "";
+        this.playerDistance = 0; // Endless odometer in meters
+        this.playerSpeed = 0;
+        this.currentVisualSpeed = 0;
+        this.currentLevel = 1;
+        this.baseSpeed = 1.4; // Beginner pace base speed
+
+        // Curriculum Word Tiers
+        this.tiers = {
+          1: {
+            name: "Home Row Keys",
+            words: ["sad", "dad", "fall", "glad", "flash", "hall", "flag", "glass", "salad", "half", "ask", "dash", "gash", "flask", "lass", "shall", "slash", "adds", "gals", "lads"]
+          },
+          2: {
+            name: "Top Row Keys",
+            words: ["tree", "write", "quiet", "power", "water", "light", "street", "route", "great", "quick", "faster", "turbo", "pulse", "pilot", "flare", "torque", "speed", "drift", "wheel", "gear"]
+          },
+          3: {
+            name: "Bottom Row Keys",
+            words: ["cyber", "matrix", "vector", "zenith", "vortex", "system", "blaster", "circuit", "flux", "beacon", "dynamic", "engine", "chrome", "nexus", "quantum", "vertex", "velocity"]
+          },
+          4: {
+            name: "Shift Keys & Sci-Fi Phrases",
+            words: ["Nitro Boost", "Hyper Drive", "Quantum Leap", "Neon Horizon", "Mach Velocity", "Apex Predator", "Terminal Speed", "Cyber Sprint", "Sonic Boom", "Photon Drive", "Warp Engine", "Zero Latency"]
+          }
+        };
+
+        this.currentWord = "";
         this.charIndex = 0;
         this.totalTyped = 0;
         this.correctTyped = 0;
+        this.mistakes = 0;
+        this.maxMistakes = 5;
+        this.wordsCompleted = 0;
+
         this.recentKeyTimes = [];
         this.currentWpm = 0;
         this.score = 0;
+        this.startTime = 0;
 
+        // Visual effects & particles
         this.exhaustParticles = [];
+        this.brakeSparks = [];
+        this.skidMarks = [];
         this.roadOffset = 0;
 
+        // UI references
         this.scoreDisplay = document.getElementById('arcadeScoreVal');
         this.accuracyDisplay = document.getElementById('arcadeAccuracyVal');
         this.comboDisplay = document.getElementById('arcadeComboVal');
@@ -3515,6 +3673,7 @@
         this.startOverlay = document.getElementById('arcadeStartOverlay');
         this.pauseOverlay = document.getElementById('arcadePauseOverlay');
         this.gameOverOverlay = document.getElementById('arcadeGameOverOverlay');
+        this.resultsOverlay = document.getElementById('nitroSprintResultsOverlay');
 
         this.resize();
         window.addEventListener('resize', () => this.resize());
@@ -3525,96 +3684,84 @@
       }
 
       resize() {
+        if (!this.canvas || !this.canvas.parentElement) return;
         const rect = this.canvas.parentElement.getBoundingClientRect();
         this.canvas.width = rect.width;
         this.canvas.height = rect.height;
       }
 
-      getSentencePool() {
-        const lvl = userState.highestLevelUnlocked;
-        if (lvl === 1) {
-          return [
-            "asdf fads sad dad fad asdf daff daas",
-            "dad sad fads faff daff sad dad fad asdf",
-            "fads asfa fada saff daff fads daas sad"
-          ];
-        }
-        if (lvl === 2) {
-          return [
-            "ask a lad fall alas flask salads alfalfa alas",
-            "jkl; ;lkj kjl; ljk; kll; ;lkj jk;l lj;k",
-            "ask a lad; add a salad; all fall down"
-          ];
-        }
-        if (lvl === 3) {
-          return [
-            "asdf jkl; fdsa ;lkj dad ask lad fall alas flask",
-            "salads alfalfa alas fall lass flask salads",
-            "ask a lad; add a salad; all fall; dad sad"
-          ];
-        }
-        if (lvl === 4) {
-          return [
-            "tree water quote root quiet write power tweet wire",
-            "type were trip your true upper port street wire",
-            "pure water quiet root power write quote tweet"
-          ];
-        }
-        if (lvl === 5) {
-          return [
-            "brave zone mixer quick brown fox jumps calm cabin",
-            "next view zoom cabin comb context brave zero",
-            "zinc maze calm zero back move quick brown fox"
-          ];
-        }
-        return [
-          "the quick brown fox jumps smoothly over the glowing neon barrier",
-          "touch typing speed unlocks raw mental clarity and effortless speed",
-          "speed of thought acceleration powers through the final sprint line",
-          "cyber hypercar engine bursts into nitro thrust across the highway"
-        ];
+      getTier() {
+        // Progression escalates based on distance traveled
+        if (this.playerDistance < 250) return 1;
+        if (this.playerDistance < 600) return 2;
+        if (this.playerDistance < 1100) return 3;
+        return 4;
+      }
+
+      getTierName() {
+        const tier = this.getTier();
+        return this.tiers[tier] ? this.tiers[tier].name : "Quantum Tier";
+      }
+
+      getNextTargetWord() {
+        const tier = this.getTier();
+        const pool = this.tiers[tier] ? this.tiers[tier].words : this.tiers[1].words;
+        // Avoid immediately repeating the exact same word
+        let nextWord;
+        do {
+          nextWord = pool[Math.floor(Math.random() * pool.length)];
+        } while (nextWord === this.currentWord && pool.length > 1);
+        return nextWord;
       }
 
       updatePoolBadge() {
-        const lvl = userState.highestLevelUnlocked;
+        const tier = this.getTier();
+        const tierName = this.getTierName();
         if (this.poolDesc) {
-          this.poolDesc.textContent = `Nitro Sprint (Level ${lvl} Phrases)`;
+          this.poolDesc.textContent = `Nitro Solo: Tier ${tier} (${tierName})`;
         }
         if (this.levelDisplay) {
           this.levelDisplay.textContent = this.currentLevel;
         }
         const comboLabel = document.getElementById('arcadeComboLabel');
-        if (comboLabel) comboLabel.textContent = "Real WPM";
+        if (comboLabel) comboLabel.textContent = "Speed WPM";
         const healthTitle = document.getElementById('arcadeHealthTitle');
-        if (healthTitle) healthTitle.textContent = "AI Rival";
+        if (healthTitle) healthTitle.textContent = "Mistakes (Max 5)";
       }
 
       startGame() {
         this.isPlaying = true;
         this.isPaused = false;
+        this.isBraking = false;
+        this.shakeFrames = 0;
         this.playerDistance = 0;
-        this.aiDistance = 0;
         this.playerSpeed = 1.0;
+        this.currentVisualSpeed = 1.0;
         this.currentLevel = 1;
-        // Slow Start System: Level 1 AI begins at slow ~2.0 (20 WPM)
-        this.aiSpeed = 1.8 + (this.currentLevel * 0.2);
         this.currentWpm = 0;
         this.score = 0;
         this.totalTyped = 0;
         this.correctTyped = 0;
+        this.mistakes = 0;
+        this.wordsCompleted = 0;
+        this.startTime = Date.now();
         this.recentKeyTimes = [];
+
         this.exhaustParticles = [];
+        this.brakeSparks = [];
+        this.skidMarks = [];
         this.roadOffset = 0;
 
-        const pool = this.getSentencePool();
-        this.currentSentence = pool[Math.floor(Math.random() * pool.length)];
+        this.currentWord = this.getNextTargetWord();
         this.charIndex = 0;
 
         this.updatePoolBadge();
         this.updateUI();
-        this.startOverlay.classList.add('hidden');
-        this.pauseOverlay.classList.add('hidden');
-        this.gameOverOverlay.classList.add('hidden');
+
+        if (this.startOverlay) this.startOverlay.classList.add('hidden');
+        if (this.pauseOverlay) this.pauseOverlay.classList.add('hidden');
+        if (this.gameOverOverlay) this.gameOverOverlay.classList.add('hidden');
+        if (this.resultsOverlay) this.resultsOverlay.classList.add('hidden');
 
         sound.initCtx();
         this.gameLoop();
@@ -3623,37 +3770,46 @@
       hardReset() {
         this.isPlaying = false;
         this.isPaused = false;
+        this.isBraking = false;
+        this.shakeFrames = 0;
         this.playerDistance = 0;
-        this.aiDistance = 0;
         this.playerSpeed = 0;
+        this.currentVisualSpeed = 0;
         this.currentLevel = 1;
-        this.aiSpeed = 1.8 + (this.currentLevel * 0.2);
         this.currentWpm = 0;
         this.score = 0;
         this.charIndex = 0;
         this.totalTyped = 0;
         this.correctTyped = 0;
+        this.mistakes = 0;
+        this.wordsCompleted = 0;
         this.recentKeyTimes = [];
         this.exhaustParticles = [];
+        this.brakeSparks = [];
+        this.skidMarks = [];
+        this.currentWord = "";
+
+        if (this.resultsOverlay) this.resultsOverlay.classList.add('hidden');
         this.updateUI();
       }
 
       pauseGame() {
-        if (!this.isPlaying) return;
+        if (!this.isPlaying || this.isBraking) return;
         this.isPaused = true;
-        this.pauseOverlay.classList.remove('hidden');
+        if (this.pauseOverlay) this.pauseOverlay.classList.remove('hidden');
       }
 
       resumeGame() {
-        if (!this.isPlaying) return;
+        if (!this.isPlaying || this.isBraking) return;
         this.isPaused = false;
-        this.pauseOverlay.classList.add('hidden');
+        if (this.pauseOverlay) this.pauseOverlay.classList.add('hidden');
         this.gameLoop();
       }
 
       onLevelUp() {
         sound.levelUp();
         triggerLevelUpToast(this.currentLevel);
+        this.updatePoolBadge();
         this.updateUI();
       }
 
@@ -3667,53 +3823,82 @@
         this.updateUI();
       }
 
-      endGame(playerWon) {
-        this.isPlaying = false;
-        if (playerWon) {
-          sound.victoryFanfare();
-          confetti.launch(80);
-          this.score = Math.round(500 + (this.currentWpm * 25));
-        } else {
-          sound.levelFail();
-          this.score = Math.round(150 + (this.currentWpm * 10));
-        }
+      triggerBrakingFailure() {
+        if (this.isBraking || !this.isPlaying) return;
+        this.isBraking = true;
+        this.shakeFrames = 30;
+        this.brakingStartTime = Date.now();
+        sound.nitroBrake();
+      }
 
+      endGame() {
+        this.isPlaying = false;
+        this.isBraking = false;
+        sound.levelFail();
+
+        const elapsedSeconds = Math.max(0.5, (Date.now() - this.startTime) / 1000);
+        const finalWpm = Math.max(0, Math.round((this.correctTyped / 5) / (elapsedSeconds / 60)));
+        const accuracy = this.totalTyped > 0 ? Math.round((this.correctTyped / this.totalTyped) * 100) : 100;
+        const finalDistance = Math.round(this.playerDistance);
+
+        // Update high score & records in storage
         if (this.score > userState.arcadeHighScore) {
           userState.arcadeHighScore = this.score;
           GameStorage.save(userState);
         }
+        let isNewRecord = false;
+        if (finalWpm > userState.bestWpm) {
+          userState.bestWpm = finalWpm;
+          GameStorage.save(userState);
+          isNewRecord = true;
+        }
         updateOverviewMetrics();
 
-        document.getElementById('goFinalScore').textContent = this.score;
-        document.getElementById('goHighScore').textContent = userState.arcadeHighScore;
-        document.getElementById('goMeteorsHit').textContent = `${Math.round(this.currentWpm)} WPM`;
-        document.getElementById('arcadeGameOverTitle').textContent = playerWon ? "🏁 Victory Sprint!" : "🏎️ AI Crossed First!";
-        document.getElementById('arcadeGameOverSummary').textContent = playerWon 
-          ? `You dominated the sprint at ${this.currentWpm} WPM!` 
-          : `The AI opponent edged ahead. Practice your cadence to boost top speed!`;
-        this.gameOverOverlay.classList.remove('hidden');
+        // Populate Results Dashboard
+        const wpmEl = document.getElementById('nitroFinalWpm');
+        const timeEl = document.getElementById('nitroFinalTime');
+        const accEl = document.getElementById('nitroFinalAccuracy');
+        const distEl = document.getElementById('nitroFinalDistance');
+        const recordBanner = document.getElementById('nitroBestRecordBanner');
+
+        if (wpmEl) wpmEl.textContent = `${finalWpm} WPM`;
+        if (timeEl) timeEl.textContent = `${elapsedSeconds.toFixed(1)}s`;
+        if (accEl) accEl.textContent = `${accuracy}%`;
+        if (distEl) distEl.textContent = `${finalDistance.toLocaleString()} m`;
+
+        if (recordBanner) {
+          recordBanner.classList.toggle('hidden', !isNewRecord);
+        }
+
+        // Show Futuristic Results Overlay
+        if (this.resultsOverlay) {
+          this.resultsOverlay.classList.remove('hidden');
+        }
+        if (this.gameOverOverlay) this.gameOverOverlay.classList.add('hidden');
+        if (this.startOverlay) this.startOverlay.classList.add('hidden');
+        if (this.pauseOverlay) this.pauseOverlay.classList.add('hidden');
       }
 
       handleInput(key) {
-        if (!this.isPlaying || this.isPaused) return;
+        if (!this.isPlaying || this.isPaused || this.isBraking) return;
 
         this.totalTyped++;
-        const expected = this.currentSentence[this.charIndex];
+        const expected = this.currentWord[this.charIndex];
+        const tier = this.getTier();
 
-        if (key === expected) {
+        // Tiers 1-3 are case-insensitive so beginners don't require Shift.
+        // Tier 4 (Shift tier) strictly checks exact character casing.
+        const isMatch = (tier >= 4)
+          ? (key === expected)
+          : (key.toLowerCase() === (expected ? expected.toLowerCase() : ''));
+
+        if (isMatch) {
           sound.keySuccess();
           this.correctTyped++;
           this.charIndex++;
-          this.score += 15;
+          this.score += 20;
 
-          // In-Game Leveling check
-          const newLevel = 1 + Math.floor(this.score / 250);
-          if (newLevel > this.currentLevel) {
-            this.currentLevel = newLevel;
-            this.onLevelUp();
-          }
-
-          // Record timestamp for WPM calculation
+          // Record timestamp for real-time WPM calculation
           const now = Date.now();
           this.recentKeyTimes.push(now);
           this.recentKeyTimes = this.recentKeyTimes.filter(t => now - t <= 5000);
@@ -3725,27 +3910,41 @@
             this.currentWpm = 35;
           }
 
+          // Acceleration impulse on correct typing
+          this.playerSpeed = Math.min(12, this.playerSpeed + 0.35);
+
           if (this.currentWpm > 55 && Math.random() < 0.25) {
             sound.nitroZoom();
           }
 
-          // If current sentence completed, load next seamless sentence
-          if (this.charIndex >= this.currentSentence.length) {
-            const pool = this.getSentencePool();
-            this.currentSentence = pool[Math.floor(Math.random() * pool.length)];
-            this.charIndex = 0;
-            this.score += 200;
+          // Word completed: celebrate with nitro burst and load next curriculum word
+          if (this.charIndex >= this.currentWord.length) {
+            this.wordsCompleted++;
+            this.score += 150;
+            sound.laser();
 
-            const newLvlAfterSentence = 1 + Math.floor(this.score / 250);
-            if (newLvlAfterSentence > this.currentLevel) {
-              this.currentLevel = newLvlAfterSentence;
+            // Check Tier escalation based on distance
+            const newTier = this.getTier();
+            if (newTier > this.currentLevel) {
+              this.currentLevel = newTier;
               this.onLevelUp();
             }
+
+            this.currentWord = this.getNextTargetWord();
+            this.charIndex = 0;
           }
         } else {
           sound.keyError();
-          // Decelerate penalty
-          this.currentWpm = Math.max(10, this.currentWpm - 8);
+          this.mistakes++;
+          this.shakeFrames = 10;
+          this.playerSpeed = Math.max(0.8, this.playerSpeed - 0.4);
+
+          // Strike System Failure Condition:
+          // Strict 5-mistake limit. If errors exceed 5, halt car with emergency braking!
+          if (this.mistakes > this.maxMistakes) {
+            this.triggerBrakingFailure();
+            return;
+          }
         }
 
         this.updateUI();
@@ -3758,9 +3957,18 @@
         const acc = this.totalTyped > 0 ? Math.round((this.correctTyped / this.totalTyped) * 100) : 100;
         if (this.accuracyDisplay) this.accuracyDisplay.textContent = `${acc}%`;
 
+        // Render high-tech strike meter in HUD
         const livesBox = document.getElementById('arcadeLivesContainer');
         if (livesBox) {
-          livesBox.innerHTML = `<span style="font-family:var(--font-mono);font-weight:700;color:var(--accent-danger);font-size:1.1rem;">${Math.round(this.aiSpeed * 10)} WPM</span>`;
+          let strikesHtml = '<div style="display:flex;align-items:center;gap:4px;">';
+          for (let i = 1; i <= this.maxMistakes; i++) {
+            const isHit = i <= this.mistakes;
+            const color = isHit ? 'var(--accent-danger)' : 'var(--accent-primary)';
+            const icon = isHit ? '✕' : '●';
+            strikesHtml += `<span style="color:${color};font-size:0.95rem;font-weight:900;text-shadow:0 0 6px ${color};">${icon}</span>`;
+          }
+          strikesHtml += `<span style="font-family:var(--font-mono);font-size:0.8rem;margin-left:6px;color:${this.mistakes >= 4 ? 'var(--accent-danger)' : 'var(--text-secondary)'};font-weight:700;">${this.mistakes}/${this.maxMistakes}</span></div>`;
+          livesBox.innerHTML = strikesHtml;
         }
       }
 
@@ -3769,166 +3977,216 @@
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // 1. Natural speed calculation driven directly by WPM & Level
-        const targetPlayerSpeed = 1.0 + (this.currentWpm * 0.16) + (this.currentLevel * 0.12);
-        this.playerSpeed += (targetPlayerSpeed - this.playerSpeed) * 0.08;
-
-        // Dynamic AI speed scaled by Level: (baseSpeed + (currentLevel * 0.2))
-        const targetAiSpeed = (1.8 + (this.currentLevel * 0.2)) + Math.sin(Date.now() / 1400) * 0.4;
-        this.aiSpeed = targetAiSpeed;
-
-        this.playerDistance += this.playerSpeed * 0.42;
-        this.aiDistance += this.aiSpeed * 0.42;
-
-        this.roadOffset = (this.roadOffset + this.playerSpeed * 2.5) % 80;
-
-        // Check race finish (1000m)
-        if (this.playerDistance >= this.targetDistance) {
-          this.endGame(true);
-          return;
-        } else if (this.aiDistance >= this.targetDistance) {
-          this.endGame(false);
-          return;
-        }
-
         const width = this.canvas.width;
         const height = this.canvas.height;
 
-        // 2. Draw Track Horizon & Sky
-        this.ctx.fillStyle = '#070b16';
+        // Apply camera screen shake if active
+        let offsetX = 0;
+        let offsetY = 0;
+        if (this.shakeFrames > 0) {
+          offsetX = (Math.random() - 0.5) * (this.shakeFrames * 0.9);
+          offsetY = (Math.random() - 0.5) * (this.shakeFrames * 0.9);
+          this.shakeFrames--;
+        }
+
+        this.ctx.save();
+        this.ctx.translate(offsetX, offsetY);
+
+        // 1. Physics & Endless Speed Scaling
+        if (this.isBraking) {
+          // Rapid emergency braking deceleration
+          this.playerSpeed *= 0.88;
+          if (this.playerSpeed < 0.08) this.playerSpeed = 0;
+
+          // Lay down burning tire marks
+          const roadTop = 150;
+          const roadHeight = height - roadTop;
+          const carY = roadTop + roadHeight * 0.5;
+          this.skidMarks.push({
+            x: 220,
+            y1: carY - 14,
+            y2: carY + 14,
+            life: 60
+          });
+
+          // Intense brake sparks & smoke
+          for (let s = 0; s < 4; s++) {
+            this.brakeSparks.push({
+              x: 180 + (Math.random() * 20 - 10),
+              y: carY + (Math.random() * 32 - 16),
+              vx: -(this.playerSpeed * 2.5 + Math.random() * 6 + 2),
+              vy: (Math.random() - 0.5) * 4,
+              size: Math.random() * 4 + 2,
+              color: Math.random() < 0.6 ? '#f97316' : (Math.random() < 0.5 ? '#ef4444' : '#fbbf24'),
+              life: 22,
+              maxLife: 22
+            });
+          }
+
+          // Check when car completely halts
+          if (this.playerSpeed === 0 && Date.now() - this.brakingStartTime >= 1000) {
+            this.ctx.restore();
+            this.endGame();
+            return;
+          }
+        } else {
+          // Dynamic speed scaling: base speed + typing cadence + level escalation
+          const speedScaling = this.baseSpeed + (this.currentLevel * 0.22);
+          const cadenceBoost = this.currentWpm * 0.07;
+          const targetVisualSpeed = speedScaling + cadenceBoost;
+          this.playerSpeed += (targetVisualSpeed - this.playerSpeed) * 0.06;
+
+          // Continuous distance accumulation
+          this.playerDistance += this.playerSpeed * 0.45;
+
+          // Level escalation check with distance
+          const newLevel = this.getTier();
+          if (newLevel > this.currentLevel) {
+            this.currentLevel = newLevel;
+            this.onLevelUp();
+          }
+        }
+
+        this.roadOffset = (this.roadOffset + this.playerSpeed * 4.0) % 90;
+
+        // 2. Futuristic Cyber Cyberway Background
+        const gradSky = this.ctx.createLinearGradient(0, 0, 0, height);
+        gradSky.addColorStop(0, '#040714');
+        gradSky.addColorStop(0.35, '#0b112c');
+        gradSky.addColorStop(1, '#070b1a');
+        this.ctx.fillStyle = gradSky;
         this.ctx.fillRect(0, 0, width, height);
 
-        // 3. Draw Parallax Road
+        // Distant Cyber City Skyline Silhouettes
+        this.ctx.fillStyle = 'rgba(15, 23, 42, 0.7)';
+        const skylineY = 148;
+        const bldCount = Math.ceil(width / 45);
+        for (let b = 0; b < bldCount; b++) {
+          const bW = 38;
+          const bH = 25 + ((b * 37) % 55);
+          this.ctx.fillRect(b * 45, skylineY - bH, bW, bH);
+          // Neon rooftop beacon
+          if (b % 3 === 0) {
+            this.ctx.fillStyle = '#38bdf8';
+            this.ctx.fillRect(b * 45 + bW / 2 - 1, skylineY - bH - 3, 3, 3);
+            this.ctx.fillStyle = 'rgba(15, 23, 42, 0.7)';
+          }
+        }
+
+        // Horizon Glow Line
+        const horizonGrad = this.ctx.createLinearGradient(0, 148, width, 148);
+        horizonGrad.addColorStop(0, 'rgba(56, 189, 248, 0)');
+        horizonGrad.addColorStop(0.5, 'rgba(129, 140, 248, 0.6)');
+        horizonGrad.addColorStop(1, 'rgba(56, 189, 248, 0)');
+        this.ctx.strokeStyle = horizonGrad;
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, 150);
+        this.ctx.lineTo(width, 150);
+        this.ctx.stroke();
+
+        // 3. Endless Highway Track
         const roadTop = 150;
         const roadHeight = height - roadTop;
-        const roadCenterY = roadTop + roadHeight / 2;
+        const roadCenterY = roadTop + roadHeight * 0.5;
 
-        // Road asphalt
-        this.ctx.fillStyle = '#0f172a';
+        // Dark neon asphalt
+        const roadGrad = this.ctx.createLinearGradient(0, roadTop, 0, height);
+        roadGrad.addColorStop(0, '#0b1226');
+        roadGrad.addColorStop(0.5, '#080d1c');
+        roadGrad.addColorStop(1, '#030712');
+        this.ctx.fillStyle = roadGrad;
         this.ctx.fillRect(0, roadTop, width, roadHeight);
 
-        // Track guardrails
-        this.ctx.strokeStyle = '#38bdf8';
+        // Neon cyber guardrails (top & bottom edges)
+        this.ctx.shadowColor = '#06b6d4';
+        this.ctx.shadowBlur = 12;
+        this.ctx.strokeStyle = '#06b6d4';
         this.ctx.lineWidth = 3;
-        this.ctx.strokeRect(0, roadTop, width, roadHeight);
-
-        // Lane separator line (scrolling)
-        this.ctx.save();
-        this.ctx.strokeStyle = '#f59e0b';
-        this.ctx.lineWidth = 3;
-        this.ctx.setLineDash([35, 25]);
-        this.ctx.lineDashOffset = -this.roadOffset;
         this.ctx.beginPath();
-        this.ctx.moveTo(0, roadCenterY);
-        this.ctx.lineTo(width, roadCenterY);
+        this.ctx.moveTo(0, roadTop);
+        this.ctx.lineTo(width, roadTop);
+        this.ctx.moveTo(0, height - 2);
+        this.ctx.lineTo(width, height - 2);
+        this.ctx.stroke();
+        this.ctx.shadowBlur = 0;
+
+        // Scrolling Roadside Light Markers
+        this.ctx.fillStyle = '#38bdf8';
+        const pylonSpacing = 120;
+        for (let px = -this.roadOffset; px < width + pylonSpacing; px += pylonSpacing) {
+          this.ctx.fillRect(px, roadTop - 4, 12, 4);
+          this.ctx.fillRect(px, height - 2, 12, 4);
+        }
+
+        // Scrolling Dashed Lane Lines (3 Lanes)
+        const lane1Y = roadTop + roadHeight * 0.33;
+        const lane2Y = roadTop + roadHeight * 0.66;
+        this.ctx.save();
+        this.ctx.strokeStyle = 'rgba(245, 158, 11, 0.7)';
+        this.ctx.lineWidth = 2.5;
+        this.ctx.setLineDash([40, 30]);
+        this.ctx.lineDashOffset = -this.roadOffset;
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, lane1Y);
+        this.ctx.lineTo(width, lane1Y);
+        this.ctx.moveTo(0, lane2Y);
+        this.ctx.lineTo(width, lane2Y);
         this.ctx.stroke();
         this.ctx.restore();
 
-        // 4. Upper Cockpit Panel: Typing Sentence Prompt & Speedometer
-        this.ctx.save();
-        this.ctx.fillStyle = 'rgba(16, 23, 38, 0.9)';
-        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-        this.ctx.lineWidth = 1;
-        this.ctx.fillRect(20, 15, width - 40, 115);
-        this.ctx.strokeRect(20, 15, width - 40, 115);
-
-        // Sentence prompt
-        this.ctx.font = 'bold 18px "JetBrains Mono", monospace';
-        this.ctx.textBaseline = 'middle';
-
-        const typedText = this.currentSentence.substring(0, this.charIndex);
-        const currentChar = this.currentSentence[this.charIndex] || '';
-        const remainingText = this.currentSentence.substring(this.charIndex + 1);
-
-        let textX = 35;
-        const textY = 48;
-
-        this.ctx.fillStyle = '#10b981';
-        this.ctx.fillText(typedText, textX, textY);
-        textX += this.ctx.measureText(typedText).width;
-
-        // Active character cursor box
-        if (currentChar) {
-          const charW = this.ctx.measureText(currentChar).width || 12;
-          this.ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
-          this.ctx.fillRect(textX - 2, textY - 12, charW + 4, 24);
-          this.ctx.strokeStyle = '#38bdf8';
-          this.ctx.strokeRect(textX - 2, textY - 12, charW + 4, 24);
-          this.ctx.fillStyle = '#ffffff';
-          this.ctx.fillText(currentChar, textX, textY);
-          textX += charW;
+        // 4. Draw Tire Skid Marks
+        for (let i = this.skidMarks.length - 1; i >= 0; i--) {
+          const mark = this.skidMarks[i];
+          mark.x -= this.playerSpeed * 4.0;
+          mark.life--;
+          if (mark.life <= 0 || mark.x < -100) {
+            this.skidMarks.splice(i, 1);
+          } else {
+            this.ctx.fillStyle = `rgba(15, 23, 42, ${mark.life / 60})`;
+            this.ctx.fillRect(mark.x, mark.y1, 14, 4);
+            this.ctx.fillRect(mark.x, mark.y2, 14, 4);
+          }
         }
 
-        this.ctx.fillStyle = '#94a3b8';
-        this.ctx.fillText(remainingText, textX, textY);
+        // 5. Draw High-Speed Speed Lines
+        if (this.playerSpeed > 3.5 && !this.isBraking) {
+          this.ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+          this.ctx.lineWidth = 1.5;
+          for (let l = 0; l < 5; l++) {
+            const ly = roadTop + (Math.sin(Date.now() * 0.005 + l * 2) * 0.5 + 0.5) * roadHeight;
+            const lx = ((Date.now() * (3 + l) + l * 200) % (width + 300)) - 100;
+            this.ctx.beginPath();
+            this.ctx.moveTo(lx, ly);
+            this.ctx.lineTo(lx + 80 + this.playerSpeed * 10, ly);
+            this.ctx.stroke();
+          }
+        }
 
-        // Speedometer readouts
-        this.ctx.font = 'bold 14px "Outfit", sans-serif';
-        this.ctx.fillStyle = '#06b6d4';
-        this.ctx.fillText(`PLAYER WPM: ${this.currentWpm} WPM`, 35, 95);
+        // 6. Draw Player Hypercar (Centered on Road, x ~ 220)
+        const carX = 220;
+        const carY = roadCenterY;
+        const isNitroActive = this.currentWpm >= 50 && !this.isBraking;
 
-        this.ctx.fillStyle = '#ef4444';
-        this.ctx.fillText(`AI RIVAL: ${Math.round(this.aiSpeed * 10)} WPM`, 250, 95);
-
-        const progressPercent = Math.min(100, Math.round((this.playerDistance / this.targetDistance) * 100));
-        this.ctx.fillStyle = '#e2e8f0';
-        this.ctx.fillText(`DISTANCE: ${Math.round(this.playerDistance)}m / 1000m (${progressPercent}%)`, width - 300, 95);
-
-        this.ctx.restore();
-
-        // 5. Draw Mini Track Progress Bar
-        this.ctx.save();
-        const mapX = 35;
-        const mapY = 120;
-        const mapW = width - 70;
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-        this.ctx.fillRect(mapX, mapY, mapW, 4);
-
-        // Player dot (cyan)
-        const playerDotX = mapX + (this.playerDistance / this.targetDistance) * mapW;
-        this.ctx.fillStyle = '#06b6d4';
-        this.ctx.beginPath();
-        this.ctx.arc(playerDotX, mapY + 2, 6, 0, Math.PI * 2);
-        this.ctx.fill();
-
-        // AI dot (red)
-        const aiDotX = mapX + (this.aiDistance / this.targetDistance) * mapW;
-        this.ctx.fillStyle = '#ef4444';
-        this.ctx.beginPath();
-        this.ctx.arc(aiDotX, mapY + 2, 5, 0, Math.PI * 2);
-        this.ctx.fill();
-        this.ctx.restore();
-
-        // 6. Draw AI Car (Top Lane, Y ~ 200)
-        // Position on screen represents relative lead:
-        const leadDelta = (this.aiDistance - this.playerDistance) * 2;
-        const aiCarX = Math.max(100, Math.min(width - 150, 260 + leadDelta));
-        const aiCarY = roadTop + (roadHeight * 0.25);
-
-        this.drawCar(aiCarX, aiCarY, '#ef4444', '#f59e0b', 'AI RIVAL');
-
-        // 7. Draw Player Car (Bottom Lane, Y ~ 360)
-        const playerCarX = 260;
-        const playerCarY = roadTop + (roadHeight * 0.72);
-        const isNitro = this.currentWpm >= 50;
-
-        // Nitro exhaust particles
-        if (isNitro || this.playerSpeed > 3.5) {
-          for (let p = 0; p < (isNitro ? 4 : 2); p++) {
+        // Exhaust plasma particles
+        if ((this.playerSpeed > 1.2 || isNitroActive) && !this.isBraking) {
+          const count = isNitroActive ? 4 : 2;
+          for (let p = 0; p < count; p++) {
             this.exhaustParticles.push({
-              x: playerCarX - 45,
-              y: playerCarY + (Math.random() * 12 - 6),
-              vx: -(this.playerSpeed * 2.5 + Math.random() * 4),
-              vy: Math.random() * 2 - 1,
+              x: carX - 44,
+              y: carY + (Math.random() * 14 - 7),
+              vx: -(this.playerSpeed * 2.8 + Math.random() * 5 + 3),
+              vy: (Math.random() - 0.5) * 2.2,
               size: Math.random() * 6 + 3,
-              color: isNitro ? '#06b6d4' : '#f59e0b',
-              life: 18,
-              maxLife: 18
+              color: isNitroActive ? (Math.random() < 0.6 ? '#00f0ff' : '#d946ef') : '#38bdf8',
+              life: 20,
+              maxLife: 20
             });
           }
         }
 
-        // Draw exhaust particles
+        // Render exhaust particles
         for (let i = this.exhaustParticles.length - 1; i >= 0; i--) {
           const ep = this.exhaustParticles[i];
           ep.x += ep.vx;
@@ -3940,6 +4198,8 @@
             this.ctx.save();
             this.ctx.globalAlpha = ep.life / ep.maxLife;
             this.ctx.fillStyle = ep.color;
+            this.ctx.shadowColor = ep.color;
+            this.ctx.shadowBlur = 8;
             this.ctx.beginPath();
             this.ctx.arc(ep.x, ep.y, ep.size, 0, Math.PI * 2);
             this.ctx.fill();
@@ -3947,49 +4207,258 @@
           }
         }
 
-        this.drawCar(playerCarX, playerCarY, '#06b6d4', '#6366f1', isNitro ? '⚡ NITRO' : 'YOU');
+        // Render brake sparks if braking
+        for (let i = this.brakeSparks.length - 1; i >= 0; i--) {
+          const sp = this.brakeSparks[i];
+          sp.x += sp.vx;
+          sp.y += sp.vy;
+          sp.life--;
+          if (sp.life <= 0) {
+            this.brakeSparks.splice(i, 1);
+          } else {
+            this.ctx.save();
+            this.ctx.globalAlpha = sp.life / sp.maxLife;
+            this.ctx.fillStyle = sp.color;
+            this.ctx.shadowColor = sp.color;
+            this.ctx.shadowBlur = 10;
+            this.ctx.beginPath();
+            this.ctx.arc(sp.x, sp.y, sp.size, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.restore();
+          }
+        }
+
+        // Draw Player Car Model
+        this.drawHypercar(carX, carY, isNitroActive);
+
+        // 7. Futuristic Cockpit Holographic Target Banner
+        this.drawHoloCockpit(width);
+
+        // 8. Emergency Braking Warning Banner
+        if (this.isBraking) {
+          this.ctx.save();
+          this.ctx.fillStyle = 'rgba(239, 68, 68, 0.9)';
+          this.ctx.strokeStyle = '#fca5a5';
+          this.ctx.lineWidth = 2;
+          this.ctx.shadowColor = '#ef4444';
+          this.ctx.shadowBlur = 20;
+
+          const bannerW = Math.min(560, width - 40);
+          const bannerX = (width - bannerW) / 2;
+          const bannerY = roadCenterY - 60;
+          this.ctx.fillRect(bannerX, bannerY, bannerW, 50);
+          this.ctx.strokeRect(bannerX, bannerY, bannerW, 50);
+
+          this.ctx.shadowBlur = 0;
+          this.ctx.font = '800 15px "Outfit", sans-serif';
+          this.ctx.fillStyle = '#ffffff';
+          this.ctx.textAlign = 'center';
+          this.ctx.textBaseline = 'middle';
+          this.ctx.fillText("⚠️ 5 STRIKES EXCEEDED — EMERGENCY BRAKING ENGAGED ⚠️", width / 2, bannerY + 25);
+          this.ctx.restore();
+        }
+
+        this.ctx.restore();
 
         requestAnimationFrame(() => this.gameLoop());
       }
 
-      drawCar(x, y, mainColor, accentColor, label) {
+      drawHypercar(x, y, isNitro) {
         this.ctx.save();
         this.ctx.translate(x, y);
 
-        // Underglow neon
-        this.ctx.shadowColor = mainColor;
-        this.ctx.shadowBlur = 18;
+        // Neon underglow
+        const glowColor = this.isBraking ? '#ef4444' : (isNitro ? '#00f0ff' : '#0284c7');
+        this.ctx.shadowColor = glowColor;
+        this.ctx.shadowBlur = 24;
 
-        // Wheels
-        this.ctx.fillStyle = '#020617';
-        this.ctx.fillRect(-35, -20, 16, 7);
-        this.ctx.fillRect(20, -20, 16, 7);
-        this.ctx.fillRect(-35, 13, 16, 7);
-        this.ctx.fillRect(20, 13, 16, 7);
-
-        // Car Body
-        this.ctx.fillStyle = mainColor;
+        // Headlight Projection Beam (forward)
+        const beamGrad = this.ctx.createLinearGradient(40, 0, 220, 0);
+        beamGrad.addColorStop(0, 'rgba(56, 189, 248, 0.45)');
+        beamGrad.addColorStop(1, 'rgba(56, 189, 248, 0)');
+        this.ctx.fillStyle = beamGrad;
         this.ctx.beginPath();
-        this.ctx.roundRect(-42, -14, 84, 28, 8);
+        this.ctx.moveTo(42, -10);
+        this.ctx.lineTo(220, -38);
+        this.ctx.lineTo(220, 38);
+        this.ctx.lineTo(42, 10);
+        this.ctx.closePath();
         this.ctx.fill();
 
-        // Cockpit glass
-        this.ctx.fillStyle = '#0f172a';
-        this.ctx.beginPath();
-        this.ctx.roundRect(-15, -10, 36, 20, 5);
-        this.ctx.fill();
-
-        // Headlights beaming right
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.fillRect(38, -12, 6, 6);
-        this.ctx.fillRect(38, 6, 6, 6);
-
-        // Label above car
+        // High-tech Tires with alloy rims
         this.ctx.shadowBlur = 0;
-        this.ctx.font = 'bold 11px "Outfit", sans-serif';
+        this.ctx.fillStyle = '#020617';
+        this.ctx.fillRect(-38, -21, 18, 8);
+        this.ctx.fillRect(22, -21, 18, 8);
+        this.ctx.fillRect(-38, 13, 18, 8);
+        this.ctx.fillRect(22, 13, 18, 8);
+
+        // Glowing Brake Calipers (Red hot when braking)
+        this.ctx.fillStyle = this.isBraking ? '#ef4444' : (isNitro ? '#00f0ff' : '#f59e0b');
+        this.ctx.fillRect(-28, -21, 6, 8);
+        this.ctx.fillRect(32, -21, 6, 8);
+        this.ctx.fillRect(-28, 13, 6, 8);
+        this.ctx.fillRect(32, 13, 6, 8);
+
+        // Aerodynamic Sci-Fi Car Body
+        this.ctx.fillStyle = '#0f172a';
+        this.ctx.strokeStyle = glowColor;
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.roundRect(-46, -15, 92, 30, 9);
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        // Neon Cyber Accent Trim Lines
+        this.ctx.strokeStyle = isNitro ? '#38bdf8' : '#818cf8';
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.moveTo(-40, -6);
+        this.ctx.lineTo(38, -6);
+        this.ctx.moveTo(-40, 6);
+        this.ctx.lineTo(38, 6);
+        this.ctx.stroke();
+
+        // Dark Cockpit Canopy
+        this.ctx.fillStyle = '#020617';
+        this.ctx.strokeStyle = '#38bdf8';
+        this.ctx.lineWidth = 1.5;
+        this.ctx.beginPath();
+        this.ctx.roundRect(-16, -10, 38, 20, 6);
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        // Twin Front Photon Headlights
         this.ctx.fillStyle = '#ffffff';
+        this.ctx.shadowColor = '#38bdf8';
+        this.ctx.shadowBlur = 10;
+        this.ctx.fillRect(43, -12, 5, 5);
+        this.ctx.fillRect(43, 7, 5, 5);
+
+        // Rear Neon Brake Lights
+        this.ctx.fillStyle = this.isBraking ? '#ef4444' : '#f43f5e';
+        this.ctx.shadowColor = '#ef4444';
+        this.ctx.shadowBlur = 12;
+        this.ctx.fillRect(-48, -13, 4, 7);
+        this.ctx.fillRect(-48, 6, 4, 7);
+
+        // Status Tag Above Car
+        this.ctx.shadowBlur = 0;
+        this.ctx.font = '800 11px "Outfit", sans-serif';
+        this.ctx.fillStyle = isNitro ? '#00f0ff' : '#ffffff';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText(label, 0, -26);
+        this.ctx.fillText(this.isBraking ? '⚠️ BRAKING' : (isNitro ? '⚡ NITRO HYPER' : 'SOLO RACER'), 0, -28);
+
+        this.ctx.restore();
+      }
+
+      drawHoloCockpit(width) {
+        this.ctx.save();
+
+        const boxX = 20;
+        const boxY = 12;
+        const boxW = width - 40;
+        const boxH = 126;
+
+        // Frosted Holographic Container
+        this.ctx.fillStyle = 'rgba(10, 15, 30, 0.9)';
+        this.ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+        this.ctx.lineWidth = 1.5;
+        this.ctx.shadowColor = 'rgba(56, 189, 248, 0.25)';
+        this.ctx.shadowBlur = 16;
+        this.ctx.beginPath();
+        this.ctx.roundRect(boxX, boxY, boxW, boxH, 12);
+        this.ctx.fill();
+        this.ctx.stroke();
+        this.ctx.shadowBlur = 0;
+
+        // Top Status Header: Tier Badge & Odometer
+        const tier = this.getTier();
+        const tierName = this.getTierName();
+
+        this.ctx.font = '700 11px "Outfit", sans-serif';
+        this.ctx.fillStyle = '#38bdf8';
+        this.ctx.textAlign = 'left';
+        this.ctx.fillText(`TIER ${tier} // ${tierName.toUpperCase()}`, boxX + 18, boxY + 22);
+
+        // Odometer & Speed Display
+        this.ctx.textAlign = 'right';
+        this.ctx.fillStyle = '#f59e0b';
+        this.ctx.fillText(`ODOMETER: ${Math.round(this.playerDistance)}M  |  PACE: ${Math.round(this.playerSpeed * 22)} KM/H`, boxX + boxW - 18, boxY + 22);
+
+        // Target Text Display (Centered, Large Monospace)
+        const textY = boxY + 65;
+        this.ctx.font = '800 28px "JetBrains Mono", monospace';
+        this.ctx.textBaseline = 'middle';
+
+        const typedPart = this.currentWord.substring(0, this.charIndex);
+        const activeChar = this.currentWord[this.charIndex] || '';
+        const remainPart = this.currentWord.substring(this.charIndex + 1);
+
+        const totalWordW = this.ctx.measureText(this.currentWord).width;
+        let startX = (width - totalWordW) / 2;
+
+        // 1. Typed Characters (Glowing Emerald Green)
+        if (typedPart.length > 0) {
+          this.ctx.fillStyle = '#10b981';
+          this.ctx.shadowColor = '#10b981';
+          this.ctx.shadowBlur = 10;
+          this.ctx.fillText(typedPart, startX, textY);
+          startX += this.ctx.measureText(typedPart).width;
+          this.ctx.shadowBlur = 0;
+        }
+
+        // 2. Active Character with Pulsing Neon Cyan Cursor Box
+        if (activeChar) {
+          const charW = this.ctx.measureText(activeChar).width;
+          this.ctx.fillStyle = 'rgba(56, 189, 248, 0.28)';
+          this.ctx.strokeStyle = '#38bdf8';
+          this.ctx.lineWidth = 2;
+          this.ctx.shadowColor = '#38bdf8';
+          this.ctx.shadowBlur = 12;
+          this.ctx.beginPath();
+          this.ctx.roundRect(startX - 3, textY - 17, charW + 6, 34, 6);
+          this.ctx.fill();
+          this.ctx.stroke();
+
+          this.ctx.fillStyle = '#ffffff';
+          this.ctx.fillText(activeChar, startX, textY);
+          startX += charW;
+          this.ctx.shadowBlur = 0;
+        }
+
+        // 3. Remaining Characters (Crisp High-Contrast White)
+        if (remainPart.length > 0) {
+          this.ctx.fillStyle = '#e2e8f0';
+          this.ctx.fillText(remainPart, startX, textY);
+        }
+
+        // Bottom HUD Footer: Strike Pips & Real-time WPM
+        const footerY = boxY + 110;
+        this.ctx.font = '700 12px "Outfit", sans-serif';
+        this.ctx.textAlign = 'left';
+        this.ctx.fillStyle = '#94a3b8';
+        this.ctx.fillText("STRIKE SENSORS:", boxX + 18, footerY);
+
+        // 5 Strike Status Dots
+        let dotX = boxX + 130;
+        for (let s = 1; s <= this.maxMistakes; s++) {
+          const isError = s <= this.mistakes;
+          this.ctx.fillStyle = isError ? '#ef4444' : '#10b981';
+          this.ctx.shadowColor = isError ? '#ef4444' : '#10b981';
+          this.ctx.shadowBlur = isError ? 8 : 4;
+          this.ctx.beginPath();
+          this.ctx.arc(dotX, footerY - 4, 4.5, 0, Math.PI * 2);
+          this.ctx.fill();
+          dotX += 16;
+        }
+        this.ctx.shadowBlur = 0;
+
+        // Current WPM Display
+        this.ctx.textAlign = 'right';
+        this.ctx.font = '800 13px "Outfit", sans-serif';
+        this.ctx.fillStyle = '#38bdf8';
+        this.ctx.fillText(`CADENCE: ${this.currentWpm} WPM`, boxX + boxW - 18, footerY);
 
         this.ctx.restore();
       }
@@ -5014,18 +5483,20 @@
         const pauseOverlay = document.getElementById('arcadePauseOverlay');
         const gameOverOverlay = document.getElementById('arcadeGameOverOverlay');
         const sprintResultsOverlay = document.getElementById('alphabetSprintResultsOverlay');
+        const nitroResultsOverlay = document.getElementById('nitroSprintResultsOverlay');
 
         if (startOverlay) startOverlay.classList.remove('hidden');
         if (pauseOverlay) pauseOverlay.classList.add('hidden');
         if (gameOverOverlay) gameOverOverlay.classList.add('hidden');
         if (sprintResultsOverlay) sprintResultsOverlay.classList.add('hidden');
+        if (nitroResultsOverlay) nitroResultsOverlay.classList.add('hidden');
 
         if (mode === 'bubbleDrop') {
           startTitle.textContent = "Bubble Drop";
-          startDesc.textContent = "Translucent bubbles descend vertically with floating physics! Type each bubble's characters to pop it with fluid particle splashes.";
+          startDesc.textContent = "Translucent bubbles descend vertically with floating physics! Type each bubble's single letter to pop it with fluid particle splashes.";
         } else if (mode === 'nitroSprint') {
           startTitle.textContent = "Nitro Sprint";
-          startDesc.textContent = "2D highway sprint against an AI rival! Type full sentences to accelerate. Your real-time WPM directly propels your hypercar.";
+          startDesc.textContent = "Endless Solo Racer! Pilot your cyber hypercar down an infinite neon speedway. Touch-typing curriculum escalates from Home Row to complex tech phrases. 5-strike mistake limit before emergency brake failure!";
         } else if (mode === 'wordBlaster') {
           startTitle.textContent = "Word Blaster";
           startDesc.textContent = "Words float dynamically across space. Type the first letter to lock on with holographic reticles, then blast for screen-shaking explosions!";
@@ -5048,10 +5519,12 @@
         const pauseOverlay = document.getElementById('arcadePauseOverlay');
         const gameOverOverlay = document.getElementById('arcadeGameOverOverlay');
         const sprintResults = document.getElementById('alphabetSprintResultsOverlay');
+        const nitroResults = document.getElementById('nitroSprintResultsOverlay');
         if (startOverlay) startOverlay.classList.remove('hidden');
         if (pauseOverlay) pauseOverlay.classList.add('hidden');
         if (gameOverOverlay) gameOverOverlay.classList.add('hidden');
         if (sprintResults) sprintResults.classList.add('hidden');
+        if (nitroResults) nitroResults.classList.add('hidden');
 
         this.currentGame.resize();
         this.currentGame.updatePoolBadge();
@@ -5370,6 +5843,21 @@
       const btnExitAlphabetSprint = document.getElementById('btnExitAlphabetSprint');
       if (btnExitAlphabetSprint) {
         btnExitAlphabetSprint.addEventListener('click', () => {
+          arcadeController.hardReset();
+          switchView('menuView');
+        });
+      }
+
+      const btnRestartNitro = document.getElementById('btnRestartNitroSprint');
+      if (btnRestartNitro) {
+        btnRestartNitro.addEventListener('click', () => {
+          arcadeController.nitroSprint.startGame();
+        });
+      }
+
+      const btnExitNitro = document.getElementById('btnExitNitroSprint');
+      if (btnExitNitro) {
+        btnExitNitro.addEventListener('click', () => {
           arcadeController.hardReset();
           switchView('menuView');
         });
